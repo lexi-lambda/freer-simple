@@ -1,0 +1,9 @@
+# haskell
+.stack-work
+.cabal-sandbox
+dist
+cabal.sandbox.config
+
+# emacs
+TAGS
+tags
