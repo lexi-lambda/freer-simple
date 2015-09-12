@@ -34,7 +34,7 @@ data FTCQueue m a b where
 
 {-# INLINE tsingleton #-}
 tsingleton :: (a -> m b) -> FTCQueue m a b
-tsingleton r = Leaf r
+tsingleton = Leaf
 
 {-# INLINE (|>) #-}
 (|>) :: FTCQueue m a x -> (x -> m b) -> FTCQueue m a b
@@ -51,7 +51,7 @@ append = (><)
 -- Left-edge deconstruction
 data ViewL m a b where
   TOne  :: (a -> m b) -> ViewL m a b
-  (:|)  :: (a -> m x) -> (FTCQueue m x b) -> ViewL m a b
+  (:|)  :: (a -> m x) -> FTCQueue m x b -> ViewL m a b
 
 tviewl :: FTCQueue m a b -> ViewL m a b
 tviewl (Leaf r) = TOne r

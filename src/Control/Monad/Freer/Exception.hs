@@ -83,7 +83,7 @@ runErrBig = runError
 incr :: Member (State Int) r => Eff r ()
 incr = get >>= put . (+ (1::Int))
 
-tes1 :: (Member (State Int) r, Member (Exc [Char]) r) => Eff r b
+tes1 :: (Member (State Int) r, Member (Exc String) r) => Eff r b
 tes1 = do
  incr
  throwError "exc"
@@ -98,7 +98,7 @@ ter2 = ((Left "exc" :: Either String (Int,Int)) ==) $
        run $ runError (runState tes1 (1::Int))
 
 
-teCatch :: Member (Exc String) r => Eff r a -> Eff r [Char]
+teCatch :: Member (Exc String) r => Eff r a -> Eff r String
 teCatch m = catchError (m >> return "done") (\e -> return (e::String))
 
 ter3 :: Bool
