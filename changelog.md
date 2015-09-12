@@ -1,4 +1,9 @@
-# 0.2.0.0 (Sep. 12, 2015)
+# 0.2.0.2 (Sep. 12, 2015)
+
+* Clean up language extensions per file
+* Add Teletype DSL to the README
+
+# 0.2.0.1 (Sep. 12, 2015)
 
 * Add Teletype DSL example
 * Expose `send` in public interface

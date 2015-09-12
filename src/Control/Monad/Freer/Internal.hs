@@ -1,12 +1,9 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 
 -- The following is needed to define MonadPlus instance. It is decidable
@@ -197,22 +194,3 @@ msplit = loop []
             Just MPlus -> loop (qApp q False : jq) (qApp q True)
             Nothing    -> E u (tsingleton k)
               where k = qComp q (loop jq)
-
---------------------------------------------------------------------------------
-                       -- Examples and Tests --
---------------------------------------------------------------------------------
-ifte :: Member NonDetEff r
-     => Eff r a -> (a -> Eff r b) -> Eff r b -> Eff r b
-ifte t th el = (t >>= th) <|> el
-
-testIfte :: Member NonDetEff r => Eff r Int
-testIfte = do
-  n <- gen
-  ifte (do d <- gen
-           guard $ d < n && n `mod` d == 0)
-       (const mzero)
-       (return n)
-  where gen = msum . fmap return $ [2..30]
-
-testIfteRun :: [Int]
-testIfteRun = run . makeChoiceA $ testIfte

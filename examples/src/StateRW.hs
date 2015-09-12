@@ -1,7 +1,4 @@
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
 module StateRW where
 
 import Control.Monad.Freer
@@ -10,9 +7,6 @@ import Control.Monad.Freer.StateRW
 --------------------------------------------------------------------------------
                        -- Tests and Examples --
 --------------------------------------------------------------------------------
--- If we had a Writer, we could have decomposed State into Writer and Reader
--- requests.
-
 ts11 :: (Member (Reader Int) r, Member (Writer Int) r) => Eff r Int
 ts11 = do
   tell (10 ::Int)

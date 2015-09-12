@@ -2,7 +2,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 module Control.Monad.Freer.Trace (
   Trace,
   trace,

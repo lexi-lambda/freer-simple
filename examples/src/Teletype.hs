@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 module Teletype where
 
 import Control.Monad.Freer
@@ -44,7 +43,7 @@ runTeletypePure :: [String] -> Eff '[Teletype] w -> [String]
 runTeletypePure inputs req = reverse (go inputs req [])
   where go :: [String] -> Eff '[Teletype] w -> [String] -> [String]
         go _      (Val _) acc = acc
-        go []     r       acc = acc
+        go []     _       acc = acc
         go (x:xs) (E u q) acc = case decomp u of
           Right (PutStrLn msg) -> go (x:xs) (qApp q ()) (msg:acc)
           Right GetLine        -> go xs     (qApp q x) acc

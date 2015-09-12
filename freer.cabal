@@ -1,5 +1,5 @@
 name:                freer
-version:             0.2.0.1
+version:             0.2.0.2
 synopsis:            Implementation of the Freer Monad
 license:             BSD3
 license-file:        LICENSE
@@ -65,6 +65,7 @@ executable examples
                      , Coroutine
                      , Cut
                      , Teletype
+                     , NonDetEff
   build-depends:       base >=4.7 && <4.9
                      , freer
   hs-source-dirs:      examples/src
