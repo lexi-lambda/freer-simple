@@ -2,6 +2,7 @@ module Control.Monad.Freer (
   Member,
   Eff,
   run,
+  send,
 
   NonDetEff(..),
   makeChoiceA,
