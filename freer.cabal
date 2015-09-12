@@ -1,16 +1,38 @@
 name:                freer
 version:             0.1.1.0
 synopsis:            Implementation of the Freer Monad
--- description:
 license:             BSD3
 license-file:        LICENSE
 author:              Alej Cabrera
 maintainer:          cpp.cabrera@gmail.com
 copyright:           Alej Cabrera 2015
+homepage:            https://gitlab.com/cpp.cabrera/freer
+bug-reports:         https://gitlab.com/cpp.cabrera/freer/issues
 category:            Control
 build-type:          Simple
--- extra-source-files:
-cabal-version:       >=1.10
+cabal-version:       >=1.18
+tested-with:         GHC==7.10.2
+description:
+
+    Freer is an implementation of "Freer Monads, More Extensible
+    Effects"
+    .
+    The key features of Freer are:
+    .
+    * An efficient effect system for Haskell - as a library!
+    .
+    * Implementations for several common Haskell monad instances:
+    .
+    * Core components for defining your own Effects
+
+extra-source-files:
+    README.md
+    changelog.md
+    CODE_OF_CONDUCT.md
+
+source-repository head
+    type: git
+    location: git clone https://gitlab.com/cpp.cabrera/freer.git
 
 library
   exposed-modules:     Control.Monad.Freer.Internal

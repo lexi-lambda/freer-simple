@@ -1,0 +1,62 @@
+# Freer: Extensible Effects with Freer Monads
+
+Freer is an implementation of
+["Freer Monads, More Extensible Effects"](http://okmij.org/ftp/Haskell/extensible/more.pdf). Much
+of the implementation is a repackaging and cleaning up of the
+reference materials provided
+[here](http://okmij.org/ftp/Haskell/extensible/).
+
+# Features
+
+The key features of Freer are:
+
+* An efficient effect system for Haskell as a library
+* Implementations for several common Haskell monad instances:
+  * Reader
+  * Writer
+  * State
+  * StateRW: State in terms of Reader/Writer
+  * Trace
+  * Exception
+* Core components for defining your own Effects
+
+# Contributing
+
+Contributions are welcome! Documentation, examples, code, and
+feedback - they all help.
+
+Be sure to review the included code of conduct. This project adheres
+to the [Contributor's Covenant](http://contributor-covenant.org/). By
+participating in this project you agree to abide by its terms.
+
+## Developer Setup
+
+The easiest way to start contributing is to install
+[stack](https://github.com/commercialhaskell/stack). stack can install
+GHC/Haskell for you, and automates common developer tasks.
+
+The key commands are:
+
+* stack setup : install GHC
+* stack build
+* stack clean
+* stack haddock : builds documentation
+* stack test
+* stack bench
+* stack ghci : start a REPL instance
+
+# Licensing
+
+This project is distrubted under a BSD3 license. See the included
+LICENSE file for more details.
+
+# Acknowledgements
+
+This package would not be possible without the paper and the reference
+implementation. In particular:
+
+* Data.Open.Union maps to [OpenUnion41.hs](http://okmij.org/ftp/Haskell/extensible/OpenUnion41.hs)
+* Data.FTCQueue maps to [FTCQueue1](http://okmij.org/ftp/Haskell/extensible/FTCQueue1.hs)
+* Control.Monad.Freer* maps to [Union1.hs](http://okmij.org/ftp/Haskell/extensible/Eff1.hs)
+
+There will be deviations from the source.
