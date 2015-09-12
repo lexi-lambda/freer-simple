@@ -10,6 +10,7 @@ module Reader where
 import Control.Applicative
 import Control.Monad.Freer
 import Control.Monad.Freer.Reader
+import Control.Monad.Freer.Writer
 
 import Common
 
@@ -95,3 +96,15 @@ tmap = mapM f [1..5]
 tmapr :: Bool
 tmapr = ([11,12,13,14,15] ==) $
         run $ runReader tmap (10::Int)
+
+rdwr :: (Member (Reader Int) r, Member (Writer String) r)
+     => Eff r Int
+rdwr = do
+  tell "begin"
+  r <- addN 10
+  tell "end"
+  return r
+
+rdwrr :: (Int,[String])
+rdwrr = run . (`runReader` (1::Int)) . runWriter $ rdwr
+-- (10,["begin","end"])

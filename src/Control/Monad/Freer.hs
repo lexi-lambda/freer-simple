@@ -1,7 +1,11 @@
 module Control.Monad.Freer (
   Member,
   Eff,
-  run
+  run,
+
+  NonDetEff(..),
+  makeChoiceA,
+  msplit
 ) where
 
 import Control.Monad.Freer.Internal
