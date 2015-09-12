@@ -16,6 +16,7 @@ module Data.Open.Union (
 ) where
 
 
+-- |
 -- Open unions (type-indexed co-products) for extensible effects
 -- This implementation relies on _closed_ type families added
 -- to GHC 7.8
@@ -30,7 +31,9 @@ module Data.Open.Union (
 -- The data constructors of Union are not exported
 
 -- Essentially, the nested Either data type
--- t is can be a GADT and hence not necessarily a Functor
+-- t can be a GADT and hence not necessarily a Functor
+-- r: the list of Effect requests
+-- v: value type ???
 data Union (r :: [ * -> * ]) v where
   UNow  :: t v -> Union (t ': r) v
   UNext :: Union r v -> Union (any ': r) v
