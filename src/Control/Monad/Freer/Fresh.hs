@@ -9,7 +9,6 @@ module Control.Monad.Freer.Fresh (
 ) where
 
 import Control.Monad.Freer.Internal
-import Control.Monad.Freer.Trace  -- for example
 
 --------------------------------------------------------------------------------
                              -- Fresh --
@@ -24,19 +23,5 @@ fresh = send Fresh
 runFresh' :: Eff (Fresh ': r) w -> Int -> Eff r w
 runFresh' m s =
   handleRelayS s (\_s x -> return x)
-                 (\s Fresh k -> (k $! s+1) s)
+                 (\s' Fresh k -> (k $! s'+1) s')
                  m
-
---------------------------------------------------------------------------------
-                             -- Tests --
---------------------------------------------------------------------------------
-tfresh' :: IO ()
-tfresh' = runTrace $ flip runFresh' 0 $ do
-  n <- fresh
-  trace $ "Fresh " ++ show n
-  n <- fresh
-  trace $ "Fresh " ++ show n
-{-
-Fresh 0
-Fresh 1
--}

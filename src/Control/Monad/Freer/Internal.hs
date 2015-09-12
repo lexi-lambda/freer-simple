@@ -110,6 +110,7 @@ send t = E (inj t) (tsingleton Val)
 -- only pure computations may be run.
 run :: Eff '[] w -> w
 run (Val x) = x
+run _       = error "Internal:run - This (E) should never happen"
 -- the other case is unreachable since Union [] a cannot be
 -- constructed.
 -- Therefore, run is a total function if its argument terminates.

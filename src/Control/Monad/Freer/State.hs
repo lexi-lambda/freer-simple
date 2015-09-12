@@ -10,6 +10,8 @@ module Control.Monad.Freer.State (
   put,
   runState',
   runState,
+
+  ProxyState(..),
   transactionState
 ) where
 
@@ -44,20 +46,20 @@ put :: Member (State s) r => s -> Eff r ()
 put s = send (Put s)
 
 runState' :: Eff (State s ': r) w -> s -> Eff r (w,s)
-runState' m s =
-  handleRelayS s (\s x -> return (x,s))
-                 (\s sreq k -> case sreq of
-                     Get    -> k s s
-                     Put s' -> k s' ())
-                 m
+runState' m s' =
+  handleRelayS s' (\s x -> return (x,s))
+                  (\s sreq k -> case sreq of
+                      Get    -> k s s
+                      Put s'' -> k s'' ())
+                  m
 
 -- Since State is so frequently used, we optimize it a bit
 runState :: Eff (State s ': r) w -> s -> Eff r (w,s)
 runState (Val x) s = return (x,s)
 runState (E u q) s = case decomp u of
-  Right Get     -> runState (qApp q s) s
-  Right (Put s) -> runState (qApp q ()) s
-  Left  u -> E u (tsingleton (\x -> runState (qApp q x) s))
+  Right Get      -> runState (qApp q s) s
+  Right (Put s') -> runState (qApp q ()) s'
+  Left  u'       -> E u' (tsingleton (\x -> runState (qApp q x) s))
 
 
 -- An encapsulated State handler, for transactional semantics
@@ -74,24 +76,3 @@ transactionState _ m = do s <- get; loop s m
      Just Get      -> loop s (qApp q s)
      Just (Put s') -> loop s'(qApp q ())
      _      -> E u (tsingleton k) where k = qComp q (loop s)
-
---------------------------------------------------------------------------------
-                       -- Tests and Examples --
---------------------------------------------------------------------------------
-ts1 :: Member (State Int) r => Eff r Int
-ts1 = do
-  put (10 ::Int)
-  x <- get
-  return (x::Int)
-
-ts1r = ((10,10) ==) $ run (runState ts1 (0::Int))
-
-ts2 :: Member (State Int) r => Eff r Int
-ts2 = do
-  put (10::Int)
-  x <- get
-  put (20::Int)
-  y <- get
-  return (x+y)
-
-ts2r = ((30,20) ==) $ run (runState ts2 (0::Int))
