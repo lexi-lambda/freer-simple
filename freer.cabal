@@ -59,12 +59,8 @@ executable examples
   other-modules:       Common
                      , Coroutine
                      , Cut
-                     , Exception
                      , Fresh
                      , NonDetEff
-                     , Reader
-                     , State
-                     , StateRW
                      , Teletype
                      , Trace
   build-depends:       base >=4.7 && <4.9

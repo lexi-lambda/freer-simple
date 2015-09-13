@@ -23,9 +23,6 @@ import Control.Monad.Freer.State
 
 import Tests.Common
 
---------------------------------------------------------------------------------
-                       -- Tests and Examples --
---------------------------------------------------------------------------------
 testExceptionTakesPriority :: Int -> Int -> Either Int Int
 testExceptionTakesPriority x y = run $ runError (go x y)
   where go a b = return a `add` throwError b

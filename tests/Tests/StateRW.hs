@@ -8,9 +8,6 @@ module Tests.StateRW (
 import Control.Monad.Freer
 import Control.Monad.Freer.StateRW
 
---------------------------------------------------------------------------------
-                       -- Tests and Examples --
---------------------------------------------------------------------------------
 testPutGetRW :: Int -> Int -> (Int,Int)
 testPutGetRW n start = run (runStateR go start)
   where go = tell n >> ask >>= return

@@ -8,9 +8,6 @@ import Control.Monad.Freer.Trace
 
 import Common
 
---------------------------------------------------------------------------------
-                       -- Tests and Examples --
---------------------------------------------------------------------------------
 -- Higher-order effectful function
 -- The inferred type shows that the Trace affect is added to the effects
 -- of r
@@ -18,10 +15,10 @@ mapMdebug:: (Show a, Member Trace r) =>
      (a -> Eff r b) -> [a] -> Eff r [b]
 mapMdebug _ [] = return []
 mapMdebug f (h:t) = do
- trace $ "mapMdebug: " ++ show h
- h' <- f h
- t' <- mapMdebug f t
- return (h':t')
+  trace $ "mapMdebug: " ++ show h
+  h' <- f h
+  t' <- mapMdebug f t
+  return (h':t')
 
 tMd :: IO [Int]
 tMd = runTrace $ runReader (mapMdebug f [1..5]) (10::Int)

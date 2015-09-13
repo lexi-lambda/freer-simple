@@ -8,9 +8,6 @@ module Tests.State (
 import Control.Monad.Freer
 import Control.Monad.Freer.State
 
---------------------------------------------------------------------------------
-                       -- Tests and Examples --
---------------------------------------------------------------------------------
 testPutGet :: Int -> Int -> (Int,Int)
 testPutGet n start = run (runState go start)
   where go = put n >> get >>= return
