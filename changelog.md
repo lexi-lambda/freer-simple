@@ -1,3 +1,7 @@
+# 0.2.1.0 (Sep. 13, 2015)
+
+* Add test suite
+
 # 0.2.0.2 (Sep. 12, 2015)
 
 * Clean up language extensions per file

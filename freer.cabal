@@ -1,5 +1,5 @@
 name:                freer
-version:             0.2.0.2
+version:             0.2.1.0
 synopsis:            Implementation of the Freer Monad
 license:             BSD3
 license-file:        LICENSE
@@ -35,19 +35,20 @@ source-repository head
     location: git clone https://gitlab.com/cpp.cabrera/freer.git
 
 library
-  exposed-modules:     Control.Monad.Freer.Internal
-                     , Data.FTCQueue
-                     , Data.Open.Union
-                     , Control.Monad.Freer
+  exposed-modules:     Control.Monad.Freer
                      , Control.Monad.Freer.Coroutine
+                     , Control.Monad.Freer.Cut
+                     , Control.Monad.Freer.Exception
+                     , Control.Monad.Freer.Fresh
+                     , Control.Monad.Freer.Internal
                      , Control.Monad.Freer.Reader
-                     , Control.Monad.Freer.Writer
                      , Control.Monad.Freer.State
                      , Control.Monad.Freer.StateRW
-                     , Control.Monad.Freer.Exception
                      , Control.Monad.Freer.Trace
-                     , Control.Monad.Freer.Fresh
-                     , Control.Monad.Freer.Cut
+                     , Control.Monad.Freer.Writer
+                     , Data.FTCQueue
+                     , Data.Open.Union
+
   build-depends:       base >=4.7 && <4.9
   hs-source-dirs:      src
   ghc-options:         -Wall
@@ -55,19 +56,40 @@ library
 
 executable examples
   main-is:             Main.hs
-  other-modules:       Reader
-                     , Exception
-                     , Common
-                     , State
-                     , StateRW
-                     , Trace
-                     , Fresh
+  other-modules:       Common
                      , Coroutine
                      , Cut
-                     , Teletype
+                     , Exception
+                     , Fresh
                      , NonDetEff
+                     , Reader
+                     , State
+                     , StateRW
+                     , Teletype
+                     , Trace
   build-depends:       base >=4.7 && <4.9
                      , freer
   hs-source-dirs:      examples/src
   ghc-options:         -Wall
   default-language:    Haskell2010
+
+test-suite test
+  default-language: Haskell2010
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   tests
+  main-is:          Tests.hs
+  other-modules:       Tests.Common
+                     , Tests.Exception
+                     , Tests.Fresh
+                     , Tests.NonDetEff
+                     , Tests.Reader
+                     , Tests.State
+                     , Tests.StateRW
+  build-depends:    base
+                  , freer
+                  , tasty
+                  , tasty-hunit
+                  , tasty-quickcheck
+                  , QuickCheck
+
+  ghc-options: -Wall
