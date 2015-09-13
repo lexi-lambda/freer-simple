@@ -1,3 +1,7 @@
+# 0.2.2.0 (Sep. 13, 2015)
+
+* Add bench suite
+
 # 0.2.1.0 (Sep. 13, 2015)
 
 * Add test suite
