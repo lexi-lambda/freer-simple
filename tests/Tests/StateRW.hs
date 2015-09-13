@@ -10,7 +10,7 @@ import Control.Monad.Freer.StateRW
 
 testPutGetRW :: Int -> Int -> (Int,Int)
 testPutGetRW n start = run (runStateR go start)
-  where go = tell n >> ask >>= return
+  where go = tell n >> ask
 
 testPutGetPutGetPlusRW :: Int -> Int -> Int -> (Int,Int)
 testPutGetPutGetPlusRW p1 p2 start = run (runStateR go start)
@@ -23,4 +23,4 @@ testPutGetPutGetPlusRW p1 p2 start = run (runStateR go start)
 
 testGetStartRW :: Int -> (Int,Int)
 testGetStartRW = run . runStateR go
-  where go = ask >>= return
+  where go = ask

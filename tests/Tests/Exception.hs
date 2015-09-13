@@ -61,12 +61,6 @@ ter4 = run $ runError (runState (teCatch tes1) (1::Int))
 -- The example from the paper
 newtype TooBig = TooBig Int deriving (Eq, Show)
 
-excTooBig :: Member (Exc TooBig) r => Int -> Eff r Int -> Eff r Int
-excTooBig limit m = do
-  v <- m
-  if v > limit then throwError (TooBig v)
-    else return v
-
 ex2 :: Member (Exc TooBig) r => Eff r Int -> Eff r Int
 ex2 m = do
   v <- m

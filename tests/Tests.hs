@@ -21,7 +21,7 @@ addInEff x y = run ((+) <$> pure x <*> pure y)
 
 pureTests :: TestTree
 pureTests = testGroup "Pure Eff tests"
-  [ testProperty "Pure run just works: (+)" $
+  [ testProperty "Pure run just works: (+)"
       (\x y -> addInEff x y == x + y)
   ]
 
@@ -71,7 +71,7 @@ readerTests = testGroup "Reader tests"
   [ testProperty "Reader passes along environment: n + x"
     (\n x -> testReader n x == n + x)
   , testProperty "Multiple readers work"
-    (\f n -> testMultiReader f n == ((f + 2.0) + (fromIntegral (n + 1))))
+    (\f n -> testMultiReader f n == ((f + 2.0) + fromIntegral (n + 1)))
   , testProperty "Local injects into env"
     (\env inc -> testLocal env inc == 2*(env+1) + inc)
   ]
