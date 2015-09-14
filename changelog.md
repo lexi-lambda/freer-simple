@@ -1,3 +1,8 @@
+# 0.2.2.2 (Sep. 14, 2015)
+
+* Use local `data Nat` for `Data.Open.Union`
+  * Using GHC.TypeLits lead to overlapping instances
+
 # 0.2.2.1 (Sep. 14, 2015)
 
 * Document ALL THE THINGS
