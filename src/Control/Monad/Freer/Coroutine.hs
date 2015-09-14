@@ -1,28 +1,44 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleContexts #-}
 
--- This module isn't usable yet
+{-|
+Module      : Control.Monad.Freer.Coroutine
+Description : Composable coroutine effects layer.
+Copyright   : Alej Cabrera 2015
+License     : BSD-3
+Maintainer  : cpp.cabrera@gmail.com
+Stability   : broken
+Portability : POSIX
+
+An effect to compose functions with the ability to yield.
+
+Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a
+starting point.
+
+-}
 module Control.Monad.Freer.Coroutine (
   Yield,
   yield,
-  Y(..)
+  Status(..)
 ) where
 
 import Control.Monad.Freer.Internal
 
-
--- The yield request: reporting the value of type a and suspending
--- the coroutine. Resuming with the value of type b
+-- | A type representing a yielding of control
+-- a: The current type
+-- b: The input to the continuation function
+-- v: The output of the continuation
 data Yield a b v = Yield a (b -> v)
     deriving (Functor)
 
--- The signature is inferred
+-- | Lifts a value and a function into the Coroutine effect
 yield :: (Member (Yield a b) r) => a -> (b -> c) -> Eff r c
 yield x f = send (Yield x f)
 
--- Status of a thread: done or reporting the value of the type a
--- and resuming with the value of type b
-data Y r a b = Done | Y a (b -> Eff r (Y r a b))
+-- |
+-- Status of a thread: done or reporting the value of the type a and
+-- resuming with the value of type b
+data Status r a b = Done | Continue a (b -> Eff r (Y r a b))
 
 {- FIXME: this does not compile
 -- Launch a thread and report its status

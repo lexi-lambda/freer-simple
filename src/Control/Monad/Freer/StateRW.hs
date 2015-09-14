@@ -2,6 +2,24 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+
+{-|
+Module      : Control.Monad.Freer.StateRW
+Description : State effects in terms of Reader/Writer
+Copyright   : Alej Cabrera 2015
+License     : BSD-3
+Maintainer  : cpp.cabrera@gmail.com
+Stability   : experimental
+Portability : POSIX
+
+Composable handler for State effects in terms of Reader/Writer
+effects. This module is more a tutorial on how to compose handlers. It
+is slightly slower than a dedicated State handler.
+
+Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a
+starting point.
+
+-}
 module Control.Monad.Freer.StateRW (
   runStateR,
   Reader,
@@ -14,14 +32,7 @@ import Control.Monad.Freer.Reader
 import Control.Monad.Freer.Writer
 import Control.Monad.Freer.Internal
 
---------------------------------------------------------------------------------
-                 -- State: Using Reader and Writer --
---------------------------------------------------------------------------------
--- A different representation of State: decomposing State into
--- mutation (Writer) and Reading. We don't define any new effects:
--- we just handle the existing ones.
--- Thus we define a handler for two effects together.
-
+-- | State handler, using Reader/Writer effects
 runStateR :: Eff (Writer s ': Reader s ': r) w -> s -> Eff r (w,s)
 runStateR m s = loop s m
  where

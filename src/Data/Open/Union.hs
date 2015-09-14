@@ -9,42 +9,63 @@
 
 {-|
 Module      : Data.Open.Union
-Description :
+Description : Open unions (type-indexed co-products) for extensible effects.
 Copyright   : Alej Cabrera 2015
 License     : BSD-3
 Maintainer  : cpp.cabrera@gmail.com
 Stability   : experimental
 Portability : POSIX
 
-Open unions (type-indexed co-products) for extensible effects. This
-implementation relies on _closed_ type families added to GHC 7.8. It
-has NO overlapping instances and NO Typeable. Alas, the absence of
-Typeable means the projections and injections generally take linear
-time.  The code illustrate how to use closed type families to
-disambiguate otherwise overlapping instances.
+This implementation relies on _closed_ type families added to GHC
+7.8. It has NO overlapping instances and NO Typeable. Alas, the
+absence of Typeable means the projections and injections generally
+take linear time.  The code illustrate how to use closed type families
+to disambiguate otherwise overlapping instances.
 
-The interface is the same as of other OpenUnion*.hs
+The data constructors of Union are not exported. Essentially, the
+nested Either data type.
 
-The data constructors of Union are not exported
-
-Essentially, the nested Either data type
+Using <http://okmij.org/ftp/Haskell/extensible/OpenUnion41.hs> as a
+starting point.
 
 -}
 
--- repackaging of: http://okmij.org/ftp/Haskell/extensible/OpenUnion41.hs
 module Data.Open.Union (
-  Union(..),
+  Union,
   decomp,
   weaken,
   Member(..)
 ) where
 
-import GHC.TypeLits
+import GHC.TypeLits (Nat)
 
+--------------------------------------------------------------------------------
+                           -- Interface --
+--------------------------------------------------------------------------------
 data Union (r :: [ * -> * ]) v where
   UNow  :: t v -> Union (t ': r) v
   UNext :: Union r v -> Union (any ': r) v
 
+{-# INLINE decomp #-}
+decomp :: Union (t ': r) v -> Either (Union r v) (t v)
+decomp (UNow x)  = Right x
+decomp (UNext v) = Left v
+
+{-# INLINE weaken #-}
+weaken :: Union r w -> Union (any ': r) w
+weaken = UNext
+
+class (Member' t r (FindElem t r)) => Member t r where
+  inj :: t v -> Union r v
+  prj :: Union r v -> Maybe (t v)
+
+instance (Member' t r (FindElem t r)) => Member t r where
+  inj = inj' (P :: P (FindElem t r))
+  prj = prj' (P :: P (FindElem t r))
+
+--------------------------------------------------------------------------------
+                         -- Implementation --
+--------------------------------------------------------------------------------
 data P (n :: Nat) = P
 
 -- injecting/projecting at a specified position P n
@@ -62,29 +83,12 @@ instance (r ~ (t' ': r'), Member' t r' n) => Member' t r n where
   prj' _ (UNow _)  = Nothing
   prj' _ (UNext x) = prj' (P::P n) x
 
-class (Member' t r (FindElem t r)) => Member t r where
-  inj :: t v -> Union r v
-  prj :: Union r v -> Maybe (t v)
-
-instance (Member' t r (FindElem t r)) => Member t r where
-  inj = inj' (P :: P (FindElem t r))
-  prj = prj' (P :: P (FindElem t r))
-
-{-# INLINE decomp #-}
-decomp :: Union (t ': r) v -> Either (Union r v) (t v)
-decomp (UNow x)  = Right x
-decomp (UNext v) = Left v
-
-{-# INLINE weaken #-}
-weaken :: Union r w -> Union (any ': r) w
-weaken = UNext
-
 -- Find an index of an element in a `list'
 -- The element must exist
 -- This closed type family disambiguates otherwise overlapping
 -- instances
 type family FindElem (t :: * -> *) r :: Nat where
-  FindElem t (t ': r)  = 0
+  FindElem t (t ': r)    = 0
   FindElem t (any ': r)  = FindElem t r
 
 type family EQU (a :: k) (b :: k) :: Bool where
