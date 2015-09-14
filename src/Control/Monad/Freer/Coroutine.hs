@@ -38,7 +38,7 @@ yield x f = send (Yield x f)
 -- |
 -- Status of a thread: done or reporting the value of the type a and
 -- resuming with the value of type b
-data Status r a b = Done | Continue a (b -> Eff r (Y r a b))
+data Status r a b = Done | Continue a (b -> Eff r (Status r a b))
 
 {- FIXME: this does not compile
 -- Launch a thread and report its status
