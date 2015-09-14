@@ -1,3 +1,7 @@
+# 0.2.2.1 (Sep. 14, 2015)
+
+* Document ALL THE THINGS
+
 # 0.2.2.0 (Sep. 13, 2015)
 
 * Add bench suite
