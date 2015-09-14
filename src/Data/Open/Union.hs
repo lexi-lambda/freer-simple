@@ -37,8 +37,6 @@ module Data.Open.Union (
   Member(..)
 ) where
 
-import GHC.TypeLits (Nat)
-
 --------------------------------------------------------------------------------
                            -- Interface --
 --------------------------------------------------------------------------------
@@ -66,6 +64,7 @@ instance (Member' t r (FindElem t r)) => Member t r where
 --------------------------------------------------------------------------------
                          -- Implementation --
 --------------------------------------------------------------------------------
+data Nat = S Nat | Z
 data P (n :: Nat) = P
 
 -- injecting/projecting at a specified position P n
@@ -73,12 +72,12 @@ class Member' t r (n :: Nat) where
   inj' :: P n -> t v -> Union r v
   prj' :: P n -> Union r v -> Maybe (t v)
 
-instance (r ~ (t ': r')) => Member' t r 0 where
+instance (r ~ (t ': r')) => Member' t r 'Z where
   inj' _ = UNow
   prj' _ (UNow x) = Just x
   prj' _ _        = Nothing
 
-instance (r ~ (t' ': r'), Member' t r' n) => Member' t r n where
+instance (r ~ (t' ': r'), Member' t r' n) => Member' t r ('S n) where
   inj' _ = UNext . inj' (P::P n)
   prj' _ (UNow _)  = Nothing
   prj' _ (UNext x) = prj' (P::P n) x
@@ -88,8 +87,8 @@ instance (r ~ (t' ': r'), Member' t r' n) => Member' t r n where
 -- This closed type family disambiguates otherwise overlapping
 -- instances
 type family FindElem (t :: * -> *) r :: Nat where
-  FindElem t (t ': r)    = 0
-  FindElem t (any ': r)  = FindElem t r
+  FindElem t (t ': r)    = 'Z
+  FindElem t (any ': r)  = 'S (FindElem t r)
 
 type family EQU (a :: k) (b :: k) :: Bool where
   EQU a a = 'True
