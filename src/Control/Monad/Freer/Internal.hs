@@ -178,8 +178,8 @@ interpose ret h = loop
 --------------------------------------------------------------------------------
 -- | A data type for representing nondeterminstic choice
 data NonDetEff a where
-  MZero :: NonDetEff a     -- ^ the base choice
-  MPlus :: NonDetEff Bool  -- ^ if True then choose left else choose right
+  MZero :: NonDetEff a
+  MPlus :: NonDetEff Bool
 
 instance Member NonDetEff r => Alternative (Eff r) where
   empty = mzero
