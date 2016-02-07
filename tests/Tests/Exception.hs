@@ -38,7 +38,7 @@ testExceptionTakesPriority x y = run $ runError (go x y)
 incr :: Member (State Int) r => Eff r ()
 incr = get >>= put . (+ (1::Int))
 
-tes1 :: (Member (State Int) r, Member (Exc String) r) => Eff r b
+tes1 :: (Members '[State Int, Exc String] r) => Eff r b
 tes1 = do
  incr
  throwError "exc"
