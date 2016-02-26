@@ -34,8 +34,11 @@ module Data.Open.Union (
   Union,
   decomp,
   weaken,
-  Member(..)
+  Member(..),
+  Members
 ) where
+
+import GHC.Exts
 
 --------------------------------------------------------------------------------
                            -- Interface --
@@ -60,6 +63,10 @@ class (Member' t r (FindElem t r)) => Member t r where
 instance (Member' t r (FindElem t r)) => Member t r where
   inj = inj' (P :: P (FindElem t r))
   prj = prj' (P :: P (FindElem t r))
+
+type family Members m r :: Constraint where
+  Members (t ': c) r = (Member t r, Members c r)
+  Members '[] r = ()
 
 --------------------------------------------------------------------------------
                          -- Implementation --

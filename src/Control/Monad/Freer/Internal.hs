@@ -33,6 +33,7 @@ starting point.
 module Control.Monad.Freer.Internal (
   Eff(..),
   Member(..),
+  Members,
   Arr,
   Arrs,
   Union,
