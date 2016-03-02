@@ -25,11 +25,11 @@ module Control.Monad.Freer.State (
   put,
   runState,
 
-  ProxyState(..),
   transactionState
 ) where
 
 import Control.Monad.Freer.Internal
+import Data.Proxy
 
 --------------------------------------------------------------------------------
                          -- State, strict --
@@ -57,14 +57,12 @@ runState (E u q) s = case decomp u of
   Left  u'       -> E u' (tsingleton (\x -> runState (qApp q x) s))
 
 
-data ProxyState s = ProxyState
-
 -- |
 -- An encapsulated State handler, for transactional semantics
 -- The global state is updated only if the transactionState finished
 -- successfully
 transactionState :: forall s r w. Member (State s) r =>
-                    ProxyState s -> Eff r w -> Eff r w
+                    Proxy s -> Eff r w -> Eff r w
 transactionState _ m = do s <- get; loop s m
  where
    loop :: s -> Eff r w -> Eff r w
