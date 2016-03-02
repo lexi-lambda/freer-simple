@@ -23,6 +23,7 @@ module Control.Monad.Freer.State (
   State,
   get,
   put,
+  modify,
   runState,
 
   ProxyState(..),
@@ -44,9 +45,13 @@ data State s v where
 get :: Member (State s) r => Eff r s
 get = send Get
 
--- | Modify state
+-- | Store state
 put :: Member (State s) r => s -> Eff r ()
 put s = send (Put s)
+
+-- | Modify state
+modify :: Member (State s) r => (s -> s) -> Eff r ()
+modify f = fmap f get >>= put
 
 -- | Handler for State effects
 runState :: Eff (State s ': r) w -> s -> Eff r (w,s)
