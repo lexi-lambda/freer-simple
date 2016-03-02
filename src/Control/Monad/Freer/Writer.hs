@@ -35,6 +35,6 @@ tell :: Member (Writer o) r => o -> Eff r ()
 tell o = send $ Writer o
 
 -- | Simple handler for Writer effects
-runWriter :: Eff (Writer o ': r) a -> Eff r (a,[o])
-runWriter = handleRelay (\x -> return (x,[]))
-                  (\ (Writer o) k -> k () >>= \ (x,l) -> return (x,o:l))
+runWriter :: Monoid o => Eff (Writer o ': r) a -> Eff r (a,o)
+runWriter = handleRelay (\x -> return (x,mempty))
+                  (\ (Writer o) k -> k () >>= \ (x,l) -> return (x,o `mappend` l))
