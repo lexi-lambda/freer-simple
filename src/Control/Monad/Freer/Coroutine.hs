@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds #-}
 
 {-|
 Module      : Control.Monad.Freer.Coroutine
@@ -19,7 +21,8 @@ starting point.
 module Control.Monad.Freer.Coroutine (
   Yield,
   yield,
-  Status(..)
+  Status(..),
+  runC
 ) where
 
 import Control.Monad.Freer.Internal
@@ -40,12 +43,9 @@ yield x f = send (Yield x f)
 -- resuming with the value of type b
 data Status r a b = Done | Continue a (b -> Eff r (Status r a b))
 
-{- FIXME: this does not compile
--- Launch a thread and report its status
-runC :: Eff (Yield a b ': r) w -> Eff r (Y r a b)
-runC m = loop m
-  where loop :: Monad m => Eff a b -> m (Y r c d)
-        loop (Val _)  = return Done
-        loop (E u u') = handleRelay u loop $
-                          \(Yield x k) -> return (Y x (loop . k))
--}
+-- | Launch a thread and report its status
+runC :: Eff (Yield a b ': r) w -> Eff r (Status r a b)
+runC = handleRelay (\_ -> return Done) handler
+  where
+    handler :: Yield a b v -> Arr r v (Status r a b) -> Eff r (Status r a b)
+    handler (Yield a k) arr = return $ Continue a (arr . k)
