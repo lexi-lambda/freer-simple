@@ -6,6 +6,7 @@ import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 
+import Tests.Coroutine
 import Tests.Exception
 import Tests.Fresh
 import Tests.NonDetEff
@@ -23,6 +24,23 @@ pureTests :: TestTree
 pureTests = testGroup "Pure Eff tests"
   [ testProperty "Pure run just works: (+)"
       (\x y -> addInEff x y == x + y)
+  ]
+
+--------------------------------------------------------------------------------
+                        -- Coroutine Tests --
+--------------------------------------------------------------------------------
+
+-- | Counts number of consecutive pairs of odd elements at beginning of a list.
+countOddDuoPrefix :: [Int] -> Int
+countOddDuoPrefix list = count list 0
+  where
+    count (i1:i2:is) n = if even i1 && even i2 then n else count is (n+1)
+    count _ n = n
+
+coroutineTests :: TestTree
+coroutineTests = testGroup "Coroutine Eff tests"
+  [ testProperty "Counting consecutive pairs of odds"
+      (\list -> runTestCoroutine list == countOddDuoPrefix list)
   ]
 
 --------------------------------------------------------------------------------
@@ -100,6 +118,7 @@ stateTests = testGroup "State tests"
 main :: IO ()
 main = defaultMain $ testGroup "Tests"
   [ pureTests
+  , coroutineTests
   , exceptionTests
   , freshTests
   -- , nonDetEffTests -- FIXME: failing
