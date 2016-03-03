@@ -7,7 +7,7 @@ import Control.Monad.Freer
 
 ifte :: Member NonDetEff r
      => Eff r a -> (a -> Eff r b) -> Eff r b -> Eff r b
-ifte t th el = (t >>= th) <|> el
+ifte t th el = msplit t >>= maybe el (\(a,m) -> th a <|> (m >>= th))
 
 generatePrimes :: Member NonDetEff r => [Int] -> Eff r Int
 generatePrimes xs = do
@@ -16,7 +16,7 @@ generatePrimes xs = do
            guard $ d < n && n `mod` d == 0)
        (const mzero)
        (return n)
-  where gen = msum . fmap return $ xs
+  where gen = msum (fmap return xs)
 
 testIfte :: [Int] -> [Int]
 testIfte = run . makeChoiceA . generatePrimes
