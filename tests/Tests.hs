@@ -102,7 +102,7 @@ main = defaultMain $ testGroup "Tests"
   [ pureTests
   , exceptionTests
   , freshTests
-  -- , nonDetEffTests -- FIXME: failing
+  , nonDetEffTests
   , readerTests
   , stateTests
   ]
