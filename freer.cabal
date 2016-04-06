@@ -1,13 +1,13 @@
 name:                freer
-version:             0.2.2.3
+version:             0.2.2.5
 synopsis:            Implementation of the Freer Monad
 license:             BSD3
 license-file:        LICENSE
-author:              Alej Cabrera
-maintainer:          cpp.cabrera@gmail.com
-copyright:           Alej Cabrera 2015
-homepage:            https://gitlab.com/cpp.cabrera/freer
-bug-reports:         https://gitlab.com/cpp.cabrera/freer/issues
+author:              Allele Dev
+maintainer:          allele.dev@gmail.com
+copyright:           Allele Dev 2016
+homepage:            https://gitlab.com/queertypes/freer
+bug-reports:         https://gitlab.com/queertypes/freer/issues
 category:            Control
 build-type:          Simple
 cabal-version:       >=1.18
@@ -32,7 +32,7 @@ extra-source-files:
 
 source-repository head
     type: git
-    location: git clone https://gitlab.com/cpp.cabrera/freer.git
+    location: git clone https://gitlab.com/queertypes/freer.git
 
 library
   exposed-modules:     Control.Monad.Freer
