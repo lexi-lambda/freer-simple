@@ -49,6 +49,7 @@ module Control.Monad.Freer.Internal (
   qComp,
   send,
   run,
+  runM,
   handleRelay,
   handleRelayS,
   interpose,
@@ -129,6 +130,16 @@ send t = E (inj t) (tsingleton Val)
 run :: Eff '[] w -> w
 run (Val x) = x
 run _       = error "Internal:run - This (E) should never happen"
+
+-- | Runs a set of Effects. Requires that all effects are consumed,
+-- except for a single effect known to be a monad.
+-- The value returned is a computation in that monad.
+-- This is useful for plugging in traditional transformer stacks.
+runM :: Monad m => Eff '[m] w -> m w
+runM (Val x) = return x
+runM (E u q) = case decomp u of
+  Right mb -> mb >>= runM . qApp q
+  Left _   -> error "Internal:runM - This (Left) should never happen"
 
 -- the other case is unreachable since Union [] a cannot be
 -- constructed. Therefore, run is a total function if its argument
