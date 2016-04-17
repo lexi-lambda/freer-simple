@@ -24,6 +24,7 @@ module Control.Monad.Freer.Reader (
   Reader(..),
 
   ask,
+  asks,
   runReader,
   local
   -- * Example 1: Simple Reader Usage
@@ -43,6 +44,10 @@ data Reader e v where
 -- | Request a value for the environment
 ask :: (Member (Reader e) r) => Eff r e
 ask = send Reader
+
+-- | Request a value from the environment and applys as function
+asks :: (b -> a) -> Eff '[Reader b] a
+asks f = ask >>= return . f
 
 -- | Handler for reader effects
 runReader :: Eff (Reader e ': r) w -> e -> Eff r w
