@@ -3,6 +3,7 @@
 .cabal-sandbox
 dist
 cabal.sandbox.config
+stack.yaml
 
 # emacs
 TAGS
