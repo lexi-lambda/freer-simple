@@ -82,9 +82,6 @@ with 'runReader', how to access the Reader data with 'ask' and 'asks'.
 >
 >type Bindings = Map String Int
 >
->asks :: (b -> a) -> Eff '[Reader b] a
->asks f = ask >>= return . f
->
 >-- Returns True if the "count" variable contains correct bindings size.
 >isCountCorrect :: Bindings -> Bool
 >isCountCorrect bindings = run $ runReader calc_isCountCorrect bindings
@@ -120,9 +117,6 @@ Shows how to modify Reader content with 'local'.
 > import Data.Maybe
 >
 > type Bindings = Map String Int
->
-> asks :: (b -> a) -> Eff '[Reader b] a
-> asks f = ask >>= return . f
 >
 > calculateContentLen :: Eff '[Reader String] Int
 > calculateContentLen = do
