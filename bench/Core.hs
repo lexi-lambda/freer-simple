@@ -5,7 +5,15 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE CPP #-}
 module Main where
+
+#if __GLASGOW_HASKELL__ <= 708
+import Control.Applicative
+import qualified Control.Monad.Error as MTL
+#else
+import qualified Control.Monad.Except as MTL
+#endif
 
 import Control.Monad
 import Control.Monad.Freer
@@ -17,7 +25,6 @@ import Control.Monad.Freer.StateRW
 import Criterion
 import Criterion.Main
 import qualified Control.Monad.State as MTL
-import qualified Control.Monad.Except as MTL
 import qualified Control.Monad.Free as Free
 
 --------------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds #-}
-
+{-# LANGUAGE CPP #-}
 {-|
 Module      : Control.Monad.Freer.Writer
 Description : Composable Writer effects -
@@ -23,6 +23,10 @@ module Control.Monad.Freer.Writer (
   tell,
   runWriter
 ) where
+
+#if __GLASGOW_HASKELL__ <= 708
+import Data.Monoid
+#endif
 
 import Control.Monad.Freer.Internal
 

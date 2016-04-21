@@ -1,9 +1,14 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds #-}
-
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE CPP #-}
 module Tests.Coroutine (
   runTestCoroutine
 ) where
+
+#if __GLASGOW_HASKELL__ <= 708
+import Control.Applicative
+#endif
 
 import Control.Monad
 import Control.Monad.Freer
