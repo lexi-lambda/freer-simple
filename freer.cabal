@@ -1,5 +1,5 @@
 name:                freer
-version:             0.2.2.5
+version:             0.2.3.0
 synopsis:            Implementation of the Freer Monad
 license:             BSD3
 license-file:        LICENSE
@@ -49,7 +49,7 @@ library
                      , Data.FTCQueue
                      , Data.Open.Union
 
-  build-depends:       base >=4.7 && <4.9
+  build-depends:       base >=4.7 && <5
   hs-source-dirs:      src
   ghc-options:         -Wall
   default-language:    Haskell2010
@@ -63,7 +63,7 @@ executable examples
                      , NonDetEff
                      , Teletype
                      , Trace
-  build-depends:       base >=4.7 && <4.9
+  build-depends:       base >=4.7 && <5
                      , freer
   hs-source-dirs:      examples/src
   ghc-options:         -Wall

@@ -1,3 +1,7 @@
+# 0.2.3.0 (June 25, 2016)
+
+* Add GHC 8 support
+
 # 0.2.2.2 (Sep. 14, 2015)
 
 * Use local `data Nat` for `Data.Open.Union`
