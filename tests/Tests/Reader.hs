@@ -1,9 +1,15 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE CPP #-}
 module Tests.Reader (
   testReader,
   testMultiReader,
   testLocal
 ) where
+
+#if __GLASGOW_HASKELL__ <= 708
+import Control.Applicative
+#endif
 
 import Control.Monad.Freer
 import Control.Monad.Freer.Reader
