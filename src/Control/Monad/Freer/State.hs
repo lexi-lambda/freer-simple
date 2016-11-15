@@ -7,9 +7,9 @@
 {-|
 Module      : Control.Monad.Freer.State
 Description : State effects, for state-carrying computations.
-Copyright   : Alej Cabrera 2015
+Copyright   : Allele Dev 2016
 License     : BSD-3
-Maintainer  : cpp.cabrera@gmail.com
+Maintainer  : allele.dev@gmail.com
 Stability   : experimental
 Portability : POSIX
 
