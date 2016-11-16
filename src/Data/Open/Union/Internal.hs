@@ -42,3 +42,36 @@ type family EQU (a :: k) (b :: k) :: Bool where
   EQU a a = 'True
   EQU a b = 'False
 
+--------------------------------------------------------------------------------
+                           -- Interface --
+--------------------------------------------------------------------------------
+
+{-# INLINE decomp #-}
+decomp :: Union (t ': r) v -> Either (Union r v) (t v)
+decomp (UNow x)  = Right x
+decomp (UNext v) = Left v
+
+{-# INLINE weaken #-}
+weaken :: Union (t ': r) w -> Union (any ': t ': r) w
+weaken = UNext
+
+{-# INLINE extract #-}
+extract :: Union '[t] v -> t v
+extract (UNow x)  = x
+
+
+class (Member' t r (FindElem t r)) => Member t r where
+  inj :: t v -> Union r v
+  prj :: Union r v -> Maybe (t v)
+
+instance (Member' t r (FindElem t r)) => Member t r where
+  inj = inj' (P :: P (FindElem t r))
+  prj = prj' (P :: P (FindElem t r))
+
+instance (Functor f) => Functor (Union '[f]) where
+  fmap f = inj . fmap f . extract
+instance (Functor f1, Functor (Union (f2 ': fs))) =>
+         Functor (Union (f1 ': f2 ': fs)) where
+  fmap f = either (weaken . fmap f) (inj . fmap f) . decomp
+
+

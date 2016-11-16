@@ -32,7 +32,12 @@ starting point.
 
 module Data.Open.Union (
   module Data.Open.Union,
-  Union
+  Union,
+  Member(..),
+  decomp,
+  weaken,
+  extract,
+  Functor(..)
 ) where
 
 import GHC.Exts
@@ -41,27 +46,6 @@ import Data.Open.Union.Internal
 --------------------------------------------------------------------------------
                            -- Interface --
 --------------------------------------------------------------------------------
-{-# INLINE decomp #-}
-decomp :: Union (t ': r) v -> Either (Union r v) (t v)
-decomp (UNow x)  = Right x
-decomp (UNext v) = Left v
-
-{-# INLINE extract #-}
-extract :: Union '[t] v -> t v
-extract (UNow x)  = x
-
-{-# INLINE weaken #-}
-weaken :: Union (t ': r) w -> Union (any ': t ': r) w
-weaken = UNext
-
-class (Member' t r (FindElem t r)) => Member t r where
-  inj :: t v -> Union r v
-  prj :: Union r v -> Maybe (t v)
-
-instance (Member' t r (FindElem t r)) => Member t r where
-  inj = inj' (P :: P (FindElem t r))
-  prj = prj' (P :: P (FindElem t r))
-
 type family Members m r :: Constraint where
   Members (t ': c) r = (Member t r, Members c r)
   Members '[] r = ()
