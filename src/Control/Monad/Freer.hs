@@ -1,3 +1,6 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE RankNTypes #-}
 {-|
 Module      : Control.Monad.Freer
 Description : Freer - an extensible effects library
@@ -14,6 +17,7 @@ module Control.Monad.Freer (
   Eff,
   run,
   runM,
+  runNat,
   handleRelay,
   handleRelayS,
   send,
@@ -25,3 +29,9 @@ module Control.Monad.Freer (
 ) where
 
 import Control.Monad.Freer.Internal
+
+runNat
+  :: forall m r e w.
+     (Member m r)
+  => (forall a. e a -> m a) -> Eff (e ': r) w -> Eff r w
+runNat f = handleRelay pure (\v -> (send (f v) >>=))
