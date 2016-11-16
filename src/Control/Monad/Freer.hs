@@ -13,7 +13,11 @@ module Control.Monad.Freer (
   Members,
   Eff,
   run,
+  runM,
+  handleRelay,
+  handleRelayS,
   send,
+  Arr,
 
   NonDetEff(..),
   makeChoiceA,

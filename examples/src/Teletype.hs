@@ -5,7 +5,6 @@
 module Teletype where
 
 import Control.Monad.Freer
-import Control.Monad.Freer.Internal
 import System.Exit hiding (ExitSuccess)
 
 --------------------------------------------------------------------------------
@@ -28,22 +27,27 @@ exitSuccess' = send ExitSuccess
 --------------------------------------------------------------------------------
                      -- Effectful Interpreter --
 --------------------------------------------------------------------------------
-runTeletype :: Eff '[Teletype] w -> IO w
-runTeletype (Val x) = return x
-runTeletype (E u q) = case extract u of
-              (PutStrLn msg) -> putStrLn msg  >> runTeletype (qApp q ())
-              GetLine        -> getLine      >>= \s -> runTeletype (qApp q s)
-              ExitSuccess    -> exitSuccess
+runTeletype :: Eff '[Teletype, IO] w -> IO w
+runTeletype req = runM (handleRelay pure go req)
+  where
+   go :: Teletype v -> Arr '[IO] v w -> Eff '[IO] w
+   go (PutStrLn msg) q = send (putStrLn msg) >>= q
+   go GetLine q = send getLine >>= q
+   go ExitSuccess q = send exitSuccess >>= q
 
 --------------------------------------------------------------------------------
                         -- Pure Interpreter --
 --------------------------------------------------------------------------------
 runTeletypePure :: [String] -> Eff '[Teletype] w -> [String]
-runTeletypePure inputs req = reverse (go inputs req [])
-  where go :: [String] -> Eff '[Teletype] w -> [String] -> [String]
-        go _      (Val _) acc = acc
-        go []     _       acc = acc
-        go (x:xs) (E u q) acc = case extract u of
-          (PutStrLn msg) -> go (x:xs) (qApp q ()) (msg:acc)
-          GetLine        -> go xs     (qApp q x) acc
-          ExitSuccess    -> go xs     (Val ())   acc
+runTeletypePure inputs req =
+  reverse . snd $ run (handleRelayS (inputs, []) (\s _ -> pure s) go req)
+  where
+    go
+      :: ([String], [String])
+      -> Teletype v
+      -> (([String], [String]) -> Arr '[] v ([String], [String]))
+      -> Eff '[] ([String], [String])
+    go (is, os) (PutStrLn msg) q = q (is, msg : os) ()
+    go (i:is, os) GetLine q = q (is, os) i
+    go ([], _) GetLine _ = error "Not enough lines"
+    go (_, os) ExitSuccess _ = pure ([], os)
