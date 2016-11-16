@@ -46,8 +46,12 @@ decomp :: Union (t ': r) v -> Either (Union r v) (t v)
 decomp (UNow x)  = Right x
 decomp (UNext v) = Left v
 
+{-# INLINE extract #-}
+extract :: Union '[t] v -> t v
+extract (UNow x)  = x
+
 {-# INLINE weaken #-}
-weaken :: Union r w -> Union (any ': r) w
+weaken :: Union (t ': r) w -> Union (any ': t ': r) w
 weaken = UNext
 
 class (Member' t r (FindElem t r)) => Member t r where

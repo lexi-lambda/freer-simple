@@ -10,7 +10,7 @@ module Data.Open.Union.Internal where
 
 data Union (r :: [ * -> * ]) v where
   UNow  :: t v -> Union (t ': r) v
-  UNext :: Union r v -> Union (any ': r) v
+  UNext :: Union (t ': r) v -> Union (any ': t ': r) v
 
 data Nat = S Nat | Z
 data P (n :: Nat) = P
@@ -25,7 +25,7 @@ instance (r ~ (t ': r')) => Member' t r 'Z where
   prj' _ (UNow x) = Just x
   prj' _ _        = Nothing
 
-instance (r ~ (t' ': r'), Member' t r' n) => Member' t r ('S n) where
+instance (r ~ (t' ': r' : rs'), Member' t (r' : rs') n) => Member' t r ('S n) where
   inj' _ = UNext . inj' (P::P n)
   prj' _ (UNow _)  = Nothing
   prj' _ (UNext x) = prj' (P::P n) x

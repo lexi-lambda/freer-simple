@@ -57,11 +57,10 @@ exitSuccess' = send ExitSuccess
 --------------------------------------------------------------------------------
 runTeletype :: Eff '[Teletype] w -> IO w
 runTeletype (Val x) = return x
-runTeletype (E u q) = case decomp u of
-              Right (PutStrLn msg) -> putStrLn msg  >> runTeletype (qApp q ())
-              Right GetLine        -> getLine      >>= \s -> runTeletype (qApp q s)
-              Right ExitSuccess    -> exitSuccess
-              Left  _              -> error "This cannot happen"
+runTeletype (E u q) = case extract u of
+              (PutStrLn msg) -> putStrLn msg  >> runTeletype (qApp q ())
+              GetLine        -> getLine      >>= \s -> runTeletype (qApp q s)
+              ExitSuccess    -> exitSuccess
 
 --------------------------------------------------------------------------------
                         -- Pure Interpreter --

@@ -30,11 +30,10 @@ exitSuccess' = send ExitSuccess
 --------------------------------------------------------------------------------
 runTeletype :: Eff '[Teletype] w -> IO w
 runTeletype (Val x) = return x
-runTeletype (E u q) = case decomp u of
-              Right (PutStrLn msg) -> putStrLn msg  >> runTeletype (qApp q ())
-              Right GetLine        -> getLine      >>= \s -> runTeletype (qApp q s)
-              Right ExitSuccess    -> exitSuccess
-              Left  _              -> error "This cannot happen"
+runTeletype (E u q) = case extract u of
+              (PutStrLn msg) -> putStrLn msg  >> runTeletype (qApp q ())
+              GetLine        -> getLine      >>= \s -> runTeletype (qApp q s)
+              ExitSuccess    -> exitSuccess
 
 --------------------------------------------------------------------------------
                         -- Pure Interpreter --
@@ -44,8 +43,7 @@ runTeletypePure inputs req = reverse (go inputs req [])
   where go :: [String] -> Eff '[Teletype] w -> [String] -> [String]
         go _      (Val _) acc = acc
         go []     _       acc = acc
-        go (x:xs) (E u q) acc = case decomp u of
-          Right (PutStrLn msg) -> go (x:xs) (qApp q ()) (msg:acc)
-          Right GetLine        -> go xs     (qApp q x) acc
-          Right ExitSuccess    -> go xs     (Val ())   acc
-          Left _               -> go xs     (Val ())   acc
+        go (x:xs) (E u q) acc = case extract u of
+          (PutStrLn msg) -> go (x:xs) (qApp q ()) (msg:acc)
+          GetLine        -> go xs     (qApp q x) acc
+          ExitSuccess    -> go xs     (Val ())   acc
