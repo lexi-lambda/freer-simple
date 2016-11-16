@@ -31,22 +31,16 @@ starting point.
 -}
 
 module Data.Open.Union (
-  Union,
-  decomp,
-  weaken,
-  Member(..),
-  Members
+  module Data.Open.Union,
+  Union
 ) where
 
 import GHC.Exts
+import Data.Open.Union.Internal
 
 --------------------------------------------------------------------------------
                            -- Interface --
 --------------------------------------------------------------------------------
-data Union (r :: [ * -> * ]) v where
-  UNow  :: t v -> Union (t ': r) v
-  UNext :: Union r v -> Union (any ': r) v
-
 {-# INLINE decomp #-}
 decomp :: Union (t ': r) v -> Either (Union r v) (t v)
 decomp (UNow x)  = Right x
@@ -68,35 +62,3 @@ type family Members m r :: Constraint where
   Members (t ': c) r = (Member t r, Members c r)
   Members '[] r = ()
 
---------------------------------------------------------------------------------
-                         -- Implementation --
---------------------------------------------------------------------------------
-data Nat = S Nat | Z
-data P (n :: Nat) = P
-
--- injecting/projecting at a specified position P n
-class Member' t r (n :: Nat) where
-  inj' :: P n -> t v -> Union r v
-  prj' :: P n -> Union r v -> Maybe (t v)
-
-instance (r ~ (t ': r')) => Member' t r 'Z where
-  inj' _ = UNow
-  prj' _ (UNow x) = Just x
-  prj' _ _        = Nothing
-
-instance (r ~ (t' ': r'), Member' t r' n) => Member' t r ('S n) where
-  inj' _ = UNext . inj' (P::P n)
-  prj' _ (UNow _)  = Nothing
-  prj' _ (UNext x) = prj' (P::P n) x
-
--- Find an index of an element in a `list'
--- The element must exist
--- This closed type family disambiguates otherwise overlapping
--- instances
-type family FindElem (t :: * -> *) r :: Nat where
-  FindElem t (t ': r)    = 'Z
-  FindElem t (any ': r)  = 'S (FindElem t r)
-
-type family EQU (a :: k) (b :: k) :: Bool where
-  EQU a a = 'True
-  EQU a b = 'False
