@@ -2,10 +2,15 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE CPP #-}
 module Teletype where
 
-import Control.Monad.Freer
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative (pure)
+#endif
 import System.Exit hiding (ExitSuccess)
+
+import Control.Monad.Freer
 
 --------------------------------------------------------------------------------
                           -- Effect Model --
@@ -42,11 +47,10 @@ runTeletypePure :: [String] -> Eff '[Teletype] w -> [String]
 runTeletypePure inputs req =
   reverse . snd $ run (handleRelayS (inputs, []) (\s _ -> pure s) go req)
   where
-    go
-      :: ([String], [String])
-      -> Teletype v
-      -> (([String], [String]) -> Arr '[] v ([String], [String]))
-      -> Eff '[] ([String], [String])
+    go :: ([String], [String])
+       -> Teletype v
+       -> (([String], [String]) -> Arr '[] v ([String], [String]))
+       -> Eff '[] ([String], [String])
     go (is, os) (PutStrLn msg) q = q (is, msg : os) ()
     go (i:is, os) GetLine q = q (is, os) i
     go ([], _) GetLine _ = error "Not enough lines"

@@ -1,5 +1,5 @@
 name:                freer
-version:             0.2.4.0
+version:             0.2.4.1
 synopsis:            Implementation of the Freer Monad
 license:             BSD3
 license-file:        LICENSE
@@ -10,8 +10,8 @@ homepage:            https://gitlab.com/queertypes/freer
 bug-reports:         https://gitlab.com/queertypes/freer/issues
 category:            Control
 build-type:          Simple
-cabal-version:       >=1.18
-tested-with:         GHC==7.10.2
+cabal-version:       >=1.10
+tested-with:         GHC==7.10.3, GHC==8.0.1, GHC==7.8.4
 description:
 
     Freer is an implementation of "Freer Monads, More Extensible
@@ -64,7 +64,7 @@ executable freer-examples
                      , NonDetEff
                      , Teletype
                      , Trace
-  build-depends:       base >=4.7 && <5
+  build-depends:       base
                      , freer
   hs-source-dirs:      examples/src
   ghc-options:         -Wall

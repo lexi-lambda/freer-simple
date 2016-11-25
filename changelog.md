@@ -1,3 +1,7 @@
+# 0.2.4.1 (November 25, 2016)
+
+* Restore GHC (7.8, 7.10) compatibility
+
 # 0.2.4.0 (November 25, 2016)
 
 * Internal reorg

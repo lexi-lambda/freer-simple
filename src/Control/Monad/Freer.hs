@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE CPP #-}
 {-|
 Module      : Control.Monad.Freer
 Description : Freer - an extensible effects library
@@ -27,6 +28,10 @@ module Control.Monad.Freer (
   makeChoiceA,
   msplit
 ) where
+
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative (pure)
+#endif
 
 import Control.Monad.Freer.Internal
 

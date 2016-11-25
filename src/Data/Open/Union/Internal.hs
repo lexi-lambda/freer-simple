@@ -25,7 +25,7 @@ instance (r ~ (t ': r')) => Member' t r 'Z where
   prj' _ (UNow x) = Just x
   prj' _ _        = Nothing
 
-instance (r ~ (t' ': r' : rs'), Member' t (r' : rs') n) => Member' t r ('S n) where
+instance (r ~ (t' ': r' ': rs'), Member' t (r' ': rs') n) => Member' t r ('S n) where
   inj' _ = UNext . inj' (P::P n)
   prj' _ (UNow _)  = Nothing
   prj' _ (UNext x) = prj' (P::P n) x
@@ -73,5 +73,3 @@ instance (Functor f) => Functor (Union '[f]) where
 instance (Functor f1, Functor (Union (f2 ': fs))) =>
          Functor (Union (f1 ': f2 ': fs)) where
   fmap f = either (weaken . fmap f) (inj . fmap f) . decomp
-
-
