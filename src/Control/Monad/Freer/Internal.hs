@@ -44,6 +44,7 @@ module Control.Monad.Freer.Internal (
 
   decomp,
   tsingleton,
+  extract,
 
   qApp,
   qComp,
@@ -137,9 +138,8 @@ run _       = error "Internal:run - This (E) should never happen"
 -- This is useful for plugging in traditional transformer stacks.
 runM :: Monad m => Eff '[m] w -> m w
 runM (Val x) = return x
-runM (E u q) = case decomp u of
-  Right mb -> mb >>= runM . qApp q
-  Left _   -> error "Internal:runM - This (Left) should never happen"
+runM (E u q) = case extract u of
+  mb -> mb >>= runM . qApp q
 
 -- the other case is unreachable since Union [] a cannot be
 -- constructed. Therefore, run is a total function if its argument

@@ -48,6 +48,7 @@ library
                      , Control.Monad.Freer.Writer
                      , Data.FTCQueue
                      , Data.Open.Union
+                     , Data.Open.Union.Internal
 
   build-depends:       base >=4.7 && <5
   hs-source-dirs:      src
