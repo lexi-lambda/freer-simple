@@ -1,3 +1,9 @@
+# 0.2.4.0 (November 25, 2016)
+
+* Internal reorg
+  * In particular, hide implementation details in Union.Internal
+  * Rewrite interpreters in terms of `extract` instead of `decomp`
+
 # 0.2.3.0 (June 25, 2016)
 
 * Add GHC 8 support

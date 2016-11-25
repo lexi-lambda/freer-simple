@@ -66,15 +66,17 @@ runTeletype (E u q) = case extract u of
                         -- Pure Interpreter --
 --------------------------------------------------------------------------------
 runTeletypePure :: [String] -> Eff '[Teletype] w -> [String]
-runTeletypePure inputs req = reverse (go inputs req [])
-  where go :: [String] -> Eff '[Teletype] w -> [String] -> [String]
-        go _      (Val _) acc = acc
-        go []     _       acc = acc
-        go (x:xs) (E u q) acc = case decomp u of
-          Right (PutStrLn msg) -> go (x:xs) (qApp q ()) (msg:acc)
-          Right GetLine        -> go xs     (qApp q x) acc
-          Right ExitSuccess    -> go xs     (Val ())   acc
-          Left _               -> go xs     (Val ())   acc
+runTeletypePure inputs req =
+  reverse . snd $ run (handleRelayS (inputs, []) (\s _ -> pure s) go req)
+  where
+    go :: ([String], [String])
+       -> Teletype v
+       -> (([String], [String]) -> Arr '[] v ([String], [String]))
+       -> Eff '[] ([String], [String])
+    go (is, os) (PutStrLn msg) q = q (is, msg : os) ()
+    go (i:is, os) GetLine q = q (is, os) i
+    go ([], _) GetLine _ = error "Not enough lines"
+    go (_, os) ExitSuccess _ = pure ([], os)
 ```
 
 # Contributing
