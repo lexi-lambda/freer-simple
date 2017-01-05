@@ -42,6 +42,12 @@ type family EQU (a :: k) (b :: k) :: Bool where
   EQU a a = 'True
   EQU a b = 'False
 
+type family Head (xs :: [x]) :: x where
+    Head (x ': _) = x
+
+type family Tail (xs :: [x]) :: [x] where
+    Tail (_ ': xs) = xs
+
 --------------------------------------------------------------------------------
                            -- Interface --
 --------------------------------------------------------------------------------
@@ -60,11 +66,11 @@ extract :: Union '[t] v -> t v
 extract (UNow x)  = x
 
 
-class (Member' t r (FindElem t r)) => Member t r where
+class (Member' t r (FindElem t r), r ~ (Head r ': Tail r)) => Member t r where
   inj :: t v -> Union r v
   prj :: Union r v -> Maybe (t v)
 
-instance (Member' t r (FindElem t r)) => Member t r where
+instance (Member' t r (FindElem t r), r ~ (Head r ': Tail r)) => Member t r where
   inj = inj' (P :: P (FindElem t r))
   prj = prj' (P :: P (FindElem t r))
 

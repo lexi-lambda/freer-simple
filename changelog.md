@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+* Fix `Could not deduce: effs ~ (r : rs)` that may occur when using
+  a `Member` contraint (a regression introduced in 0.2.4.0)
+
 ## [0.2.4.1] (November 25, 2016)
 
 * Restore GHC (7.8, 7.10) compatibility
