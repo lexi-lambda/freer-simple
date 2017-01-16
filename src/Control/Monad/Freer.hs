@@ -36,7 +36,6 @@ import Control.Applicative (pure)
 import Control.Monad.Freer.Internal
 
 runNat
-  :: forall m r e w.
-     (Member m r)
+  :: Member m r
   => (forall a. e a -> m a) -> Eff (e ': r) w -> Eff r w
 runNat f = handleRelay pure (\v -> (send (f v) >>=))
