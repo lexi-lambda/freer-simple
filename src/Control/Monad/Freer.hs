@@ -19,6 +19,7 @@ module Control.Monad.Freer (
   run,
   runM,
   runNat,
+  runNatS,
   handleRelay,
   handleRelayS,
   send,
@@ -39,3 +40,9 @@ runNat
   :: Member m r
   => (forall a. e a -> m a) -> Eff (e ': r) w -> Eff r w
 runNat f = handleRelay pure (\v -> (send (f v) >>=))
+
+runNatS
+  :: Member m r
+  => s -> (forall a. s -> e a -> m (s, a)) -> Eff (e ': r) w -> Eff r w
+runNatS s0 f =
+  handleRelayS s0 (const pure) (\s v -> (send (f s v) >>=) . uncurry)
