@@ -25,6 +25,8 @@ module Control.Monad.Freer.State (
   put,
   modify,
   runState,
+  evalState,
+  execState,
 
   transactionState
 ) where
@@ -60,6 +62,14 @@ runState (E u q) s = case decomp u of
   Right Get      -> runState (qApp q s) s
   Right (Put s') -> runState (qApp q ()) s'
   Left  u'       -> E u' (tsingleton (\x -> runState (qApp q x) s))
+
+-- | Run a State effect, returning only the final state
+execState :: Eff (State s ': r) w -> s -> Eff r s
+execState st s = snd <$> runState st s
+
+-- | Run a State effect, discarding the final state
+evalState :: Eff (State s ': r) w -> s -> Eff r w
+evalState st s = fst <$> runState st s
 
 
 -- |
