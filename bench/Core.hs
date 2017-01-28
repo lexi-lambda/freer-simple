@@ -151,7 +151,7 @@ main =
         bench "freer" $ whnf (run . runHttp) prog
       , bench "free" $ whnf runFHttp prog'
 
-      , bench "freerN"      $ whnf (run . runHttp . p) 100000
-      , bench "freeN"       $ whnf (runFHttp . p')     100000
+      , bench "freerN"      $ whnf (run . runHttp . p) 1000
+      , bench "freeN"       $ whnf (runFHttp . p')     1000
     ]
   ]
