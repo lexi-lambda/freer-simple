@@ -3,11 +3,11 @@ version:             0.2.4.1
 synopsis:            Implementation of the Freer Monad
 license:             BSD3
 license-file:        LICENSE
-author:              Allele Dev
-maintainer:          allele.dev@gmail.com
+author:              TBA
+maintainer:          TBA
 copyright:           Allele Dev 2016
-homepage:            https://gitlab.com/queertypes/freer
-bug-reports:         https://gitlab.com/queertypes/freer/issues
+homepage:            https://github.com/IxpertaSolutions/freer
+bug-reports:         https://github.com/IxpertaSolutions/freer/issues
 category:            Control
 build-type:          Simple
 cabal-version:       >=1.10
@@ -28,11 +28,10 @@ description:
 extra-source-files:
     README.md
     changelog.md
-    CODE_OF_CONDUCT.md
 
 source-repository head
     type: git
-    location: git clone https://gitlab.com/queertypes/freer.git
+    location: git clone https://github.com/IxpertaSolutions/freer.git
 
 library
   exposed-modules:     Control.Monad.Freer

@@ -84,10 +84,6 @@ runTeletypePure inputs req =
 Contributions are welcome! Documentation, examples, code, and
 feedback - they all help.
 
-Be sure to review the included code of conduct. This project adheres
-to the [Contributor's Covenant](http://contributor-covenant.org/). By
-participating in this project you agree to abide by its terms.
-
 ## Developer Setup
 
 The easiest way to start contributing is to install
