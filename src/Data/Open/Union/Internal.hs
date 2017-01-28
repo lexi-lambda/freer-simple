@@ -43,10 +43,10 @@ type family EQU (a :: k) (b :: k) :: Bool where
   EQU a b = 'False
 
 type family Head (xs :: [x]) :: x where
-    Head (x ': _) = x
+    Head (x ': xs) = x
 
 type family Tail (xs :: [x]) :: [x] where
-    Tail (_ ': xs) = xs
+    Tail (x ': xs) = xs
 
 --------------------------------------------------------------------------------
                            -- Interface --
