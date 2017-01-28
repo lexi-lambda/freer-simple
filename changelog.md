@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 * Fix `Could not deduce: effs ~ (r : rs)` that may occur when using
   a `Member` contraint (a regression introduced in 0.2.4.0)
 * Add `runNatS` convenience function
+* Data constructors of `Yield`, `CutFalse`, `Fresh`, `State` and `Trace`
+  are now exposed in addition to `Exc`, `Reader` and `Writer`
 
 ## [0.2.4.1] (November 25, 2016)
 

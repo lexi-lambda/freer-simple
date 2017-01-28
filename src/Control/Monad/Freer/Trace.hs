@@ -20,7 +20,7 @@ starting point.
 
 -}
 module Control.Monad.Freer.Trace (
-  Trace,
+  Trace(..),
   trace,
   runTrace
 ) where

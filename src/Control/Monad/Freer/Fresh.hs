@@ -20,7 +20,7 @@ starting point.
 
 -}
 module Control.Monad.Freer.Fresh (
-  Fresh,
+  Fresh(..),
   fresh,
   runFresh'
 ) where

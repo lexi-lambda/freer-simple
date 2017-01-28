@@ -19,7 +19,7 @@ starting point.
 
 -}
 module Control.Monad.Freer.Cut (
-  CutFalse,
+  CutFalse(..),
   cutFalse,
   -- call
 ) where

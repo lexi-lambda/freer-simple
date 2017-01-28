@@ -19,7 +19,7 @@ starting point.
 
 -}
 module Control.Monad.Freer.Coroutine (
-  Yield,
+  Yield(..),
   yield,
   Status(..),
   runC
