@@ -11,23 +11,23 @@ module Main where
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
 #endif
+import Control.Monad
 #if MIN_VERSION_mtl(2,2,1)
 import qualified Control.Monad.Except as MTL
 #else
 import qualified Control.Monad.Error as MTL
 #endif
+import qualified Control.Monad.State as MTL
+import qualified Control.Monad.Free as Free
 
-import Control.Monad
+import Criterion
+import Criterion.Main
+
 import Control.Monad.Freer (Member, Eff, run, send)
 import Control.Monad.Freer.Internal (Eff(E, Val), decomp, qApp, tsingleton)
 import Control.Monad.Freer.Exception (runError, throwError)
 import Control.Monad.Freer.State (get, put, runState)
 import Control.Monad.Freer.StateRW (ask, tell, runStateR)
-
-import Criterion
-import Criterion.Main
-import qualified Control.Monad.State as MTL
-import qualified Control.Monad.Free as Free
 
 --------------------------------------------------------------------------------
                         -- State Benchmarks --
