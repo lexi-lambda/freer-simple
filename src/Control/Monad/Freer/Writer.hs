@@ -24,7 +24,7 @@ module Control.Monad.Freer.Writer (
   runWriter
 ) where
 
-#if __GLASGOW_HASKELL__ <= 708
+#if !MIN_VERSION_base(4,8,0)
 import Data.Monoid
 #endif
 

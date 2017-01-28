@@ -8,11 +8,13 @@
 {-# LANGUAGE CPP #-}
 module Main where
 
-#if __GLASGOW_HASKELL__ <= 708
+#if !MIN_VERSION_base(4,8,0)
 import Control.Applicative
-import qualified Control.Monad.Error as MTL
-#else
+#endif
+#if MIN_VERSION_mtl(2,2,1)
 import qualified Control.Monad.Except as MTL
+#else
+import qualified Control.Monad.Error as MTL
 #endif
 
 import Control.Monad
