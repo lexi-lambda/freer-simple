@@ -28,12 +28,12 @@ t1rr' = run t1
       arising from a use of `t1'
 -}
 
-testMultiReader :: Float -> Int -> Float
-testMultiReader f n = run . flip runReader f . flip runReader n $ t2
+testMultiReader :: Integer -> Int -> Integer
+testMultiReader i n = run . flip runReader i . flip runReader n $ t2
   where t2 = do
           v1 <- ask
           v2 <- ask
-          return $ fromIntegral (v1 + (1::Int)) + (v2 + (2::Float))
+          return $ fromIntegral (v1 + (1::Int)) + (v2 + (2::Integer))
 
 -- The opposite order of layers
 {- If we mess up, we get an error
