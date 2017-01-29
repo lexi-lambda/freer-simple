@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 
 * Fix `Could not deduce: effs ~ (r : rs)` that may occur when using
   a `Member` contraint (a regression introduced in 0.2.4.0)
+  [!12](https://gitlab.com/queertypes/freer/merge_requests/12)
 * Add `runNatS` convenience function
+  [!13](https://gitlab.com/queertypes/freer/merge_requests/13)
+* Add `evalState` and `execState` convenience functions
+  [!14](https://gitlab.com/queertypes/freer/merge_requests/14)
 * Data constructors of `Yield`, `CutFalse`, `Fresh`, `State` and `Trace`
   are now exposed in addition to `Exc`, `Reader` and `Writer`
 
