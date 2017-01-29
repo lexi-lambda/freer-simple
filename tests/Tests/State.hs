@@ -2,7 +2,9 @@
 module Tests.State (
   testPutGet,
   testPutGetPutGetPlus,
-  testGetStart
+  testGetStart,
+  testEvalState,
+  testExecState
 ) where
 
 import Control.Monad.Freer
@@ -23,3 +25,15 @@ testPutGetPutGetPlus p1 p2 start = run (runState go start)
 
 testGetStart :: Int -> (Int,Int)
 testGetStart = run . runState get
+
+testEvalState :: Int -> Int
+testEvalState = run . evalState go
+  where
+    go = do
+      x <- get
+      -- destroy the previous state
+      put (0 :: Int)
+      return x
+
+testExecState :: Int -> Int
+testExecState n = run $ execState (put n) 0

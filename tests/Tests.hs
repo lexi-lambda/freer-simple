@@ -125,6 +125,10 @@ stateTests = testGroup "State tests"
     \p1 p2 start -> testPutGetPutGetPlus p1 p2 start == testPutGetPutGetPlusRW p1 p2 start
   , testProperty "testGetStart: State == StateRW" $
     \n -> testGetStart n == testGetStartRW n
+  , testProperty "testEvalState: evalState discards final state" $
+    \n -> testEvalState n == n
+  , testProperty "testExecState: execState returns final state" $
+    \n -> testExecState n == n
   ]
 
 --------------------------------------------------------------------------------
