@@ -1,8 +1,9 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 
 {-|
 Module      : Control.Monad.Freer.State
@@ -31,8 +32,15 @@ module Control.Monad.Freer.State (
   transactionState
 ) where
 
+import Control.Monad ((>>), (>>=), return)
+import Data.Either (Either(Left, Right))
+import Data.Functor ((<$>), fmap)
+import Data.Maybe (Maybe(Just))
+import Data.Proxy (Proxy)
+import Data.Tuple (fst, snd)
+
 import Control.Monad.Freer.Internal
-import Data.Proxy
+
 
 --------------------------------------------------------------------------------
                          -- State, strict --
