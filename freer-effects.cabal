@@ -42,6 +42,11 @@ flag pedantic
   default:              False
   manual:               True
 
+flag test-hlint
+  description:          Enable test suite that checks sources using HLint.
+  default:              True
+  manual:               True
+
 library
   hs-source-dirs:       src
   exposed-modules:
@@ -115,6 +120,34 @@ test-suite test
     , QuickCheck
 
   ghc-options:          -Wall
+
+  if flag(pedantic)
+    ghc-options:        -Werror
+
+test-suite hlint
+  hs-source-dirs:       tests
+  type:                 exitcode-stdio-1.0
+  main-is:              hlint.hs
+  default-language:     Haskell2010
+
+  if flag(test-hlint)
+    build-depends:
+        base >=4.8 && <5.0
+      , hlint ==1.9.*
+  else
+    buildable: False
+
+  ghc-options:
+    -Wall
+    -fwarn-tabs
+    -fwarn-implicit-prelude
+    -threaded
+    -with-rtsopts=-N
+
+  if impl(ghc >=8)
+    ghc-options:        -fwarn-redundant-constraints
+    -- Older Cabal generates warnings with its Paths_* module.
+    ghc-options:        -fwarn-missing-import-lists
 
   if flag(pedantic)
     ghc-options:        -Werror
