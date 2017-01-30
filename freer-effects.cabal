@@ -125,17 +125,17 @@ test-suite test
     ghc-options:        -Werror
 
 test-suite hlint
+  buildable:            False
   hs-source-dirs:       tests
   type:                 exitcode-stdio-1.0
   main-is:              hlint.hs
   default-language:     Haskell2010
 
   if flag(test-hlint)
+    buildable:          True
     build-depends:
         base >=4.8 && <5.0
       , hlint ==1.9.*
-  else
-    buildable: False
 
   ghc-options:
     -Wall
