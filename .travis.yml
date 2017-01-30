@@ -13,13 +13,13 @@ before_cache:
 
 matrix:
   include:
-    - env: CABALVER=1.18 GHCVER=7.8.4
+    - env: CABALVER=1.18 GHCVER=7.8.4 DO_CABAL_CHECK=0
       compiler: ": #GHC 7.8.4"
       addons: {apt: {packages: [cabal-install-1.18,ghc-7.8.4], sources: [hvr-ghc]}}
-    - env: CABALVER=1.22 GHCVER=7.10.3
+    - env: CABALVER=1.22 GHCVER=7.10.3 DO_CABAL_CHECK=0
       compiler: ": #GHC 7.10.3"
       addons: {apt: {packages: [cabal-install-1.22,ghc-7.10.3], sources: [hvr-ghc]}}
-    - env: CABALVER=1.24 GHCVER=8.0.1
+    - env: CABALVER=1.24 GHCVER=8.0.1 DO_CABAL_CHECK=1
       compiler: ": #GHC 8.0.1"
       addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.1], sources: [hvr-ghc]}}
 
@@ -70,7 +70,13 @@ script:
  - cabal configure --enable-tests --enable-benchmarks -v2  # -v2 provides useful information for debugging
  - cabal build   # this builds all libraries and executables (including tests/benchmarks)
  - cabal test
- - cabal check
+   # Older Cabal versions do not handle "ghc-options: -Werror" in -fpedantic
+   # correctly. Package consistency doesn't depend on GHC version, or at least
+   # it shouldn't.
+ - if [ "$DO_CABAL_CHECK" = '1' ];
+   then
+      cabal check;
+   fi
  - cabal sdist   # tests that a source-distribution can be generated
 
 # Check that the resulting source distribution can be built & installed.
