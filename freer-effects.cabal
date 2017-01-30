@@ -6,6 +6,7 @@ description:
   Oleg Kiselyov et al.:
   .
   * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
+  * <http://okmij.org/ftp/Haskell/zseq.pdf Reflection without Remorse>
   * <http://okmij.org/ftp/Haskell/extensible/exteff.pdf Extensible Effects>
   .
   The key features are:
