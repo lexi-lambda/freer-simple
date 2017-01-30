@@ -1,6 +1,7 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.Cut
 -- Description:  An implementation of logical Cut.
@@ -23,6 +24,7 @@ module Control.Monad.Freer.Cut (
 -- import Control.Monad
 import Control.Monad.Freer.Exception
 import Control.Monad.Freer.Internal
+
 
 data CutFalse = CutFalse
 -- data Choose a b = Choose [a] b

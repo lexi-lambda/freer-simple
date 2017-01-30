@@ -1,8 +1,8 @@
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.Writer
 -- Description:  Composable Writer effects.
@@ -21,21 +21,23 @@ module Control.Monad.Freer.Writer (
   runWriter
 ) where
 
-#if !MIN_VERSION_base(4,8,0)
-import Data.Monoid
-#endif
+import Control.Applicative (pure)
+import Data.Function (($))
+import Data.Functor ((<$>))
+import Data.Monoid (Monoid, (<>), mempty)
 
-import Control.Monad.Freer.Internal
+import Control.Monad.Freer.Internal (Eff, Member, handleRelay, send)
 
--- | Writer effects - send outputs to an effect environment
-data Writer o x where
-  Writer :: o -> Writer o ()
 
--- | Send a change to the attached environment
-tell :: Member (Writer o) r => o -> Eff r ()
-tell o = send $ Writer o
+-- | Writer effects - send outputs to an effect environment.
+data Writer w a where
+  Writer :: w -> Writer w ()
 
--- | Simple handler for Writer effects
-runWriter :: Monoid o => Eff (Writer o ': r) a -> Eff r (a,o)
-runWriter = handleRelay (\x -> return (x,mempty))
-                  (\ (Writer o) k -> k () >>= \ (x,l) -> return (x,o `mappend` l))
+-- | Send a change to the attached environment.
+tell :: Member (Writer w) effs => w -> Eff effs ()
+tell w = send $ Writer w
+
+-- | Simple handler for 'Writer' effects.
+runWriter :: Monoid w => Eff (Writer w ': effs) a -> Eff effs (a, w)
+runWriter = handleRelay (\a -> pure (a, mempty)) $ \(Writer w) k ->
+    (\(a, l) -> (a, w <> l)) <$> k ()

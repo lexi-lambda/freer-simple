@@ -1,10 +1,11 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 
 -- The following is needed to define MonadPlus instance. It is decidable
 -- (there is no recursion!), but GHC cannot see that.
@@ -53,26 +54,39 @@ module Control.Monad.Freer.Internal (
   interpose,
 ) where
 
-import Control.Monad
+import Prelude (error)
+
 import Control.Applicative
-import Data.Open.Union
+    ( Alternative((<|>), empty)
+    , Applicative((<*>), pure)
+    )
+import Control.Monad
+    ( Monad((>>=), return)
+    , MonadPlus(mplus, mzero)
+    , liftM2
+    , msum
+    )
+import Data.Bool (Bool(False, True))
+import Data.Either (Either(Left, Right))
+import Data.Function (($), (.))
+import Data.Functor (fmap)
+import Data.Maybe (Maybe(Just, Nothing))
+
 import Data.FTCQueue
+import Data.Open.Union
 
 
--- |
--- Effectful arrow type: a function from a to b that also does effects
--- denoted by r
+-- | Effectful arrow type: a function from @a@ to @b@ that also does effects
+-- denoted by @r@.
 type Arr r a b = a -> Eff r b
 
--- |
--- An effectful function from 'a' to 'b' that is a composition of
+-- | An effectful function from @a@ to @b@ that is a composition of
 -- several effectful functions. The paremeter r describes the overall
 -- effect. The composition members are accumulated in a type-aligned
 -- queue.
 type Arrs r a b = FTCQueue (Eff r) a b
 
--- |
--- The Eff representation.
+-- | The Eff representation.
 --
 -- Status of a coroutine (client):
 -- * Val: Done with the value of type a
@@ -95,25 +109,28 @@ qComp :: Arrs r a b -> (Eff r b -> Eff r' c) -> Arr r' a c
 qComp g h a = h $ qApp g a
 
 instance Functor (Eff r) where
-  {-# INLINE fmap #-}
   fmap f (Val x) = Val (f x)
   fmap f (E u q) = E u (q |> (Val . f))
+  {-# INLINE fmap #-}
 
 instance Applicative (Eff r) where
-  {-# INLINE pure #-}
-  {-# INLINE (<*>) #-}
   pure = Val
+  {-# INLINE pure #-}
+
   Val f <*> Val x = Val $ f x
   Val f <*> E u q = E u (q |> (Val . f))
   E u q <*> Val x = E u (q |> (Val . ($ x)))
   E u q <*> m     = E u (q |> (`fmap` m))
+  {-# INLINE (<*>) #-}
 
 instance Monad (Eff r) where
+  -- Future versions of GHC will consider any other definition as error.
+  return = pure
   {-# INLINE return #-}
-  {-# INLINE (>>=) #-}
-  return = Val
+
   Val x >>= k = k x
   E u q >>= k = E u (q |> k)
+  {-# INLINE (>>=) #-}
 
 -- | send a request and wait for a reply
 send :: Member t r => t v -> Eff r v
@@ -122,6 +139,7 @@ send t = E (inj t) (tsingleton Val)
 --------------------------------------------------------------------------------
                        -- Base Effect Runner --
 --------------------------------------------------------------------------------
+
 -- | Runs a set of Effects. Requires that all effects are consumed.
 -- Typically composed as follows:
 -- > run . runEff1 eff1Arg . runEff2 eff2Arg1 eff2Arg2 (program)
@@ -185,6 +203,7 @@ interpose ret h = loop
 --------------------------------------------------------------------------------
                     -- Nondeterministic Choice --
 --------------------------------------------------------------------------------
+
 -- | A data type for representing nondeterminstic choice
 data NonDetEff a where
   MZero :: NonDetEff a

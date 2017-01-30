@@ -1,6 +1,7 @@
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.Exception
 -- Description:  An Exception effect and handler.
@@ -21,28 +22,37 @@ module Control.Monad.Freer.Exception (
   catchError
 ) where
 
-import Control.Monad.Freer.Internal
+import Control.Applicative (pure)
+import Data.Either (Either(Left, Right))
+import Data.Function ((.))
+
+import Control.Monad.Freer.Internal (Eff, Member, handleRelay, interpose, send)
+
 
 --------------------------------------------------------------------------------
                            -- Exceptions --
 --------------------------------------------------------------------------------
--- | Exceptions of the type e; no resumption
-newtype Exc e v = Exc e
 
--- | Throws an error carrying information of type e
-throwError :: (Member (Exc e) r) => e -> Eff r a
+-- | Exceptions of the type e; no resumption
+newtype Exc e a = Exc e
+
+-- | Throws an error carrying information of type @e@.
+throwError :: Member (Exc e) effs => e -> Eff effs a
 throwError e = send (Exc e)
 
 -- | Handler for exception effects
 -- If there are no exceptions thrown, returns Right If exceptions are
 -- thrown and not handled, returns Left, interrupting the execution of
 -- any other effect handlers.
-runError :: Eff (Exc e ': r) a -> Eff r (Either e a)
+runError :: Eff (Exc e ': effs) a -> Eff effs (Either e a)
 runError =
-   handleRelay (return . Right) (\ (Exc e) _k -> return (Left e))
+   handleRelay (pure . Right) (\(Exc e) _k -> pure (Left e))
 
 -- | A catcher for Exceptions. Handlers are allowed to rethrow
 -- exceptions.
-catchError :: Member (Exc e) r =>
-        Eff r a -> (e -> Eff r a) -> Eff r a
-catchError m handle = interpose return (\(Exc e) _k -> handle e) m
+catchError
+    :: Member (Exc e) effs
+    => Eff effs a
+    -> (e -> Eff effs a)
+    -> Eff effs a
+catchError m handle = interpose pure (\(Exc e) _k -> handle e) m

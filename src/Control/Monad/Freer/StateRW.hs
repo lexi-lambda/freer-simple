@@ -1,7 +1,8 @@
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.StateRW
 -- Description:  State effects in terms of Reader and Writer.
@@ -24,16 +25,20 @@ module Control.Monad.Freer.StateRW (
   ask
 ) where
 
-import Control.Monad.Freer.Reader
-import Control.Monad.Freer.Writer
-import Control.Monad.Freer.Internal
+import Control.Monad (return)
+import Data.Either (Either(Left, Right))
 
--- | State handler, using Reader/Writer effects
-runStateR :: Eff (Writer s ': Reader s ': r) w -> s -> Eff r (w,s)
+import Control.Monad.Freer.Reader (Reader(Reader), ask)
+import Control.Monad.Freer.Writer (Writer(Writer), tell)
+import Control.Monad.Freer.Internal (Eff(E, Val), decomp, qComp, tsingleton)
+
+
+-- | State handler, using 'Reader' and 'Writer' effects.
+runStateR :: Eff (Writer s ': Reader s ': effs) a -> s -> Eff effs (a, s)
 runStateR m s = loop s m
  where
-   loop :: s -> Eff (Writer s ': Reader s ': r) w -> Eff r (w,s)
-   loop s' (Val x) = return (x,s')
+   loop :: s -> Eff (Writer s ': Reader s ': effs) a -> Eff effs (a, s)
+   loop s' (Val x) = return (x, s')
    loop s' (E u q) = case decomp u of
      Right (Writer o) -> k o ()
      Left  u'  -> case decomp u' of

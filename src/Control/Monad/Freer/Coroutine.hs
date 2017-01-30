@@ -1,7 +1,8 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DataKinds #-}
 -- |
 -- Module:       Control.Monad.Freer.Coroutine
 -- Description:  Composable coroutine effects layer.
@@ -21,7 +22,12 @@ module Control.Monad.Freer.Coroutine (
   runC
 ) where
 
+import Control.Monad (return)
+import Data.Function (($), (.))
+import Data.Functor (Functor)
+
 import Control.Monad.Freer.Internal
+
 
 -- | A type representing a yielding of control
 -- a: The current type

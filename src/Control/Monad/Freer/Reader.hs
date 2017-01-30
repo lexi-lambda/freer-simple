@@ -53,7 +53,7 @@ import Control.Monad.Freer.Internal
 
 -- | Represents shared immutable environment of type @(e :: *)@ which is made
 -- available to effectful computation.
-data Reader e v where
+data Reader e a where
   Reader :: Reader e e
 
 -- | Request a value of the environment.

@@ -1,7 +1,8 @@
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.Fresh
 -- Description:  Generation of fresh integers as an effect.
@@ -21,22 +22,27 @@ module Control.Monad.Freer.Fresh (
   runFresh'
 ) where
 
-import Control.Monad.Freer.Internal
+import Prelude (($!), (+))
+
+import Control.Applicative (pure)
+import Data.Int (Int)
+
+import Control.Monad.Freer.Internal (Eff, Member, handleRelayS, send)
+
 
 --------------------------------------------------------------------------------
                              -- Fresh --
 --------------------------------------------------------------------------------
+
 -- | Fresh effect model
-data Fresh v where
+data Fresh a where
   Fresh :: Fresh Int
 
 -- | Request a fresh effect
-fresh :: Member Fresh r => Eff r Int
+fresh :: Member Fresh effs => Eff effs Int
 fresh = send Fresh
 
--- | Handler for Fresh effects, with an Int for a starting value
-runFresh' :: Eff (Fresh ': r) w -> Int -> Eff r w
+-- | Handler for 'Fresh' effects, with an 'Int' for a starting value.
+runFresh' :: Eff (Fresh ': effs) a -> Int -> Eff effs a
 runFresh' m s =
-  handleRelayS s (\_s x -> return x)
-                 (\s' Fresh k -> (k $! s'+1) s')
-                 m
+    handleRelayS s (\_s a -> pure a) (\s' Fresh k -> (k $! s' + 1) s') m

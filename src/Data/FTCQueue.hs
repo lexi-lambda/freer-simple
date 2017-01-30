@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 -- |
 -- Module:       Data.FTCQueue
 -- Description:  Fast type-aligned queue optimized to effectful functions.

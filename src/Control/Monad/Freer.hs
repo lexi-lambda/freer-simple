@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer
 -- Description:  Freer - an extensible effects library
@@ -28,11 +28,13 @@ module Control.Monad.Freer (
   msplit
 ) where
 
-#if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (pure)
-#endif
+import Control.Monad ((>>=))
+import Data.Function ((.), const)
+import Data.Tuple (uncurry)
 
 import Control.Monad.Freer.Internal
+
 
 runNat
   :: Member m r

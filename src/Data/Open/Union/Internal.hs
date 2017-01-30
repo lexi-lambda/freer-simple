@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -21,7 +22,14 @@
 -- These are internal definitions and should be used with caution. There are no
 -- guarantees that the API of this module will be preserved between minor
 -- versions of this package.
-module Data.Open.Union.Internal where
+module Data.Open.Union.Internal
+  where
+
+import Data.Bool (Bool(False, True))
+import Data.Maybe (Maybe(Just, Nothing))
+import Data.Either (Either(Left, Right), either)
+import Data.Function ((.))
+import Data.Functor (Functor(fmap))
 
 
 data Union (r :: [ * -> * ]) v where
