@@ -2,23 +2,19 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-
-{-|
-Module      : Control.Monad.Freer.Fresh
-Description : Generation of fresh integers as an effect.
-Copyright   : Allele Dev 2016
-License     : BSD-3
-Maintainer  : allele.dev@gmail.com
-Stability   : broken
-Portability : POSIX
-
-Composable handler for Fresh effects. This is likely to be of use when
-implementing De Bruijn naming/scopes.
-
-Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a
-starting point.
-
--}
+-- |
+-- Module:       Control.Monad.Freer.Fresh
+-- Description:  Generation of fresh integers as an effect.
+-- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
+-- License:      BSD3
+-- Maintainer:   ixcom-core@ixperta.com
+-- Stability:    broken
+-- Portability:  POSIX
+--
+-- Composable handler for 'Fresh' effects. This is likely to be of use when
+-- implementing De Bruijn naming/scopes.
+--
+-- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Fresh (
   Fresh(..),
   fresh,

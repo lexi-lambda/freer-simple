@@ -11,25 +11,22 @@
 -- TODO: remove once GHC can deduce the decidability of this instance
 {-# LANGUAGE UndecidableInstances #-}
 
-{-|
-Module      : Control.Monad.Freer.Internal
-Description : Mechanisms to make effects work
-Copyright   : Allele Dev 2016
-License     : BSD-3
-Maintainer  : allele.dev@gmail.com
-Stability   : experimental
-Portability : POSIX
-
-Internal machinery for this effects library. This includes:
-
-* Eff data type, for expressing effects
-* NonDetEff data type, for nondeterministic effects
-* Functions for facilitating the construction of effects and their handlers
-
-Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a
-starting point.
-
--}
+-- |
+-- Module:       Control.Monad.Freer.Internal
+-- Description:  Mechanisms to make effects work.
+-- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
+-- License:      BSD3
+-- Maintainer:   ixcom-core@ixperta.com
+-- Stability:    experimental
+-- Portability:  POSIX
+--
+-- Internal machinery for this effects library. This includes:
+--
+-- * 'Eff' data type, for expressing effects.
+-- * 'NonDetEff' data type, for nondeterministic effects.
+-- * Functions for facilitating the construction of effects and their handlers.
+--
+-- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Internal (
   Eff(..),
   Member(..),

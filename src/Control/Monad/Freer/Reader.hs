@@ -3,23 +3,19 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-
-{-|
-Module      : Control.Monad.Freer.Reader
-Description : Reader effects, for encapsulating an environment
-Copyright   : Allele Dev 2016
-License     : BSD-3
-Maintainer  : allele.dev@gmail.com
-Stability   : experimental
-Portability : POSIX
-
-Composable handler for Reader effects. Handy for encapsulating an
-environment with immutable state for interpreters.
-
-Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a
-starting point.
-
--}
+-- |
+-- Module:       Control.Monad.Freer.Reader
+-- Description:  Reader effects, for encapsulating an environment.
+-- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
+-- License:      BSD3
+-- Maintainer:   ixcom-core@ixperta.com
+-- Stability:    experimental
+-- Portability:  POSIX
+--
+-- Composable handler for 'Reader' effects. Handy for encapsulating an
+-- environment with immutable state for interpreters.
+--
+-- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Reader (
   Reader(..),
 

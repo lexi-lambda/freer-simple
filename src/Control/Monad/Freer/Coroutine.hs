@@ -2,22 +2,18 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
-
-{-|
-Module      : Control.Monad.Freer.Coroutine
-Description : Composable coroutine effects layer.
-Copyright   : Allele Dev 2016
-License     : BSD-3
-Maintainer  : allele.dev@gmail.com
-Stability   : broken
-Portability : POSIX
-
-An effect to compose functions with the ability to yield.
-
-Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a
-starting point.
-
--}
+-- |
+-- Module:       Control.Monad.Freer.Coroutine
+-- Description:  Composable coroutine effects layer.
+-- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
+-- License:      BSD3
+-- Maintainer:   ixcom-core@ixperta.com
+-- Stability:    broken
+-- Portability:  POSIX
+--
+-- An effect to compose functions with the ability to yield.
+--
+-- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Coroutine (
   Yield(..),
   yield,

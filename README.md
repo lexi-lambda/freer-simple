@@ -1,4 +1,4 @@
-# Freer: Extensible Effects with Freer Monads
+# Freer Effects: Extensible Effects with Freer Monads
 
 [![Haskell Programming Language](https://img.shields.io/badge/language-Haskell-blue.svg)](http://www.haskell.org)
 [![BSD3 License](http://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
@@ -7,25 +7,33 @@
 [![Hackage Dependencies](https://img.shields.io/hackage-deps/v/freer.svg)](http://packdeps.haskellers.com/reverse/freer)
 [![Build](https://travis-ci.org/IxpertaSolutions/freer.svg)](https://travis-ci.org/IxpertaSolutions/freer)
 
-Freer is an implementation of
-["Freer Monads, More Extensible Effects"](http://okmij.org/ftp/Haskell/extensible/more.pdf). Much
-of the implementation is a repackaging and cleaning up of the
-reference materials provided
-[here](http://okmij.org/ftp/Haskell/extensible/).
+
+# Description
+
+Library `freer-effects` is an implementation of effect system for Haskell,
+which is based on the work of Oleg Kiselyov et al.:
+
+* [Freer Monads, More Extensible Effects](http://okmij.org/ftp/Haskell/extensible/more.pdf)
+* [Extensible Effects](http://okmij.org/ftp/Haskell/extensible/exteff.pdf)
+
+Much of the implementation is a repackaging and cleaning up of the reference
+materials provided [here](http://okmij.org/ftp/Haskell/extensible/).
+
 
 # Features
 
 The key features of Freer are:
 
-* An efficient effect system for Haskell as a library
-* Implementations for several common Haskell monad instances:
-  * Reader
-  * Writer
-  * State
-  * StateRW: State in terms of Reader/Writer
-  * Trace
-  * Exception
-* Core components for defining your own Effects
+* An efficient effect system for Haskell as a library.
+* Implementations for several common Haskell monads as effects:
+  * `Reader`
+  * `Writer`
+  * `State`
+  * `StateRW`: State in terms of Reader/Writer.
+  * `Trace`
+  * `Exception`
+* Core components for defining your own Effects.
+
 
 # Example: Teletype DSL
 
@@ -86,10 +94,12 @@ runTeletypePure inputs req =
     go (_, os) ExitSuccess _ = pure ([], os)
 ```
 
+
 # Contributing
 
-Contributions are welcome! Documentation, examples, code, and
-feedback - they all help.
+Contributions are welcome! Documentation, examples, code, and feedback - they
+all help.
+
 
 ## Developer Setup
 
@@ -99,26 +109,34 @@ GHC/Haskell for you, and automates common developer tasks.
 
 The key commands are:
 
-* stack setup : install GHC
-* stack build
-* stack clean
-* stack haddock : builds documentation
-* stack test
-* stack bench
-* stack ghci : start a REPL instance
+* `stack setup`: install GHC
+* `stack build`
+* `stack clean`
+* `stack haddock`: builds documentation
+* `stack test`
+* `stack bench`
+* `stack ghci`: start a REPL instance
+
 
 # Licensing
 
 This project is distrubted under a BSD3 license. See the included
 LICENSE file for more details.
 
+
 # Acknowledgements
+
+Package `freer-effects` started as a fork of
+[freer](http://hackage.haskell.org/package/freer) authored by Allele Dev.
 
 This package would not be possible without the paper and the reference
 implementation. In particular:
 
-* Data.Open.Union maps to [OpenUnion41.hs](http://okmij.org/ftp/Haskell/extensible/OpenUnion41.hs)
-* Data.FTCQueue maps to [FTCQueue1](http://okmij.org/ftp/Haskell/extensible/FTCQueue1.hs)
-* Control.Monad.Freer* maps to [Union1.hs](http://okmij.org/ftp/Haskell/extensible/Eff1.hs)
+* `Data.Open.Union` maps to
+  [OpenUnion41.hs](http://okmij.org/ftp/Haskell/extensible/OpenUnion41.hs)
+* `Data.FTCQueue` maps to
+  [FTCQueue1](http://okmij.org/ftp/Haskell/extensible/FTCQueue1.hs)
+* `Control.Monad.Freer*` maps to
+  [Union1.hs](http://okmij.org/ftp/Haskell/extensible/Eff1.hs)
 
 There will be deviations from the source.

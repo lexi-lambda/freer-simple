@@ -2,16 +2,14 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE CPP #-}
-{-|
-Module      : Control.Monad.Freer
-Description : Freer - an extensible effects library
-Copyright   : Allele Dev 2016
-License     : BSD-3
-Maintainer  : allele.dev@gmail.com
-Stability   : experimental
-Portability : POSIX
-
--}
+-- |
+-- Module:       Control.Monad.Freer
+-- Description:  Freer - an extensible effects library
+-- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
+-- License:      BSD3
+-- Maintainer:   ixcom-core@ixperta.com
+-- Stability:    experimental
+-- Portability:  POSIX
 module Control.Monad.Freer (
   Member,
   Members,
