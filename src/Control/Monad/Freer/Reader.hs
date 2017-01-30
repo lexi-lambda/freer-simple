@@ -63,15 +63,15 @@ ask = send Reader
 -- | Request a value of the environment, and apply as selector\/projection
 -- function to it.
 asks
-    :: (e -> a)
+    :: Member (Reader e) effs
+    => (e -> a)
     -- ^ The selector\/projection function to be applied to the environment.
-    -> Eff '[Reader e] a
+    -> Eff effs a
 asks f = f <$> ask
 
 -- | Handler for 'Reader' effects.
 runReader :: Eff (Reader e ': effs) a -> e -> Eff effs a
 runReader m e = handleRelay pure (\Reader k -> k e) m
-
 
 -- | Locally rebind the value in the dynamic environment.
 --
