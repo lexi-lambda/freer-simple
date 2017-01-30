@@ -1,8 +1,9 @@
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.Reader
 -- Description:  Reader effects, for encapsulating an environment.
@@ -16,22 +17,31 @@
 -- environment with immutable state for interpreters.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
-module Control.Monad.Freer.Reader (
-  Reader(..),
+module Control.Monad.Freer.Reader
+    ( Reader(..)
+    , ask
+    , asks
+    , runReader
+    , local
+    -- * Example 1: Simple Reader Usage
+    -- $simpleReaderExample
 
-  ask,
-  asks,
-  runReader,
-  local
-  -- * Example 1: Simple Reader Usage
-  -- $simpleReaderExample
+    -- * Example 2: Modifying Reader Content With @local@
+    -- $localExample
+    )
+  where
 
-  -- * Example 2: Modifying Reader Content With @local@
-  -- $localExample
-
-) where
+import Control.Applicative (pure)
+import Data.Functor ((<$>))
 
 import Control.Monad.Freer.Internal
+    ( Arr
+    , Eff
+    , Member
+    , handleRelay
+    , interpose
+    , send
+    )
 
 -- |
 data Reader e v where
@@ -43,11 +53,11 @@ ask = send Reader
 
 -- | Request a value from the environment and applys as function
 asks :: (b -> a) -> Eff '[Reader b] a
-asks f = ask >>= return . f
+asks f = f <$> ask
 
 -- | Handler for reader effects
 runReader :: Eff (Reader e ': r) w -> e -> Eff r w
-runReader m e = handleRelay return (\Reader k -> k e) m
+runReader m e = handleRelay pure (\Reader k -> k e) m
 
 -- |
 -- Locally rebind the value in the dynamic environment
@@ -60,7 +70,7 @@ local f m = do
   let e = f e0
   let h :: Reader e v -> Arr r v a -> Eff r a
       h Reader g = g e
-  interpose return h m
+  interpose pure h m
 
 
 {- $simpleReaderExample
