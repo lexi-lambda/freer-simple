@@ -9,7 +9,8 @@
 
 -- The following is needed to define MonadPlus instance. It is decidable
 -- (there is no recursion!), but GHC cannot see that.
--- TODO: remove once GHC can deduce the decidability of this instance
+--
+-- TODO: Remove once GHC can deduce the decidability of this instance.
 {-# LANGUAGE UndecidableInstances #-}
 
 -- |
@@ -28,33 +29,48 @@
 -- * Functions for facilitating the construction of effects and their handlers.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
-module Control.Monad.Freer.Internal (
-  Eff(..),
-  Member(..),
-  Members,
-  Arr,
-  Arrs,
-  Union,
+module Control.Monad.Freer.Internal
+    (
+    -- * Effect Monad
+      Eff(..)
+    , Arr
+    , Arrs
 
-  NonDetEff(..),
-  makeChoiceA,
-  msplit,
+    -- ** Open Union
+    --
+    -- | Open Union (type-indexed co-product) of effects.
+    , module Data.Open.Union
 
-  decomp,
-  tsingleton,
-  extract,
+    -- ** Fast Type-aligned Queue
+    --
+    -- | Fast type-aligned queue optimized to effectful functions of type
+    -- @(a -> m b)@.
+    , module Data.FTCQueue
 
-  qApp,
-  qComp,
-  send,
-  run,
-  runM,
-  handleRelay,
-  handleRelayS,
-  interpose,
-) where
+    -- ** Sending Arbitrary Effect
+    , send
 
-import Prelude (error)
+    -- * Handling Effects
+    , run
+    , runM
+
+    -- ** Building Effect Handlers
+    , handleRelay
+    , handleRelayS
+    , interpose
+
+    -- *** Low-level Functions for Building Effect Handlers
+    , qApp
+    , qComp
+
+    -- ** Nondeterminism Effect
+    , NonDetEff(..)
+    , makeChoiceA
+    , msplit
+    )
+  where
+
+import Prelude (error)  -- Function error is used for imposible cases.
 
 import Control.Applicative
     ( Alternative((<|>), empty)
@@ -69,71 +85,73 @@ import Control.Monad
 import Data.Bool (Bool(False, True))
 import Data.Either (Either(Left, Right))
 import Data.Function (($), (.))
-import Data.Functor (fmap)
+import Data.Functor (Functor(fmap))
 import Data.Maybe (Maybe(Just, Nothing))
 
 import Data.FTCQueue
-import Data.Open.Union
+import Data.Open.Union hiding (Functor)
 
 
--- | Effectful arrow type: a function from @a@ to @b@ that also does effects
--- denoted by @r@.
-type Arr r a b = a -> Eff r b
+-- | Effectful arrow type: a function from @a :: *@ to @b :: *@ that also does
+-- effects denoted by @effs :: [* -> *]@.
+type Arr effs a b = a -> Eff effs b
 
--- | An effectful function from @a@ to @b@ that is a composition of
--- several effectful functions. The paremeter r describes the overall
--- effect. The composition members are accumulated in a type-aligned
+-- | An effectful function from @a :: *@ to @b :: *@ that is a composition of
+-- several effectful functions. The paremeter @eff :: [* -> *]@ describes the
+-- overall effect. The composition members are accumulated in a type-aligned
 -- queue.
-type Arrs r a b = FTCQueue (Eff r) a b
+type Arrs effs a b = FTCQueue (Eff effs) a b
 
--- | The Eff representation.
---
--- Status of a coroutine (client):
--- * Val: Done with the value of type a
--- * E  : Sending a request of type Union r with the continuation Arrs r b a
-data Eff r a = Val a
-             | forall b. E (Union r b) (Arrs r b a)
+-- | The Eff monad provides a way to use effects in Haskell, in such a way that
+-- different types of effects can be interleaved, and so that the produced code
+-- is efficient.
+data Eff effs a
+    = Val a
+    -- ^ Pure value (@'return' = 'pure' = 'Val'@).
+    | forall b. E (Union effs b) (Arrs effs b a)
+    -- ^ Sending a request of type @Union effs@ with the continuation
+    -- @'Arrs' r b a@.
 
--- | Function application in the context of an array of effects, Arrs r b w
-qApp :: Arrs r b w -> b -> Eff r w
-qApp q' x =
-   case tviewl q' of
-   TOne k  -> k x
-   k :| t -> case k x of
-     Val y -> qApp t y
-     E u q -> E u (q >< t)
+-- | Function application in the context of an array of effects,
+-- @'Arrs' effs b w@.
+qApp :: Arrs effs b w -> b -> Eff effs w
+qApp q' x = case tviewl q' of
+    TOne k  -> k x
+    k :| t -> case k x of
+        Val y -> qApp t y
+        E u q -> E u (q >< t)
 
--- | Composition of effectful arrows
--- Allows for the caller to change the effect environment, as well
-qComp :: Arrs r a b -> (Eff r b -> Eff r' c) -> Arr r' a c
+-- | Composition of effectful arrows ('Arrs'). Allows for the caller to change
+-- the effect environment, as well.
+qComp :: Arrs effs a b -> (Eff effs b -> Eff effs' c) -> Arr effs' a c
 qComp g h a = h $ qApp g a
 
-instance Functor (Eff r) where
-  fmap f (Val x) = Val (f x)
-  fmap f (E u q) = E u (q |> (Val . f))
-  {-# INLINE fmap #-}
+instance Functor (Eff effs) where
+    fmap f (Val x) = Val (f x)
+    fmap f (E u q) = E u (q |> (Val . f))
+    {-# INLINE fmap #-}
 
-instance Applicative (Eff r) where
-  pure = Val
-  {-# INLINE pure #-}
+instance Applicative (Eff effs) where
+    pure = Val
+    {-# INLINE pure #-}
 
-  Val f <*> Val x = Val $ f x
-  Val f <*> E u q = E u (q |> (Val . f))
-  E u q <*> Val x = E u (q |> (Val . ($ x)))
-  E u q <*> m     = E u (q |> (`fmap` m))
-  {-# INLINE (<*>) #-}
+    Val f <*> Val x = Val $ f x
+    Val f <*> E u q = E u (q |> (Val . f))
+    E u q <*> Val x = E u (q |> (Val . ($ x)))
+    E u q <*> m     = E u (q |> (`fmap` m))
+    {-# INLINE (<*>) #-}
 
-instance Monad (Eff r) where
-  -- Future versions of GHC will consider any other definition as error.
-  return = pure
-  {-# INLINE return #-}
+instance Monad (Eff effs) where
+    -- Future versions of GHC will consider any other definition as error.
+    return = pure
+    {-# INLINE return #-}
 
-  Val x >>= k = k x
-  E u q >>= k = E u (q |> k)
-  {-# INLINE (>>=) #-}
+    Val x >>= k = k x
+    E u q >>= k = E u (q |> k)
+    {-# INLINE (>>=) #-}
 
--- | send a request and wait for a reply
-send :: Member t r => t v -> Eff r v
+-- | Send a request and wait for a reply.
+send :: Member eff effs => eff a -> Eff effs a
 send t = E (inj t) (tsingleton Val)
 
 --------------------------------------------------------------------------------
@@ -142,100 +160,118 @@ send t = E (inj t) (tsingleton Val)
 
 -- | Runs a set of Effects. Requires that all effects are consumed.
 -- Typically composed as follows:
--- > run . runEff1 eff1Arg . runEff2 eff2Arg1 eff2Arg2 (program)
-run :: Eff '[] w -> w
+--
+-- @
+-- 'run' . runEff1 eff1Arg . runEff2 eff2Arg1 eff2Arg2 $ someProgram
+-- @
+run :: Eff '[] a -> a
 run (Val x) = x
 run _       = error "Internal:run - This (E) should never happen"
 
--- | Runs a set of Effects. Requires that all effects are consumed,
--- except for a single effect known to be a monad.
--- The value returned is a computation in that monad.
--- This is useful for plugging in traditional transformer stacks.
-runM :: Monad m => Eff '[m] w -> m w
+-- | Runs a set of Effects. Requires that all effects are consumed, except for
+-- a single effect known to be a monad. The value returned is a computation in
+-- that monad. This is useful for plugging in traditional transformer stacks.
+runM :: Monad m => Eff '[m] a -> m a
 runM (Val x) = return x
 runM (E u q) = case extract u of
-  mb -> mb >>= runM . qApp q
-
--- the other case is unreachable since Union [] a cannot be
--- constructed. Therefore, run is a total function if its argument
--- terminates.
+    mb -> mb >>= runM . qApp q
+    -- The other case is unreachable since Union [] a cannot be constructed.
+    -- Therefore, run is a total function if its argument terminates.
 
 -- | Given a request, either handle it or relay it.
-handleRelay :: (a -> Eff r w) ->
-               (forall v. t v -> Arr r v w -> Eff r w) ->
-               Eff (t ': r) a -> Eff r w
+handleRelay
+    :: (a -> Eff effs b)
+    -- ^ Handle a pure value.
+    -> (forall v. eff v -> Arr effs v b -> Eff effs b)
+    -- ^ Handle a request for effect of type @eff :: * -> *@.
+    -> Eff (eff ': effs) a
+    -> Eff effs b
+    -- ^ Result with effects of type @eff :: * -> *@ handled.
 handleRelay ret h = loop
- where
-  loop (Val x)  = ret x
-  loop (E u' q)  = case decomp u' of
-    Right x -> h x k
-    Left  u -> E u (tsingleton k)
-   where k = qComp q loop
+  where
+    loop (Val x)  = ret x
+    loop (E u' q) = case decomp u' of
+        Right x -> h x k
+        Left  u -> E u (tsingleton k)
+      where
+        k = qComp q loop
 
--- | Parameterized 'handleRelay'
--- Allows sending along some state to be handled for the target
--- effect, or relayed to a handler that can handle the target effect.
-handleRelayS :: s ->
-                (s -> a -> Eff r w) ->
-                (forall v. s -> t v -> (s -> Arr r v w) -> Eff r w) ->
-                Eff (t ': r) a -> Eff r w
+-- | Parameterized 'handleRelay'. Allows sending along some state of type
+-- @s :: *@ to be handled for the target effect, or relayed to a handler that
+-- can- handle the target effect.
+handleRelayS
+    :: s
+    -> (s -> a -> Eff effs b)
+    -- ^ Handle a pure value.
+    -> (forall v. s -> eff v -> (s -> Arr effs v b) -> Eff effs b)
+    -- ^ Handle a request for effect of type @eff :: * -> *@.
+    -> Eff (eff ': effs) a
+    -> Eff effs b
+    -- ^ Result with effects of type @eff :: * -> *@ handled.
 handleRelayS s' ret h = loop s'
   where
     loop s (Val x)  = ret s x
-    loop s (E u' q)  = case decomp u' of
-      Right x -> h s x k
-      Left  u -> E u (tsingleton (k s))
-     where k s'' x = loop s'' $ qApp q x
+    loop s (E u' q) = case decomp u' of
+        Right x -> h s x k
+        Left  u -> E u (tsingleton (k s))
+      where
+        k s'' x = loop s'' $ qApp q x
 
--- | Intercept the request and possibly reply to it, but leave it
--- unhandled
-interpose :: Member t r =>
-             (a -> Eff r w) -> (forall v. t v -> Arr r v w -> Eff r w) ->
-             Eff r a -> Eff r w
+-- | Intercept the request and possibly reply to it, but leave it unhandled.
+interpose
+    :: Member eff effs
+    => (a -> Eff effs b)
+    -> (forall v. eff v -> Arr effs v b -> Eff effs b)
+    -> Eff effs a
+    -> Eff effs b
 interpose ret h = loop
- where
-   loop (Val x)  = ret x
-   loop (E u q)  = case prj u of
-     Just x -> h x k
-     _      -> E u (tsingleton k)
-    where k = qComp q loop
+  where
+    loop (Val x) = ret x
+    loop (E u q) = case prj u of
+        Just x -> h x k
+        _      -> E u (tsingleton k)
+      where
+        k = qComp q loop
 
 --------------------------------------------------------------------------------
                     -- Nondeterministic Choice --
 --------------------------------------------------------------------------------
 
--- | A data type for representing nondeterminstic choice
+-- | A data type for representing nondeterminstic choice.
 data NonDetEff a where
-  MZero :: NonDetEff a
-  MPlus :: NonDetEff Bool
+    MZero :: NonDetEff a
+    MPlus :: NonDetEff Bool
 
-instance Member NonDetEff r => Alternative (Eff r) where
-  empty = mzero
-  (<|>) = mplus
+instance Member NonDetEff effs => Alternative (Eff effs) where
+    empty = mzero
+    (<|>) = mplus
 
-instance Member NonDetEff r => MonadPlus (Eff r) where
-  mzero       = send MZero
-  mplus m1 m2 = send MPlus >>= \x -> if x then m1 else m2
+instance Member NonDetEff effs => MonadPlus (Eff effs) where
+    mzero       = send MZero
+    mplus m1 m2 = send MPlus >>= \x -> if x then m1 else m2
 
--- | A handler for nondeterminstic effects
-makeChoiceA :: Alternative f
-            => Eff (NonDetEff ': r) a -> Eff r (f a)
-makeChoiceA =
-  handleRelay (return . pure) $ \m k ->
+-- | A handler for nondeterminstic effects.
+makeChoiceA
+    :: Alternative f
+    => Eff (NonDetEff ': effs) a
+    -> Eff effs (f a)
+makeChoiceA = handleRelay (return . pure) $ \m k ->
     case m of
-      MZero -> return empty
-      MPlus -> liftM2 (<|>) (k True) (k False)
+        MZero -> return empty
+        MPlus -> liftM2 (<|>) (k True) (k False)
 
-msplit :: Member NonDetEff r
-       => Eff r a -> Eff r (Maybe (a, Eff r a))
+msplit
+    :: Member NonDetEff effs
+    => Eff effs a
+    -> Eff effs (Maybe (a, Eff effs a))
 msplit = loop []
-  where loop jq (Val x)     = return (Just (x, msum jq))
-        loop jq (E u q) =
-          case prj u of
-            Just MZero ->
-              case jq of
-                []     -> return Nothing
-                (j:jq') -> loop jq' j
-            Just MPlus -> loop (qApp q False : jq) (qApp q True)
-            Nothing    -> E u (tsingleton k)
-              where k = qComp q (loop jq)
+  where
+    loop jq (Val x) = return (Just (x, msum jq))
+    loop jq (E u q) = case prj u of
+        Just MZero -> case jq of
+            []      -> return Nothing
+            (j:jq') -> loop jq' j
+        Just MPlus -> loop (qApp q False : jq) (qApp q True)
+        Nothing    -> E u (tsingleton k)
+      where
+        k = qComp q (loop jq)

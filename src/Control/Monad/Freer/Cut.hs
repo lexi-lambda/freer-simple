@@ -15,11 +15,12 @@
 -- effect.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
-module Control.Monad.Freer.Cut (
-  CutFalse(..),
-  cutFalse,
-  -- call
-) where
+module Control.Monad.Freer.Cut
+    ( CutFalse(..)
+    , cutFalse
+--  , call
+    )
+  where
 
 -- import Control.Monad
 import Control.Monad.Freer.Exception

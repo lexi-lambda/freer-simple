@@ -10,23 +10,35 @@
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental
 -- Portability:  POSIX
-module Control.Monad.Freer (
-  Member,
-  Members,
-  Eff,
-  run,
-  runM,
-  runNat,
-  runNatS,
-  handleRelay,
-  handleRelayS,
-  send,
-  Arr,
+module Control.Monad.Freer
+    (
+    -- * Effect Monad
+      Eff
 
-  NonDetEff(..),
-  makeChoiceA,
-  msplit
-) where
+    -- ** Effect Constraints
+    , Member
+    , Members
+
+    -- ** Sending Arbitrary Effect
+    , send
+
+    -- * Handling Effects
+    , Arr
+    , run
+    , runM
+
+    -- ** Building Effect Handlers
+    , runNat
+    , runNatS
+    , handleRelay
+    , handleRelayS
+
+    -- ** Nondeterminism Effect
+    , NonDetEff(..)
+    , makeChoiceA
+    , msplit
+    )
+  where
 
 import Control.Applicative (pure)
 import Control.Monad ((>>=))
@@ -37,12 +49,17 @@ import Control.Monad.Freer.Internal
 
 
 runNat
-  :: Member m r
-  => (forall a. e a -> m a) -> Eff (e ': r) w -> Eff r w
-runNat f = handleRelay pure (\v -> (send (f v) >>=))
+    :: Member m effs
+    => (forall a. eff a -> m a)
+    -> Eff (eff ': effs) b
+    -> Eff effs b
+runNat f = handleRelay pure (\b -> (send (f b) >>=))
 
 runNatS
-  :: Member m r
-  => s -> (forall a. s -> e a -> m (s, a)) -> Eff (e ': r) w -> Eff r w
+    :: Member m effs
+    => s
+    -> (forall a. s -> eff a -> m (s, a))
+    -> Eff (eff ': effs) w
+    -> Eff effs w
 runNatS s0 f =
-  handleRelayS s0 (const pure) (\s v -> (send (f s v) >>=) . uncurry)
+    handleRelayS s0 (const pure) (\s v -> (send (f s v) >>=) . uncurry)

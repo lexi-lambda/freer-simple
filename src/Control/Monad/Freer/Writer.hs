@@ -12,14 +12,17 @@
 -- Stability:    experimental
 -- Portability:  POSIX
 --
--- 'Writer' effects, for writing changes to an attached environment.
+-- 'Writer' effects, for writing\/appending values (line count, list of
+-- messages, etc.) to an output. Current value of 'Writer' effect output is not
+-- accessible to the computation.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
-module Control.Monad.Freer.Writer (
-  Writer(..),
-  tell,
-  runWriter
-) where
+module Control.Monad.Freer.Writer
+    ( Writer(..)
+    , tell
+    , runWriter
+    )
+  where
 
 import Control.Applicative (pure)
 import Data.Function (($))
@@ -31,7 +34,7 @@ import Control.Monad.Freer.Internal (Eff, Member, handleRelay, send)
 
 -- | Writer effects - send outputs to an effect environment.
 data Writer w a where
-  Writer :: w -> Writer w ()
+    Writer :: w -> Writer w ()
 
 -- | Send a change to the attached environment.
 tell :: Member (Writer w) effs => w -> Eff effs ()

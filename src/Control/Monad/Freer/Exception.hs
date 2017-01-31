@@ -15,12 +15,13 @@
 -- via an 'Either' type.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
-module Control.Monad.Freer.Exception (
-  Exc(..),
-  throwError,
-  runError,
-  catchError
-) where
+module Control.Monad.Freer.Exception
+    ( Exc(..)
+    , throwError
+    , runError
+    , catchError
+    )
+  where
 
 import Control.Applicative (pure)
 import Data.Either (Either(Left, Right))
@@ -33,23 +34,20 @@ import Control.Monad.Freer.Internal (Eff, Member, handleRelay, interpose, send)
                            -- Exceptions --
 --------------------------------------------------------------------------------
 
--- | Exceptions of the type e; no resumption
+-- | Exceptions of the type @e :: *@ with no resumption.
 newtype Exc e a = Exc e
 
--- | Throws an error carrying information of type @e@.
+-- | Throws an error carrying information of type @e :: *@.
 throwError :: Member (Exc e) effs => e -> Eff effs a
 throwError e = send (Exc e)
 
--- | Handler for exception effects
--- If there are no exceptions thrown, returns Right If exceptions are
--- thrown and not handled, returns Left, interrupting the execution of
--- any other effect handlers.
+-- | Handler for exception effects. If there are no exceptions thrown, returns
+-- 'Right'. If exceptions are thrown and not handled, returns 'Left', while
+-- interrupting the execution of any other effect handlers.
 runError :: Eff (Exc e ': effs) a -> Eff effs (Either e a)
-runError =
-   handleRelay (pure . Right) (\(Exc e) _k -> pure (Left e))
+runError = handleRelay (pure . Right) (\(Exc e) _k -> pure (Left e))
 
--- | A catcher for Exceptions. Handlers are allowed to rethrow
--- exceptions.
+-- | A catcher for Exceptions. Handlers are allowed to rethrow exceptions.
 catchError
     :: Member (Exc e) effs
     => Eff effs a

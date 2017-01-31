@@ -16,11 +16,12 @@
 -- implementing De Bruijn naming/scopes.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
-module Control.Monad.Freer.Fresh (
-  Fresh(..),
-  fresh,
-  runFresh'
-) where
+module Control.Monad.Freer.Fresh
+    ( Fresh(..)
+    , fresh
+    , runFresh'
+    )
+  where
 
 import Prelude (($!), (+))
 
@@ -34,11 +35,11 @@ import Control.Monad.Freer.Internal (Eff, Member, handleRelayS, send)
                              -- Fresh --
 --------------------------------------------------------------------------------
 
--- | Fresh effect model
+-- | Fresh effect model.
 data Fresh a where
   Fresh :: Fresh Int
 
--- | Request a fresh effect
+-- | Request a fresh effect.
 fresh :: Member Fresh effs => Eff effs Int
 fresh = send Fresh
 
