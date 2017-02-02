@@ -18,6 +18,8 @@ All notable changes to this project will be documented in this file.
 * Fix [freer#13](https://gitlab.com/queertypes/freer/merge_requests/13)
 * Generalised type signature of `asks`.
   [#7](https://github.com/IxpertaSolutions/freer-effects/issues/7)
+* Renamed modules `Data.Open.Union.*` to `Data.OpenUnion.*`.
+  [#8](https://github.com/IxpertaSolutions/freer-effects/issues/8)
 
 ## [0.2.4.1] (November 25, 2016)
 

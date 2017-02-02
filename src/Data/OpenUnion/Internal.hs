@@ -10,7 +10,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 -- |
--- Module:       Control.Monad.Freer
+-- Module:       Data.OpenUnion.Internal
 -- Description:  Open unions (type-indexed co-products) for extensible effects.
 --
 -- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
@@ -22,7 +22,7 @@
 -- These are internal definitions and should be used with caution. There are no
 -- guarantees that the API of this module will be preserved between minor
 -- versions of this package.
-module Data.Open.Union.Internal
+module Data.OpenUnion.Internal
   where
 
 import Data.Bool (Bool(False, True))

@@ -39,7 +39,7 @@ module Control.Monad.Freer.Internal
     -- ** Open Union
     --
     -- | Open Union (type-indexed co-product) of effects.
-    , module Data.Open.Union
+    , module Data.OpenUnion
 
     -- ** Fast Type-aligned Queue
     --
@@ -89,7 +89,7 @@ import Data.Functor (Functor(fmap))
 import Data.Maybe (Maybe(Just, Nothing))
 
 import Data.FTCQueue
-import Data.Open.Union hiding (Functor)
+import Data.OpenUnion hiding (Functor)
 
 
 -- | Effectful arrow type: a function from @a :: *@ to @b :: *@ that also does

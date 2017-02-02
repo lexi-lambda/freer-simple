@@ -63,8 +63,8 @@ library
     , Control.Monad.Freer.Trace
     , Control.Monad.Freer.Writer
     , Data.FTCQueue
-    , Data.Open.Union
-    , Data.Open.Union.Internal
+    , Data.OpenUnion
+    , Data.OpenUnion.Internal
 
   default-language:     Haskell2010
 

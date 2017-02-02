@@ -12,7 +12,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 -- |
--- Module:       Data.Open.Union
+-- Module:       Data.OpenUnion
 -- Description:  Open unions (type-indexed co-products) for extensible effects.
 -- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
 -- License:      BSD3
@@ -31,7 +31,7 @@
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/OpenUnion41.hs> as a starting
 -- point.
-module Data.Open.Union
+module Data.OpenUnion
     (
     -- * Open Union
       Union
@@ -58,7 +58,7 @@ import Data.Kind (Constraint)
 import GHC.Exts (Constraint)
 #endif
 
-import Data.Open.Union.Internal
+import Data.OpenUnion.Internal
     ( Member(inj, prj)
     , Union
     , decomp
