@@ -18,7 +18,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- This implementation relies on _closed_ type families added to GHC 7.8. It
 -- has NO overlapping instances and NO @Typeable@. Alas, the absence of

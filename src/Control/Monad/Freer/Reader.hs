@@ -11,7 +11,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- Composable handler for 'Reader' effects. Handy for encapsulating an
 -- environment with immutable state for interpreters.

@@ -17,7 +17,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- These are internal definitions and should be used with caution. There are no
 -- guarantees that the API of this module will be preserved between minor

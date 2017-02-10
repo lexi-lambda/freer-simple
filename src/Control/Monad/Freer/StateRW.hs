@@ -10,7 +10,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- Composable handler for 'State' effects in terms of 'Reader' and 'Writer'
 -- effects. This module is more a tutorial on how to compose handlers. It is

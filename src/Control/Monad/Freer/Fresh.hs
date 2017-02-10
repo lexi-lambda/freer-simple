@@ -10,7 +10,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    broken
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- Composable handler for 'Fresh' effects. This is likely to be of use when
 -- implementing De Bruijn naming/scopes.

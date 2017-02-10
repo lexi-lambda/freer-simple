@@ -10,7 +10,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    broken
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- An effect to compose functions with the ability to yield.
 --

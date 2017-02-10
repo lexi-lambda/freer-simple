@@ -10,7 +10,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- 'Writer' effects, for writing\/appending values (line count, list of
 -- messages, etc.) to an output. Current value of 'Writer' effect output is not

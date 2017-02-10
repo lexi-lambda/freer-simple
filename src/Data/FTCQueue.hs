@@ -7,7 +7,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- * Constant-time append\/('><') and snoc\/('|>')
 -- * Average constant-time 'viewL' (left-edge deconstruction).

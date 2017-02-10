@@ -9,7 +9,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    broken
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- Composable handler for logical Cut effects. Implemented in terms of 'Exc'
 -- effect.

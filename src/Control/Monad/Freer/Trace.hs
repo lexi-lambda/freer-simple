@@ -10,7 +10,7 @@
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental
--- Portability:  POSIX
+-- Portability:  GHC specific language extensions.
 --
 -- Composable handler for 'Trace' effects. Trace allows one to debug the
 -- operation of sequences of effects by outputing to the console.
