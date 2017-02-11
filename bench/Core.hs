@@ -32,8 +32,12 @@ import Control.Monad.Freer.StateRW (ask, tell, runStateR)
 --------------------------------------------------------------------------------
                         -- State Benchmarks --
 --------------------------------------------------------------------------------
+
 oneGet :: Int -> (Int, Int)
 oneGet n = run (runState get n)
+
+oneGetMTL :: Int -> (Int, Int)
+oneGetMTL n = MTL.runState MTL.get n
 
 countDown :: Int -> (Int,Int)
 countDown start = run (runState go start)
@@ -138,7 +142,8 @@ main :: IO ()
 main =
   defaultMain [
     bgroup "State" [
-        bench "get"          $ whnf oneGet 0
+        bench "freer.get"          $ whnf oneGet 0
+      , bench "mtl.get"            $ whnf oneGetMTL 0
     ],
     bgroup "Countdown Bench" [
         bench "freer.State"    $ whnf countDown 10000
