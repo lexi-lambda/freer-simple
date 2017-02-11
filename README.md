@@ -3,9 +3,9 @@
 [![Haskell Programming Language](https://img.shields.io/badge/language-Haskell-blue.svg)](http://www.haskell.org)
 [![BSD3 License](http://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
 
-[![Hackage](http://img.shields.io/hackage/v/freer.svg)](https://hackage.haskell.org/package/freer)
-[![Hackage Dependencies](https://img.shields.io/hackage-deps/v/freer.svg)](http://packdeps.haskellers.com/reverse/freer)
-[![Build](https://travis-ci.org/IxpertaSolutions/freer.svg)](https://travis-ci.org/IxpertaSolutions/freer)
+[![Hackage](http://img.shields.io/hackage/v/freer-effects.svg)](https://hackage.haskell.org/package/freer)
+[![Hackage Dependencies](https://img.shields.io/hackage-deps/v/freer-effects.svg)](http://packdeps.haskellers.com/reverse/freer)
+[![Build](https://travis-ci.org/IxpertaSolutions/freer-effects.svg?branch=master)](https://travis-ci.org/IxpertaSolutions/freer)
 
 
 # Description
