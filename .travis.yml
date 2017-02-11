@@ -30,7 +30,7 @@ matrix:
       addons: {apt: {packages: [cabal-install-head, ghc-head], sources: [hvr-ghc]}}
 
   allow_failures:
-    - env: CABALVER=head GHCVER=head
+    - env: CABALVER=head GHCVER=head DO_CHECKS=1
 
 before_install:
  - unset CC
