@@ -143,15 +143,7 @@ class FindElem t r => Member (t :: * -> *) r where
     -- /O(1)/
     prj :: Union r a -> Maybe (t a)
 
--- | This instance is not necessary, but it's here for optimisation.
-instance Member t '[t] where
-    inj x = Union 0 x
-    {-# INLINE inj #-}
-
-    prj (Union _ x) = Just (unsafeCoerce x)
-    {-# INLINE prj #-}
-
-instance PRAGMA_OVERLAPPABLE FindElem t r => Member t r where
+instance FindElem t r => Member t r where
     inj = unsafeInj $ unP (elemNo :: P t r)
     {-# INLINE inj #-}
 
