@@ -44,13 +44,8 @@ module Data.OpenUnion
     -- * Open Union Membership Constraints
     , Member(..)
     , Members
-
-    -- * Re-exported
-    , Functor(..)
     )
   where
-
-import Data.Functor (Functor(..))
 
 #if MIN_VERSION_base(4,9,0)
 import Data.Kind (Constraint)

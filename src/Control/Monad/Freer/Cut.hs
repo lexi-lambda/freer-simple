@@ -23,8 +23,8 @@ module Control.Monad.Freer.Cut
   where
 
 -- import Control.Monad
-import Control.Monad.Freer.Exception
-import Control.Monad.Freer.Internal
+import Control.Monad.Freer.Exception (Exc, throwError)
+import Control.Monad.Freer.Internal (Eff, Member)
 
 
 data CutFalse = CutFalse

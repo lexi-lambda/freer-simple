@@ -46,6 +46,19 @@ import Data.Function (($), (.), const)
 import Data.Tuple (uncurry)
 
 import Control.Monad.Freer.Internal
+    ( Arr
+    , Eff
+    , Member
+    , Members
+    , NonDetEff(MPlus, MZero)
+    , handleRelay
+    , handleRelayS
+    , makeChoiceA
+    , msplit
+    , run
+    , runM
+    , send
+    )
 
 
 -- | Variant of 'handleRelay' simplified for the common case.

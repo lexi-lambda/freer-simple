@@ -13,6 +13,9 @@
 -- TODO: Remove once GHC can deduce the decidability of this instance.
 {-# LANGUAGE UndecidableInstances #-}
 
+-- Due to re-export of Data.FTCQueue, and Data.OpenUnion.
+{-# OPTIONS_GHC -fno-warn-missing-import-lists #-}
+
 -- |
 -- Module:       Control.Monad.Freer.Internal
 -- Description:  Mechanisms to make effects work.
@@ -89,7 +92,7 @@ import Data.Functor (Functor(fmap))
 import Data.Maybe (Maybe(Just, Nothing))
 
 import Data.FTCQueue
-import Data.OpenUnion hiding (Functor)
+import Data.OpenUnion
 
 
 -- | Effectful arrow type: a function from @a :: *@ to @b :: *@ that also does

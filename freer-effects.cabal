@@ -70,7 +70,15 @@ library
 
   build-depends:        base >=4.7 && <5
 
-  ghc-options:          -Wall
+  ghc-options:
+    -Wall
+    -fwarn-tabs
+    -fwarn-implicit-prelude
+    -fwarn-missing-import-lists
+
+  if impl(ghc >=8)
+    -- Flag -Wredundant-constraints is available only on GHC >=8.
+    ghc-options:        -Wredundant-constraints
 
   if flag(pedantic)
     ghc-options:        -Werror
@@ -142,13 +150,13 @@ test-suite hlint
     -Wall
     -fwarn-tabs
     -fwarn-implicit-prelude
+    -fwarn-missing-import-lists
     -threaded
     -with-rtsopts=-N
 
   if impl(ghc >=8)
-    ghc-options:        -fwarn-redundant-constraints
-    -- Older Cabal generates warnings with its Paths_* module.
-    ghc-options:        -fwarn-missing-import-lists
+    -- Flag -Wredundant-constraints is available only on GHC >=8.
+    ghc-options:        -Wredundant-constraints
 
   if flag(pedantic)
     ghc-options:        -Werror

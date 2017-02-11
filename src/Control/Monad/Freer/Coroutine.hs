@@ -27,7 +27,7 @@ import Control.Monad (return)
 import Data.Function (($), (.))
 import Data.Functor (Functor)
 
-import Control.Monad.Freer.Internal
+import Control.Monad.Freer.Internal (Arr, Eff, Member, handleRelay, send)
 
 
 -- | A type representing a yielding of control.
