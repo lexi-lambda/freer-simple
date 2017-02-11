@@ -22,8 +22,8 @@ license-file:           LICENSE
 author:                 Allele Dev, Ixcom Core Team, and other contributors
 maintainer:             ixcom-core@ixperta.com
 copyright:              (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
-homepage:               https://github.com/IxpertaSolutions/freer
-bug-reports:            https://github.com/IxpertaSolutions/freer/issues
+homepage:               https://github.com/IxpertaSolutions/freer-effects
+bug-reports:            https://github.com/IxpertaSolutions/freer-effects/issues
 category:               Control
 
 build-type:             Simple
@@ -36,7 +36,7 @@ extra-source-files:
 
 source-repository head
   type:                 git
-  location:             git clone https://github.com/IxpertaSolutions/freer.git
+  location:             https://github.com/IxpertaSolutions/freer-effects.git
 
 flag pedantic
   description:          Pass additional warning flags and -Werror to GHC.
