@@ -77,12 +77,16 @@ library
     -fwarn-implicit-prelude
     -fwarn-missing-import-lists
 
+  if impl(ghc >=7.10)
+    cpp-options:        -DDEPRECATED_LANGUAGE_OVERLAPPING_INSTANCES
+
   if impl(ghc >=8)
     -- Flag -Wredundant-constraints is available only on GHC >=8.
     ghc-options:        -Wredundant-constraints
 
   if flag(pedantic)
-    ghc-options:        -Werror
+    ghc-options:
+      -Werror
 
 executable freer-examples
   hs-source-dirs:       examples/src
