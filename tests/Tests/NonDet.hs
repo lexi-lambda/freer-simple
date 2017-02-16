@@ -1,15 +1,16 @@
 {-# LANGUAGE FlexibleContexts #-}
-module Tests.NonDetEff where
+module Tests.NonDet where
 
 import Control.Applicative
 import Control.Monad
 import Control.Monad.Freer
+import Control.Monad.Freer.NonDet
 
-ifte :: Member NonDetEff r
+ifte :: Member NonDet r
      => Eff r a -> (a -> Eff r b) -> Eff r b -> Eff r b
 ifte t th el = msplit t >>= maybe el (\(a,m) -> th a <|> (m >>= th))
 
-generatePrimes :: Member NonDetEff r => [Int] -> Eff r Int
+generatePrimes :: Member NonDet r => [Int] -> Eff r Int
 generatePrimes xs = do
   n <- gen
   ifte (do d <- gen

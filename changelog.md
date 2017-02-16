@@ -20,6 +20,8 @@ All notable changes to this project will be documented in this file.
   [#7](https://github.com/IxpertaSolutions/freer-effects/issues/7)
 * Renamed modules `Data.Open.Union.*` to `Data.OpenUnion.*`.
   [#8](https://github.com/IxpertaSolutions/freer-effects/issues/8)
+* `NonDetEff` separated into its own module and renamed to `NonDet`.
+  [#11](https://github.com/IxpertaSolutions/freer-effects/issues/11)
 
 ## [0.2.4.1] (November 25, 2016)
 

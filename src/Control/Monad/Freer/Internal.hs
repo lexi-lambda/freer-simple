@@ -28,7 +28,7 @@
 -- Internal machinery for this effects library. This includes:
 --
 -- * 'Eff' data type, for expressing effects.
--- * 'NonDetEff' data type, for nondeterministic effects.
+-- * 'NonDet' data type, for nondeterministic effects.
 -- * Functions for facilitating the construction of effects and their handlers.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
@@ -67,9 +67,7 @@ module Control.Monad.Freer.Internal
     , qComp
 
     -- ** Nondeterminism Effect
-    , NonDetEff(..)
-    , makeChoiceA
-    , msplit
+    , NonDet(..)
     )
   where
 
@@ -82,14 +80,12 @@ import Control.Applicative
 import Control.Monad
     ( Monad((>>=), return)
     , MonadPlus(mplus, mzero)
-    , liftM2
-    , msum
     )
-import Data.Bool (Bool(False, True))
+import Data.Bool (Bool)
 import Data.Either (Either(Left, Right))
 import Data.Function (($), (.))
 import Data.Functor (Functor(fmap))
-import Data.Maybe (Maybe(Just, Nothing))
+import Data.Maybe (Maybe(Just))
 
 import Data.FTCQueue
 import Data.OpenUnion
@@ -241,40 +237,14 @@ interpose ret h = loop
 --------------------------------------------------------------------------------
 
 -- | A data type for representing nondeterminstic choice.
-data NonDetEff a where
-    MZero :: NonDetEff a
-    MPlus :: NonDetEff Bool
+data NonDet a where
+    MZero :: NonDet a
+    MPlus :: NonDet Bool
 
-instance Member NonDetEff effs => Alternative (Eff effs) where
+instance Member NonDet effs => Alternative (Eff effs) where
     empty = mzero
     (<|>) = mplus
 
-instance Member NonDetEff effs => MonadPlus (Eff effs) where
+instance Member NonDet effs => MonadPlus (Eff effs) where
     mzero       = send MZero
     mplus m1 m2 = send MPlus >>= \x -> if x then m1 else m2
-
--- | A handler for nondeterminstic effects.
-makeChoiceA
-    :: Alternative f
-    => Eff (NonDetEff ': effs) a
-    -> Eff effs (f a)
-makeChoiceA = handleRelay (return . pure) $ \m k ->
-    case m of
-        MZero -> return empty
-        MPlus -> liftM2 (<|>) (k True) (k False)
-
-msplit
-    :: Member NonDetEff effs
-    => Eff effs a
-    -> Eff effs (Maybe (a, Eff effs a))
-msplit = loop []
-  where
-    loop jq (Val x) = return (Just (x, msum jq))
-    loop jq (E u q) = case prj u of
-        Just MZero -> case jq of
-            []      -> return Nothing
-            (j:jq') -> loop jq' j
-        Just MPlus -> loop (qApp q False : jq) (qApp q True)
-        Nothing    -> E u (tsingleton k)
-      where
-        k = qComp q (loop jq)

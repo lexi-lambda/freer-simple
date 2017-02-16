@@ -32,11 +32,6 @@ module Control.Monad.Freer
     , runNatS
     , handleRelay
     , handleRelayS
-
-    -- ** Nondeterminism Effect
-    , NonDetEff(..)
-    , makeChoiceA
-    , msplit
     )
   where
 
@@ -50,11 +45,8 @@ import Control.Monad.Freer.Internal
     , Eff
     , Member
     , Members
-    , NonDetEff(MPlus, MZero)
     , handleRelay
     , handleRelayS
-    , makeChoiceA
-    , msplit
     , run
     , runM
     , send

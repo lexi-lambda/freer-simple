@@ -57,6 +57,7 @@ library
     , Control.Monad.Freer.Exception
     , Control.Monad.Freer.Fresh
     , Control.Monad.Freer.Internal
+    , Control.Monad.Freer.NonDet
     , Control.Monad.Freer.Reader
     , Control.Monad.Freer.State
     , Control.Monad.Freer.StateRW
@@ -91,7 +92,7 @@ executable freer-examples
     , Coroutine
     , Cut
     , Fresh
-    , NonDetEff
+    , NonDet
     , Teletype
     , Trace
 
@@ -113,7 +114,7 @@ test-suite test
     , Tests.Coroutine
     , Tests.Exception
     , Tests.Fresh
-    , Tests.NonDetEff
+    , Tests.NonDet
     , Tests.Reader
     , Tests.State
     , Tests.StateRW
