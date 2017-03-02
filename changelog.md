@@ -15,7 +15,6 @@ All notable changes to this project will be documented in this file.
   [freer!14](https://gitlab.com/queertypes/freer/merge_requests/14)
 * Data constructors of `Yield`, `CutFalse`, `Fresh`, `State` and `Trace`
   are now exposed in addition to `Exc`, `Reader` and `Writer`
-* Fix [freer!13](https://gitlab.com/queertypes/freer/merge_requests/13)
 * Generalised type signature of `asks`.
   [#7](https://github.com/IxpertaSolutions/freer-effects/issues/7)
 * Renamed modules `Data.Open.Union.*` to `Data.OpenUnion.*`.
