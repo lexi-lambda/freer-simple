@@ -133,8 +133,8 @@ Package `freer-effects` started as a fork of
 This package would not be possible without the paper and the reference
 implementation. In particular:
 
-* `Data.Open.Union` maps to
-  [OpenUnion41.hs](http://okmij.org/ftp/Haskell/extensible/OpenUnion41.hs)
+* `Data.OpenUnion` maps to
+  [OpenUnion51.hs](http://okmij.org/ftp/Haskell/extensible/OpenUnion51.hs)
 * `Data.FTCQueue` maps to
   [FTCQueue1](http://okmij.org/ftp/Haskell/extensible/FTCQueue1.hs)
 * `Control.Monad.Freer*` maps to

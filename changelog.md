@@ -21,6 +21,9 @@ All notable changes to this project will be documented in this file.
   [#8](https://github.com/IxpertaSolutions/freer-effects/issues/8)
 * `NonDetEff` separated into its own module and renamed to `NonDet`.
   [#11](https://github.com/IxpertaSolutions/freer-effects/issues/11)
+* Reimplement `Union` using
+  <http://okmij.org/ftp/Haskell/extensible/OpenUnion51.hs> as a basis.
+  [#14](https://github.com/IxpertaSolutions/freer-effects/issues/14)
 
 ## [0.2.4.1] (November 25, 2016)
 
