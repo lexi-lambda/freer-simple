@@ -138,6 +138,6 @@ implementation. In particular:
 * `Data.FTCQueue` maps to
   [FTCQueue1](http://okmij.org/ftp/Haskell/extensible/FTCQueue1.hs)
 * `Control.Monad.Freer*` maps to
-  [Union1.hs](http://okmij.org/ftp/Haskell/extensible/Eff1.hs)
+  [Eff1.hs](http://okmij.org/ftp/Haskell/extensible/Eff1.hs)
 
 There will be deviations from the source.
