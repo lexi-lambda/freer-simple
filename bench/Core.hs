@@ -1,17 +1,27 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 module Main where
 
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative
-#endif
-import Control.Monad
+import Prelude ((-))
+
+import Control.Applicative (pure)
+import Control.Monad ((>>=), (>>), replicateM_)
+import Data.Either (Either(Left, Right))
+import Data.Function ((.), ($), id)
+import Data.Functor (Functor)
+import Data.Int (Int)
+import Data.Maybe (Maybe)
+import Data.Ord ((<=))
+import Data.String (String)
+import System.IO (IO)
+
 #if MIN_VERSION_mtl(2,2,1)
 import qualified Control.Monad.Except as MTL
 #else
@@ -41,15 +51,15 @@ oneGetMTL n = MTL.runState MTL.get n
 
 countDown :: Int -> (Int,Int)
 countDown start = run (runState go start)
-  where go = get >>= (\n -> if n <= 0 then return n else put (n-1) >> go)
+  where go = get >>= (\n -> if n <= 0 then pure n else put (n-1) >> go)
 
 countDownRW :: Int -> (Int,Int)
 countDownRW start = run (runStateR go start)
-  where go = ask >>= (\n -> if n <= 0 then return n else tell (n-1) >> go)
+  where go = ask >>= (\n -> if n <= 0 then pure n else tell (n-1) >> go)
 
 countDownMTL :: Int -> (Int,Int)
 countDownMTL = MTL.runState go
-  where go = MTL.get >>= (\n -> if n <= 0 then return n else MTL.put (n-1) >> go)
+  where go = MTL.get >>= (\n -> if n <= 0 then pure n else MTL.put (n-1) >> go)
 
 --------------------------------------------------------------------------------
                        -- Exception + State --
@@ -84,7 +94,7 @@ get' :: Member Http r => Eff r String
 get' = send Get
 
 runHttp :: Eff (Http ': r) w -> Eff r w
-runHttp (Val x) = return x
+runHttp (Val x) = pure x
 runHttp (E u q) = case decomp u of
   Right (Open _) -> runHttp (qApp q ())
   Right Close    -> runHttp (qApp q ())
@@ -117,7 +127,7 @@ fget' :: FHttp String
 fget' = Free.liftF $ FGet id
 
 runFHttp :: FHttp a -> Maybe a
-runFHttp (Free.Pure x) = return x
+runFHttp (Free.Pure x) = pure x
 runFHttp (Free.Free (FOpen _ n)) = runFHttp n
 runFHttp (Free.Free (FClose n))  = runFHttp n
 runFHttp (Free.Free (FPost s n)) = pure s  >>= runFHttp . n
