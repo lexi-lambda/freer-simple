@@ -135,7 +135,6 @@ test-suite test
     ghc-options:        -Werror
 
 test-suite hlint
-  buildable:            False
   hs-source-dirs:       tests
   type:                 exitcode-stdio-1.0
   main-is:              hlint.hs
@@ -146,6 +145,8 @@ test-suite hlint
     build-depends:
         base >=4.8 && <5.0
       , hlint ==1.9.*
+  else
+    buildable:          False
 
   ghc-options:
     -Wall
