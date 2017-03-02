@@ -44,10 +44,10 @@ import Control.Monad.Freer.StateRW (ask, tell, runStateR)
 --------------------------------------------------------------------------------
 
 oneGet :: Int -> (Int, Int)
-oneGet n = run (runState get n)
+oneGet = run . runState get
 
 oneGetMTL :: Int -> (Int, Int)
-oneGetMTL n = MTL.runState MTL.get n
+oneGetMTL = MTL.runState MTL.get
 
 countDown :: Int -> (Int,Int)
 countDown start = run (runState go start)

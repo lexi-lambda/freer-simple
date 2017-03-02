@@ -25,6 +25,7 @@ module Control.Monad.Freer.Writer
   where
 
 import Control.Applicative (pure)
+import Control.Arrow (second)
 import Data.Function (($))
 import Data.Functor ((<$>))
 import Data.Monoid (Monoid, (<>), mempty)
@@ -43,4 +44,4 @@ tell w = send $ Writer w
 -- | Simple handler for 'Writer' effects.
 runWriter :: Monoid w => Eff (Writer w ': effs) a -> Eff effs (a, w)
 runWriter = handleRelay (\a -> pure (a, mempty)) $ \(Writer w) k ->
-    (\(a, l) -> (a, w <> l)) <$> k ()
+    second (w <>) <$> k ()
