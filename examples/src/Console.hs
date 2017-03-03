@@ -17,9 +17,9 @@ import Control.Monad.Freer.Internal
                           -- Effect Model --
 -------------------------------------------------------------------------------
 data Console s where
-  PutStrLn    :: String -> Console ()
-  GetLine     :: Console String
-  ExitSuccess :: Console ()
+    PutStrLn    :: String -> Console ()
+    GetLine     :: Console String
+    ExitSuccess :: Console ()
 
 putStrLn' :: Member Console r => String -> Eff r ()
 putStrLn' = send . PutStrLn
@@ -36,17 +36,17 @@ exitSuccess' = send ExitSuccess
 runConsole :: Eff '[Console, IO] w -> IO w
 runConsole req = runM (handleRelay pure go req)
   where
-   go :: Console v -> Arr '[IO] v w -> Eff '[IO] w
-   go (PutStrLn msg) q = send (putStrLn msg) >>= q
-   go GetLine q = send getLine >>= q
-   go ExitSuccess q = send exitSuccess >>= q
+    go :: Console v -> Arr '[IO] v w -> Eff '[IO] w
+    go (PutStrLn msg) q = send (putStrLn msg) >>= q
+    go GetLine q = send getLine >>= q
+    go ExitSuccess q = send exitSuccess >>= q
 
 -------------------------------------------------------------------------------
                         -- Pure Interpreter Simple --
 -------------------------------------------------------------------------------
 runConsolePure :: [String] -> Eff '[Console] w -> [String]
 runConsolePure inputs req =
-  reverse . snd $ run (handleRelayS (inputs, []) (\s _ -> pure s) go req)
+    reverse . snd $ run (handleRelayS (inputs, []) (\s _ -> pure s) go req)
   where
     go :: ([String], [String])
        -> Console v
