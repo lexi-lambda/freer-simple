@@ -90,11 +90,11 @@ executable freer-examples
   other-modules:
       Capitalize
     , Common
+    , Console
     , Coroutine
     , Cut
     , Fresh
     , NonDet
-    , Teletype
     , Trace
 
   default-language:     Haskell2010

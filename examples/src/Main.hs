@@ -9,13 +9,13 @@ import System.Environment (getArgs)
 import Control.Monad.Freer
 
 import Capitalize
-import Teletype
+import Console
 
 -------------------------------------------------------------------------------
 -- Example
 -------------------------------------------------------------------------------
-capitalizingTeletype :: (Member Teletype r, Member Capitalize r) => Eff r ()
-capitalizingTeletype = forever $ do
+capitalizingService :: (Member Console r, Member Capitalize r) => Eff r ()
+capitalizingService = forever $ do
     putStrLn' "Send something to capitalize..."
     l <- getLine'
     when (null l) exitSuccess'
@@ -24,24 +24,24 @@ capitalizingTeletype = forever $ do
 
 mainPure :: IO ()
 mainPure = print . run
-    . runTeletypePureM ["cat", "fish", "dog", "bird", ""]
-    $ runCapitalizeM capitalizingTeletype
+    . runConsolePureM ["cat", "fish", "dog", "bird", ""]
+    $ runCapitalizeM capitalizingService
 
 mainConsoleA :: IO ()
-mainConsoleA = runM (runTeletypeM (runCapitalizeM capitalizingTeletype))
+mainConsoleA = runM (runConsoleM (runCapitalizeM capitalizingService))
 --             |     |             |              |
 --      IO () -'     |             |              |
 --     Eff '[IO] () -'             |              |
---         Eff '[Teletype, IO] () -'              |
---            Eff '[Capitalize, Teletype, IO] () -'
+--          Eff '[Console, IO] () -'              |
+--             Eff '[Capitalize, Console, IO] () -'
 
 mainConsoleB :: IO ()
-mainConsoleB = runM (runCapitalizeM (runTeletypeM capitalizingTeletype))
+mainConsoleB = runM (runCapitalizeM (runConsoleM capitalizingService))
 --             |     |             |              |
 --      IO () -'     |             |              |
 --     Eff '[IO] () -'             |              |
 --       Eff '[Capitalize, IO] () -'              |
---            Eff '[Teletype, Capitalize, IO] () -'
+--             Eff '[Console, Capitalize, IO] () -'
 
 main :: IO ()
 main = getArgs >>= \case
