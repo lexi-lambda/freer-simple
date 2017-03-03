@@ -65,9 +65,9 @@ runConsoleM :: Member IO r => Eff (Console ': r) w -> Eff r w
 runConsoleM (Val x) = return x
 runConsoleM (E u q) = case decomp u of
     Right (PutStrLn msg) -> send (putStrLn msg) >> runConsoleM (qApp q ())
-    Right GetLine        -> send getLine >>= \s -> runConsoleM (qApp q s)
+    Right GetLine        -> send getLine >>=       runConsoleM . qApp q
     Right ExitSuccess    -> send exitSuccess
-    Left u'              -> E u' (tsingleton (\s -> runConsoleM (qApp q s)))
+    Left u'              -> E u' (tsingleton (runConsoleM . qApp q))
 
 -------------------------------------------------------------------------------
                      -- Pure Interpreter for Deeper Stack --
@@ -89,4 +89,4 @@ runConsolePureM inputs = f (inputs,[]) where
             x:s -> f (s,os) (qApp q x)
             []  -> error "Not enough lines"
         Right ExitSuccess    -> pure (Nothing, st)
-        Left u'              -> E u' (tsingleton (\s -> f st (qApp q s)))
+        Left u'              -> E u' (tsingleton (f st . qApp q))

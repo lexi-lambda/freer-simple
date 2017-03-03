@@ -19,4 +19,4 @@ runCapitalizeM :: Eff (Capitalize ': r) w -> Eff r w
 runCapitalizeM (Val x) = return x
 runCapitalizeM (E u q) = case decomp u of
     Right (Capitalize s) -> runCapitalizeM (qApp q (map toUpper s))
-    Left u'              -> E u' (tsingleton (\s -> runCapitalizeM (qApp q s)))
+    Left u'              -> E u' (tsingleton (runCapitalizeM . qApp q))
