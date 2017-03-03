@@ -4,6 +4,8 @@
 module Main where
 
 import Control.Monad (forever, when)
+import Data.List (intercalate)
+import Data.Maybe (fromMaybe)
 import System.Environment (getArgs)
 
 import Control.Monad.Freer
@@ -43,9 +45,17 @@ mainConsoleB = runM (runCapitalizeM (runConsoleM capitalizingService))
 --       Eff '[Capitalize, IO] () -'              |
 --             Eff '[Console, Capitalize, IO] () -'
 
+examples :: [(String, IO ())]
+examples =
+    [ ("pure", mainPure)
+    , ("consoleA", mainConsoleA)
+    , ("consoleB", mainConsoleB)
+    ]
+
 main :: IO ()
 main = getArgs >>= \case
-    ["pure"] -> mainPure
-    ["consoleA"] -> mainConsoleA
-    ["consoleB"] -> mainConsoleB
-    _ -> putStrLn "Bad argument. Look into source for possible values."
+    [x] -> fromMaybe e $ lookup x examples
+    _ -> e
+  where
+    e = putStrLn msg
+    msg = "Usage: prog [" ++ intercalate "|" (map fst examples) ++ "]"
