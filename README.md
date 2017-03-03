@@ -98,6 +98,12 @@ runConsolePure inputs req =
     go (_,    os) ExitSuccess    _ = pure ([], os)
 ```
 
+# Combining with Transformers
+
+You already have some [`mtl`](http://hackage.haskell.org/package/mtl) code and
+are afraid that combining effects with your current tranformer stack would not
+be possible? Package [`freer-extras`](https://github.com/trskop/freer-extra)
+has some `mtl`-related and other goodies.
 
 # Contributing
 
