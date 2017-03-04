@@ -92,12 +92,13 @@ executable freer-examples
   hs-source-dirs:       examples/src
   main-is:              Main.hs
   other-modules:
-      Common
+      Capitalize
+    , Common
+    , Console
     , Coroutine
     , Cut
     , Fresh
     , NonDet
-    , Teletype
     , Trace
 
   default-language:     Haskell2010
