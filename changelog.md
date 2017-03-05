@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.3.0.0] (March 06, 2017)
 
 * Package renamed to `freer-effects` to distinguish it from original `freer`.
   [#4](https://github.com/IxpertaSolutions/freer-effects/issues/4)
@@ -85,5 +85,5 @@ All notable changes to this project will be documented in this file.
 
 * Initial release
 
-[Unreleased]: https://github.com/IxpertaSolutions/freer/compare/0.2.4.1...HEAD
+[0.3.0.0]: https://github.com/IxpertaSolutions/freer/compare/0.2.4.1...0.3.0.0
 [0.2.4.1]: https://github.com/IxpertaSolutions/freer/compare/0.2.4.0...0.2.4.1
