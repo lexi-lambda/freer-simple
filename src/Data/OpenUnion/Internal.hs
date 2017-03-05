@@ -180,8 +180,8 @@ extract :: Union '[t] a -> t a
 extract (Union _ a) = unsafeCoerce a
 {-# INLINE extract #-}
 
--- | Inject whole @'Union' r@ in to weaker union @'Union' (any ': r)@ that has
--- one more summand.
+-- | Inject whole @'Union' r@ into a weaker @'Union' (any ': r)@ that has one
+-- more summand.
 --
 -- /O(1)/
 weaken :: Union r a -> Union (any ': r) a
