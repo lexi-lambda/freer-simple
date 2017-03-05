@@ -27,12 +27,12 @@ The key features of Freer are:
 
 * An efficient effect system for Haskell as a library.
 * Implementations for several common Haskell monads as effects:
-  * `Reader`
-  * `Writer`
-  * `State`
-  * `StateRW`: State in terms of Reader/Writer.
-  * `Trace`
-  * `Exception`
+    * `Reader`
+    * `Writer`
+    * `State`
+    * `StateRW`: State in terms of Reader/Writer.
+    * `Trace`
+    * `Exception`
 * Core components for defining your own Effects.
 
 
@@ -52,47 +52,48 @@ import Control.Monad.Freer.Internal
 import System.Exit hiding (ExitSuccess)
 
 --------------------------------------------------------------------------------
-                          -- Effect Model --
+                               -- Effect Model --
 --------------------------------------------------------------------------------
 data Console s where
-  PutStrLn    :: String -> Console ()
-  GetLine     :: Console String
-  ExitSuccess :: Console ()
+    PutStrLn    :: String -> Console ()
+    GetLine     :: Console String
+    ExitSuccess :: Console ()
 
 putStrLn' :: Member Console r => String -> Eff r ()
 putStrLn' = send . PutStrLn
 
-getLine'  :: Member Console r => Eff r String
+getLine' :: Member Console r => Eff r String
 getLine' = send GetLine
 
 exitSuccess' :: Member Console r => Eff r ()
 exitSuccess' = send ExitSuccess
 
 --------------------------------------------------------------------------------
-                     -- Effectful Interpreter --
+                          -- Effectful Interpreter --
 --------------------------------------------------------------------------------
 runConsole :: Eff '[Console] w -> IO w
 runConsole (Val x) = return x
-runConsole (E u q) = case extract u of
-              (PutStrLn msg) -> putStrLn msg  >> runConsole (qApp q ())
-              GetLine        -> getLine      >>= \s -> runConsole (qApp q s)
-              ExitSuccess    -> exitSuccess
+runConsole (E u q) =
+    case extract u of
+        PutStrLn msg -> putStrLn msg >>  runConsole (qApp q ())
+        GetLine      -> getLine      >>= \s -> runConsole (qApp q s)
+        ExitSuccess  -> exitSuccess
 
 --------------------------------------------------------------------------------
-                        -- Pure Interpreter --
+                             -- Pure Interpreter --
 --------------------------------------------------------------------------------
 runConsolePure :: [String] -> Eff '[Console] w -> [String]
 runConsolePure inputs req =
-  reverse . snd $ run (handleRelayS (inputs, []) (\s _ -> pure s) go req)
+    reverse . snd $ run (handleRelayS (inputs, []) (\s _ -> pure s) go req)
   where
-    go :: ([String], [String])
-       -> Console v
-       -> (([String], [String]) -> Arr '[] v ([String], [String]))
-       -> Eff '[] ([String], [String])
-    go (is, os) (PutStrLn msg) q = q (is, msg : os) ()
-    go (i:is, os) GetLine q = q (is, os) i
-    go ([], _) GetLine _ = error "Not enough lines"
-    go (_, os) ExitSuccess _ = pure ([], os)
+    go  :: ([String], [String])
+        -> Console v
+        -> (([String], [String]) -> Arr '[] v ([String], [String]))
+        -> Eff '[] ([String], [String])
+    go (is,   os) (PutStrLn msg) q = q (is, msg : os) ()
+    go (i:is, os) GetLine        q = q (is, os) i
+    go ([],   _ ) GetLine        _ = error "Not enough lines"
+    go (_,    os) ExitSuccess    _ = pure ([], os)
 ```
 
 
@@ -105,18 +106,21 @@ all help.
 ## Developer Setup
 
 The easiest way to start contributing is to install
-[stack](https://github.com/commercialhaskell/stack). stack can install
-GHC/Haskell for you, and automates common developer tasks.
+[stack](https://haskellstack.org/). Stack can install GHC/Haskell for you, and
+automates common developer tasks.
 
 The key commands are:
 
-* `stack setup`: install GHC
-* `stack build`
+* `stack setup` – install required version of GHC compiler
+* `stack build` – builds project, dependencies are automatically resolved
+* `stack test` – builds project, its tests, and executes the tests
+* `stack bench` – builds project, its benchmarks, and executes the benchamks
+* `stack ghci` – start a REPL instance with a project modules loaded
 * `stack clean`
-* `stack haddock`: builds documentation
-* `stack test`
-* `stack bench`
-* `stack ghci`: start a REPL instance
+* `stack haddock` – builds documentation
+
+For more information about `stack` tool can be found in its
+[documentation](https://haskellstack.org/).
 
 
 # Licensing
