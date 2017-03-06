@@ -20,17 +20,8 @@
 -- Stability:    experimental
 -- Portability:  GHC specific language extensions.
 --
--- This implementation relies on _closed_ type families added to GHC 7.8. It
--- has NO overlapping instances and NO @Typeable@. Alas, the absence of
--- @Typeable@ means the projections and injections generally take linear time.
--- The code illustrate how to use closed type families to disambiguate
--- otherwise overlapping instances.
---
--- The data constructors of 'Union' are not exported. Essentially, the nested
--- 'Either' data type.
---
--- Using <http://okmij.org/ftp/Haskell/extensible/OpenUnion41.hs> as a starting
--- point.
+-- Open unions (type-indexed co-products, i.e. type-indexed sums) for
+-- extensible effects All operations are constant-time.
 module Data.OpenUnion
     (
     -- * Open Union
