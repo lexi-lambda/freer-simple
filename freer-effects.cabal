@@ -41,6 +41,11 @@ source-repository head
   location:             https://github.com/IxpertaSolutions/freer-effects.git
   branch:               master
 
+source-repository this
+  type:                 git
+  location:             https://github.com/IxpertaSolutions/freer-effects.git
+  tag:                  0.3.0.0
+
 flag pedantic
   description:          Pass additional warning flags and -Werror to GHC.
   default:              False
