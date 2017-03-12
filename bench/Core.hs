@@ -181,12 +181,12 @@ main =
         bench "freer.ExcState"  $ whnf countDownExc 10000
       , bench "mtl.ExceptState" $ whnf countDownExcMTL 10000
       , bench "ee.ExcState"     $ whnf countDownExcEE 10000
-    ]{-},
+    ],
     bgroup "HTTP Simple DSL" [
         bench "freer" $ whnf (run . runHttp) prog
       , bench "free" $ whnf runFHttp prog'
 
       , bench "freerN"      $ whnf (run . runHttp . p) 1000
       , bench "freeN"       $ whnf (runFHttp . p')     1000
-    ]-}
+    ]
   ]
