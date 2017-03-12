@@ -39,6 +39,10 @@ import Control.Monad.Freer.Exception (runError, throwError)
 import Control.Monad.Freer.State (get, put, runState)
 import Control.Monad.Freer.StateRW (ask, tell, runStateR)
 
+import qualified Control.Eff as EE
+import qualified Control.Eff.Exception as EE
+import qualified Control.Eff.State.Lazy as EE
+
 --------------------------------------------------------------------------------
                         -- State Benchmarks --
 --------------------------------------------------------------------------------
@@ -49,17 +53,24 @@ oneGet = run . runState get
 oneGetMTL :: Int -> (Int, Int)
 oneGetMTL = MTL.runState MTL.get
 
-countDown :: Int -> (Int,Int)
+oneGetEE :: Int -> (Int, Int)
+oneGetEE n = EE.run $ EE.runState n EE.get
+
+countDown :: Int -> (Int, Int)
 countDown start = run (runState go start)
   where go = get >>= (\n -> if n <= 0 then pure n else put (n-1) >> go)
 
-countDownRW :: Int -> (Int,Int)
+countDownRW :: Int -> (Int, Int)
 countDownRW start = run (runStateR go start)
   where go = ask >>= (\n -> if n <= 0 then pure n else tell (n-1) >> go)
 
-countDownMTL :: Int -> (Int,Int)
+countDownMTL :: Int -> (Int, Int)
 countDownMTL = MTL.runState go
   where go = MTL.get >>= (\n -> if n <= 0 then pure n else MTL.put (n-1) >> go)
+
+countDownEE :: Int -> (Int, Int)
+countDownEE start = EE.run $ EE.runState start go
+  where go = EE.get >>= (\n -> if n <= 0 then pure n else EE.put (n-1) >> go)
 
 --------------------------------------------------------------------------------
                        -- Exception + State --
@@ -71,6 +82,10 @@ countDownExc start = run $ runError (runState go start)
 countDownExcMTL :: Int -> Either String (Int,Int)
 countDownExcMTL = MTL.runStateT go
   where go = MTL.get >>= (\n -> if n <= (0 :: Int) then MTL.throwError "wat" else MTL.put (n-1) >> go)
+
+countDownExcEE :: Int -> Either String (Int,Int)
+countDownExcEE start = EE.run $ EE.runExc (EE.runState start go)
+  where go = EE.get >>= (\n -> if n <= (0 :: Int) then EE.throwExc "wat" else EE.put (n-1) >> go)
 
 --------------------------------------------------------------------------------
                           -- Freer: Interpreter --
@@ -154,21 +169,24 @@ main =
     bgroup "State" [
         bench "freer.get"          $ whnf oneGet 0
       , bench "mtl.get"            $ whnf oneGetMTL 0
+      , bench "ee.get"             $ whnf oneGetEE 0
     ],
     bgroup "Countdown Bench" [
         bench "freer.State"    $ whnf countDown 10000
       , bench "freer.StateRW"  $ whnf countDownRW 10000
       , bench "mtl.State"      $ whnf countDownMTL 10000
+      , bench "ee.State"       $ whnf countDownEE 10000
     ],
     bgroup "Countdown+Except Bench" [
         bench "freer.ExcState"  $ whnf countDownExc 10000
       , bench "mtl.ExceptState" $ whnf countDownExcMTL 10000
-    ],
+      , bench "ee.ExcState"     $ whnf countDownExcEE 10000
+    ]{-},
     bgroup "HTTP Simple DSL" [
         bench "freer" $ whnf (run . runHttp) prog
       , bench "free" $ whnf runFHttp prog'
 
       , bench "freerN"      $ whnf (run . runHttp . p) 1000
       , bench "freeN"       $ whnf (runFHttp . p')     1000
-    ]
+    ]-}
   ]
