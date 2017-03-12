@@ -4,7 +4,9 @@
 [![BSD3 License](http://img.shields.io/badge/license-BSD3-brightgreen.svg)](https://tldrlegal.com/license/bsd-3-clause-license-%28revised%29)
 
 [![Hackage](http://img.shields.io/hackage/v/freer-effects.svg)](https://hackage.haskell.org/package/freer-effects)
-[![Hackage Dependencies](https://img.shields.io/hackage-deps/v/freer-effects.svg)](http://packdeps.haskellers.com/reverse/freer-effects)
+[![Stackage LTS 8](http://stackage.org/package/freer-effects/badge/lts-8?label=lts-8)](http://stackage.org/nightly/package/freer-effects)
+[![Stackage Nightly](http://stackage.org/package/freer-effects/badge/nightly?label=stackage)](http://stackage.org/nightly/package/freer-effects)
+[![Hackage Dependencies](https://img.shields.io/hackage-deps/v/freer-effects.svg)](http://packdeps.haskellers.com/feed?needle=freer-effects)
 [![Build](https://travis-ci.org/IxpertaSolutions/freer-effects.svg?branch=master)](https://travis-ci.org/IxpertaSolutions/freer-effects)
 
 
