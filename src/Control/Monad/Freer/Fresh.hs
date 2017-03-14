@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TypeOperators #-}
+
 -- |
 -- Module:       Control.Monad.Freer.Fresh
 -- Description:  Generation of fresh integers as an effect.
@@ -16,11 +17,13 @@
 -- implementing De Bruijn naming/scopes.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
+
 module Control.Monad.Freer.Fresh
     ( Fresh(..)
     , fresh
     , runFresh
     , evalFresh
+    , runFresh'
     )
   where
 
@@ -53,3 +56,10 @@ runFresh m s =
 -- the next fresh value.
 evalFresh :: Eff (Fresh ': effs) a -> Int -> Eff effs a
 evalFresh = ((fst <$>) .) . runFresh
+
+-- | Backward compatibility alias for 'evalFresh'.
+runFresh' :: Eff (Fresh ': effs) a -> Int -> Eff effs a
+runFresh' = evalFresh
+{-# DEPRECATED runFresh'
+    "Use `evalFresh` instead, this function will be removed in next release."
+  #-}
