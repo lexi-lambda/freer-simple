@@ -55,6 +55,6 @@ runTestCoroutine list = snd . run $ runState effTestCoroutine 0
 
     effTestCoroutine = runC testCoroutine >>= handleStatus list
       where
-        handleStatus _      Done            = pure ()
+        handleStatus _      (Done ())       = pure ()
         handleStatus (i:is) (Continue () k) = k i >>= handleStatus is
         handleStatus []     _               = pure ()

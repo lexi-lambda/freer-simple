@@ -9,7 +9,7 @@
 -- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
--- Stability:    broken
+-- Stability:    experimental
 -- Portability:  GHC specific language extensions.
 --
 -- An effect to compose functions with the ability to yield.
@@ -20,6 +20,7 @@ module Control.Monad.Freer.Coroutine
     , yield
     , Status(..)
     , runC
+    , runC'
     )
   where
 
@@ -27,7 +28,8 @@ import Control.Monad (return)
 import Data.Function (($), (.))
 import Data.Functor (Functor)
 
-import Control.Monad.Freer.Internal (Arr, Eff, Member, handleRelay, send)
+import Control.Monad.Freer.Internal (Arr, Eff, Member, handleRelay, send,
+                                     interpose)
 
 
 -- | A type representing a yielding of control.
@@ -50,19 +52,25 @@ yield :: Member (Yield a b) effs => a -> (b -> c) -> Eff effs c
 yield x f = send (Yield x f)
 
 -- | Represents status of a coroutine.
-data Status effs a b
-    = Done
-    -- ^ Coroutine is done.
-    | Continue a (b -> Eff effs (Status effs a b))
+data Status effs a b x
+    = Done x
+    -- ^ Coroutine is done with a result value.
+    | Continue a (b -> Eff effs (Status effs a b x))
     -- ^ Reporting a value of the type @a@, and resuming with the value of type
-    -- @b@.
+    -- @b@, possibly ending with a value of type @x@.
+
+-- | Reply to a coroutine effect by returning the Continue constructor.
+replyC
+  :: Yield a b c
+  -> Arr r c (Status r a b w)
+  -> Eff r (Status r a b w)
+replyC (Yield a k) arr = return $ Continue a (arr . k)
 
 -- | Launch a coroutine and report its status.
-runC :: Eff (Yield a b ': effs) w -> Eff effs (Status effs a b)
-runC = handleRelay (\_ -> return Done) handler
-  where
-    handler
-        :: Yield a b c
-        -> Arr effs c (Status effs a b)
-        -> Eff effs (Status effs a b)
-    handler (Yield a k) arr = return $ Continue a (arr . k)
+runC :: Eff (Yield a b ': effs) w -> Eff effs (Status effs a b w)
+runC = handleRelay (return . Done) replyC
+
+-- | Launch a coroutine and report its status, without handling (removing)
+-- `Yield` from the typelist. This is useful for reducing nested coroutines.
+runC' :: Member (Yield a b) r => Eff r w -> Eff r (Status r a b w)
+runC' = interpose (return . Done) replyC
