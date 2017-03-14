@@ -1,11 +1,15 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP       #-}
+{-# LANGUAGE DataKinds #-}
 module Main where
 
 #if !MIN_VERSION_base(4,8,0)
 import           Control.Applicative
 #endif
 
+import           Control.Concurrent    (forkIO, killThread, threadDelay)
+import           Control.Monad         (forever)
 import           Control.Monad.Freer
+import           Data.IORef
 
 import           Test.Tasty
 import           Test.Tasty.HUnit
@@ -14,7 +18,6 @@ import           Test.Tasty.QuickCheck
 import           Tests.Coroutine
 import           Tests.Exception
 import           Tests.Fresh
-import           Tests.Loop
 import           Tests.NonDet
 import           Tests.Reader
 import           Tests.State
@@ -133,11 +136,28 @@ stateTests = testGroup "State tests"
   ]
 
 --------------------------------------------------------------------------------
+                           -- Loop Check --
+--------------------------------------------------------------------------------
+loop :: IORef Int -> Eff '[IO] ()
+loop ref = forever $ send $ modifyIORef' ref succ
+
+testLoop :: IO Int
+testLoop = do
+  ref <- newIORef 0
+  tid <- forkIO $ runM $ loop ref
+  threadDelay $ 10^6 * 2
+  killThread tid
+  readIORef ref
+
+loopTests :: Int -> TestTree
+loopTests n =
+  testGroup "Loop tests" [ testProperty "any number of loops" (\() -> n > 0)]
+--------------------------------------------------------------------------------
                              -- Runner --
 --------------------------------------------------------------------------------
 main :: IO ()
 main = do
-  runForeverLoop
+  n <- testLoop
   defaultMain $ testGroup "Tests"
     [ pureTests
     , coroutineTests
@@ -146,4 +166,5 @@ main = do
     , nonDetTests
     , readerTests
     , stateTests
+    , loopTests n
     ]

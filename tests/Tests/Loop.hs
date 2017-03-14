@@ -7,6 +7,7 @@ module Tests.Loop
   , runForeverLoop
   ) where
 
+import           Control.Concurrent  (forkIO, killThread, threadDelay)
 import           Control.Monad       (forever)
 import           Control.Monad.Freer
 import           Data.Function       (fix)
@@ -32,4 +33,7 @@ foreverLoop ::  Member IO r => Eff r ()
 foreverLoop = forever $ send $ putStrLn "loop"
 
 runForeverLoop :: IO ()
-runForeverLoop = runM foreverLoop
+runForeverLoop = do
+  tid <- forkIO $ runM foreverLoop
+  threadDelay $ 10^6 * 2
+  killThread tid
