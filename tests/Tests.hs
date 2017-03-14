@@ -2,22 +2,23 @@
 module Main where
 
 #if !MIN_VERSION_base(4,8,0)
-import Control.Applicative
+import           Control.Applicative
 #endif
 
-import Control.Monad.Freer
+import           Control.Monad.Freer
 
-import Test.Tasty
-import Test.Tasty.HUnit
-import Test.Tasty.QuickCheck
+import           Test.Tasty
+import           Test.Tasty.HUnit
+import           Test.Tasty.QuickCheck
 
-import Tests.Coroutine
-import Tests.Exception
-import Tests.Fresh
-import Tests.NonDet
-import Tests.Reader
-import Tests.State
-import Tests.StateRW
+import           Tests.Coroutine
+import           Tests.Exception
+import           Tests.Fresh
+import           Tests.Loop
+import           Tests.NonDet
+import           Tests.Reader
+import           Tests.State
+import           Tests.StateRW
 
 import qualified Data.List
 
@@ -42,7 +43,7 @@ countOddDuoPrefix :: [Int] -> Int
 countOddDuoPrefix list = count list 0
   where
     count (i1:i2:is) n = if even i1 && even i2 then n else count is (n+1)
-    count _ n = n
+    count _ n          = n
 
 coroutineTests :: TestTree
 coroutineTests = testGroup "Coroutine Eff tests"
@@ -88,7 +89,7 @@ primesTo :: Int -> [Int]
 primesTo m = sieve [2..m]       {- (\\) is set-difference for unordered lists -}
   where
     sieve (x:xs) = x : sieve (xs Data.List.\\ [x,x+x..m])
-    sieve [] = []
+    sieve []     = []
 
 nonDetTests :: TestTree
 nonDetTests = testGroup "NonDet tests"
@@ -135,12 +136,14 @@ stateTests = testGroup "State tests"
                              -- Runner --
 --------------------------------------------------------------------------------
 main :: IO ()
-main = defaultMain $ testGroup "Tests"
-  [ pureTests
-  , coroutineTests
-  , exceptionTests
-  , freshTests
-  , nonDetTests
-  , readerTests
-  , stateTests
-  ]
+main = do
+  runForeverLoop
+  defaultMain $ testGroup "Tests"
+    [ pureTests
+    , coroutineTests
+    , exceptionTests
+    , freshTests
+    , nonDetTests
+    , readerTests
+    , stateTests
+    ]

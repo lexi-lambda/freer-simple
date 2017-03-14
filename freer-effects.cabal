@@ -126,6 +126,7 @@ test-suite test
     , Tests.Reader
     , Tests.State
     , Tests.StateRW
+    , Tests.Loop
 
   default-language:     Haskell2010
 

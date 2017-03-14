@@ -12,14 +12,14 @@
 module Main (main)
   where
 
-import Control.Monad (unless)
-import Data.Function (($))
-import Data.List (null)
-import Data.Monoid ((<>))
-import System.IO (IO, putStrLn)
-import System.Exit (exitFailure)
+import           Control.Monad          (unless)
+import           Data.Function          (($))
+import           Data.List              (null)
+import           Data.Monoid            ((<>))
+import           System.Exit            (exitFailure)
+import           System.IO              (IO, putStrLn)
 
-import Language.Haskell.HLint (hlint)
+import           Language.Haskell.HLint (hlint)
 
 
 main :: IO ()
