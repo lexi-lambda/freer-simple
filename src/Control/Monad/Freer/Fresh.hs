@@ -9,7 +9,7 @@
 -- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
--- Stability:    broken
+-- Stability:    experimental
 -- Portability:  GHC specific language extensions.
 --
 -- Composable handler for 'Fresh' effects. This is likely to be of use when
@@ -19,11 +19,12 @@
 module Control.Monad.Freer.Fresh
     ( Fresh(..)
     , fresh
-    , runFresh'
+    , runFresh
+    , evalFresh
     )
   where
 
-import Prelude (($!), (+))
+import Prelude (($!), (+), (<$>), (.), fst)
 
 import Control.Applicative (pure)
 import Data.Int (Int)
@@ -43,7 +44,13 @@ data Fresh a where
 fresh :: Member Fresh effs => Eff effs Int
 fresh = send Fresh
 
--- | Handler for 'Fresh' effects, with an 'Int' for a starting value.
-runFresh' :: Eff (Fresh ': effs) a -> Int -> Eff effs a
-runFresh' m s =
-    handleRelayS s (\_s a -> pure a) (\s' Fresh k -> (k $! s' + 1) s') m
+-- | Handler for 'Fresh' effects, with an 'Int' for a starting value. The return
+-- value includes the next fresh value.
+runFresh :: Eff (Fresh ': effs) a -> Int -> Eff effs (a, Int)
+runFresh m s =
+  handleRelayS s (\_s a -> pure (a, _s)) (\s' Fresh k -> (k $! s' + 1) s') m
+
+-- | Handler for 'Fresh' effects, with an 'Int' for a starting value. Discards
+-- the next fresh value.
+evalFresh :: Eff (Fresh ': effs) a -> Int -> Eff effs a
+evalFresh = ((fst <$>) .) . runFresh

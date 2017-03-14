@@ -11,13 +11,14 @@ import Data.Functor ((<$>))
 import Data.Int (Int)
 import Data.List (last)
 import Data.Ord ((>))
+import Data.Tuple (fst)
 
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit ((@?=), testCase)
 import Test.Tasty.QuickCheck ((==>), testProperty)
 
 import Control.Monad.Freer (Eff, run)
-import Control.Monad.Freer.Fresh (fresh, runFresh')
+import Control.Monad.Freer.Fresh (fresh, runFresh)
 
 
 tests :: TestTree
@@ -29,7 +30,7 @@ tests = testGroup "Fresh tests"
     ]
 
 makeFresh :: Int -> Eff r Int
-makeFresh n = runFresh' (last <$> replicateM n fresh) 0
+makeFresh n = fst <$> runFresh (last <$> replicateM n fresh) 0
 
 testFresh :: Int -> Int
 testFresh = run . makeFresh
