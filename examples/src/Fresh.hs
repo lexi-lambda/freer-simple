@@ -1,14 +1,21 @@
+{-# LANGUAGE NoImplicitPrelude #-}
 module Fresh where
 
-import Control.Monad.Freer.Fresh
-import Control.Monad.Freer.Trace
+import Data.Function (($), flip)
+import Data.Monoid ((<>))
+import System.IO (IO)
+import Text.Show (show)
+
+import Control.Monad.Freer.Fresh (fresh, runFresh')
+import Control.Monad.Freer.Trace (runTrace, trace)
+
 
 traceFresh :: IO ()
 traceFresh = runTrace $ flip runFresh' 0 $ do
   n <- fresh
-  trace $ "Fresh " ++ show n
+  trace $ "Fresh " <> show n
   n' <- fresh
-  trace $ "Fresh " ++ show n'
+  trace $ "Fresh " <> show n'
 {-
 Fresh 0
 Fresh 1

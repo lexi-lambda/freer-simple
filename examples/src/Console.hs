@@ -1,17 +1,26 @@
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TypeOperators #-}
 module Console where
 
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative (pure)
-#endif
-import System.Exit hiding (ExitSuccess)
+import Prelude (error)
 
-import Control.Monad.Freer
-import Control.Monad.Freer.Internal
+import Control.Applicative (pure)
+import Control.Monad ((>>=), (>>))
+import Data.Either (Either(Left, Right))
+import Data.Function (($), (.))
+import Data.List (reverse)
+import Data.Maybe (Maybe(Just, Nothing))
+import Data.String (String)
+import Data.Tuple (snd)
+import System.Exit (exitSuccess)
+import System.IO (IO, getLine, putStrLn)
+
+import Control.Monad.Freer (Member, send, run, runM, handleRelay, handleRelayS)
+import Control.Monad.Freer.Internal (Arr, Eff(Val, E), decomp, qApp, tsingleton)
+
 
 -------------------------------------------------------------------------------
                           -- Effect Model --
@@ -62,7 +71,7 @@ runConsolePure inputs req =
                      -- Effectful Interpreter for Deeper Stack --
 -------------------------------------------------------------------------------
 runConsoleM :: Member IO r => Eff (Console ': r) w -> Eff r w
-runConsoleM (Val x) = return x
+runConsoleM (Val x) = pure x
 runConsoleM (E u q) = case decomp u of
     Right (PutStrLn msg) -> send (putStrLn msg) >> runConsoleM (qApp q ())
     Right GetLine        -> send getLine >>=       runConsoleM . qApp q
@@ -82,7 +91,7 @@ runConsolePureM inputs = f (inputs,[]) where
         :: ([String],[String])
         -> Eff (Console ': r) w
         -> Eff r (Maybe w,([String],[String]))
-    f st (Val x) = return (Just x, st)
+    f st (Val x) = pure (Just x, st)
     f st@(is,os) (E u q) = case decomp u of
         Right (PutStrLn msg) -> f (is, msg : os) (qApp q ())
         Right GetLine        -> case is of

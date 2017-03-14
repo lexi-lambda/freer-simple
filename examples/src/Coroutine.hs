@@ -1,3 +1,4 @@
+{-# LANGUAGE NoImplicitPrelude #-}
 module Coroutine where
 
 -- import Control.Monad.Freer.Coroutine

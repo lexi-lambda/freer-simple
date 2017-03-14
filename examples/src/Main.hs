@@ -1,17 +1,35 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 module Main where
 
-import Control.Monad (forever, when)
-import Data.List (intercalate)
+import Control.Monad ((>>=), forever, when)
+import Data.Function (($), (.))
+import Data.List (intercalate, lookup, map, null)
 import Data.Maybe (fromMaybe)
+import Data.Monoid ((<>))
+import Data.String (String)
+import Data.Tuple (fst)
 import System.Environment (getArgs)
+import System.IO (IO, print, putStrLn)
 
-import Control.Monad.Freer
+import Control.Monad.Freer (Eff, Member, run, runM)
 
-import Capitalize
+import Capitalize (Capitalize, capitalize, runCapitalizeM)
 import Console
+    ( Console
+    , exitSuccess'
+    , getLine'
+    , putStrLn'
+    , runConsolePureM
+    , runConsoleM
+    )
+import Coroutine ()
+import Cut ()
+import Fresh ()
+import Trace ()
+
 
 -------------------------------------------------------------------------------
 -- Example
@@ -58,4 +76,4 @@ main = getArgs >>= \case
     _ -> e
   where
     e = putStrLn msg
-    msg = "Usage: prog [" ++ intercalate "|" (map fst examples) ++ "]"
+    msg = "Usage: prog [" <> intercalate "|" (map fst examples) <> "]"
