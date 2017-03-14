@@ -101,7 +101,6 @@ executable freer-examples
     , Coroutine
     , Cut
     , Fresh
-    , NonDet
     , Trace
 
   default-language:     Haskell2010
