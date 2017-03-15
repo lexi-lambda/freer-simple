@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 * Introducing `replaceRelay` and `replaceRelayS`.
   [PR #27](https://github.com/IxpertaSolutions/freer-effects/pull/27)
+* Fix: `Control.Monad.forever` causes `<<loop>>`
+  [#23](https://github.com/IxpertaSolutions/freer-effects/issues/23)
 
 ## [0.3.0.0] (March 06, 2017)
 
