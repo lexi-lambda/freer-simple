@@ -180,39 +180,38 @@ runM (E u q) = case extract u of
 
 -- | Like 'replaceRelay', but with support for an explicit state to help
 -- implement the interpreter.
-replaceRelayS :: s
-             -> (s -> a -> Eff (v ': effs) w)
-             -> (forall x. s
-                        -> t x
-                        -> (s -> Arr (v ': effs) x w)
-                        -> Eff (v ': effs) w)
-             -> Eff (t ': effs) a
-             -> Eff (v ': effs) w
+replaceRelayS
+    :: s
+    -> (s -> a -> Eff (v ': effs) w)
+    -> (forall x. s -> t x -> (s -> Arr (v ': effs) x w) -> Eff (v ': effs) w)
+    -> Eff (t ': effs) a
+    -> Eff (v ': effs) w
 replaceRelayS s' pure' bind = loop s'
- where
-  loop s (Val x)  = pure' s x
-  loop s (E u' q)  = case decomp u' of
-    Right x -> bind s x k
-    Left  u -> E (weaken u) (tsingleton (k s))
-   where k s'' x = loop s'' $ qApp q x
+  where
+    loop s (Val x)  = pure' s x
+    loop s (E u' q) = case decomp u' of
+        Right x -> bind s x k
+        Left  u -> E (weaken u) (tsingleton (k s))
+      where
+        k s'' x = loop s'' $ qApp q x
 
 -- | Interpret an effect by transforming it into another effect on top of the
 -- stack. The primary use case of this function is allow interpreters to be
 -- defined in terms of other ones without leaking intermediary implementation
 -- details through the type signature.
-replaceRelay :: (a -> Eff (v ': effs) w)
-             -> (forall x. t x
-                        -> Arr (v ': effs) x w
-                        -> Eff (v ': effs) w)
-             -> Eff (t ': effs) a
-             -> Eff (v ': effs) w
+replaceRelay
+    :: (a -> Eff (v ': effs) w)
+    -> (forall x. t x -> Arr (v ': effs) x w -> Eff (v ': effs) w)
+    -> Eff (t ': effs) a
+    -> Eff (v ': effs) w
 replaceRelay pure' bind = loop
- where
-  loop (Val x)  = pure' x
-  loop (E u' q)  = case decomp u' of
-    Right x -> bind x k
-    Left  u -> E (weaken u) (tsingleton k)
-   where k = qComp q loop
+  where
+    loop (Val x)  = pure' x
+    loop (E u' q) = case decomp u' of
+        Right x -> bind x k
+        Left  u -> E (weaken u) (tsingleton k)
+      where
+        k = qComp q loop
 
 -- | Given a request, either handle it or relay it.
 handleRelay

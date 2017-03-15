@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+* Introducing `replaceRelay` and `replaceRelayS`.
+  [PR #27](https://github.com/IxpertaSolutions/freer-effects/pull/27)
+
 ## [0.3.0.0] (March 06, 2017)
 
 * Package renamed to `freer-effects` to distinguish it from original `freer`.
