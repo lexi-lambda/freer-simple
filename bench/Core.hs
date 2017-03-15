@@ -30,8 +30,8 @@ import qualified Control.Monad.Error as MTL
 import qualified Control.Monad.State as MTL
 import qualified Control.Monad.Free as Free
 
-import Criterion
-import Criterion.Main
+import Criterion (bench, bgroup, whnf)
+import Criterion.Main (defaultMain)
 
 import Control.Monad.Freer (Member, Eff, run, send)
 import Control.Monad.Freer.Internal (Eff(E, Val), decomp, qApp, tsingleton)
@@ -39,9 +39,9 @@ import Control.Monad.Freer.Exception (runError, throwError)
 import Control.Monad.Freer.State (get, put, runState)
 import Control.Monad.Freer.StateRW (ask, tell, runStateR)
 
-import qualified Control.Eff as EE
-import qualified Control.Eff.Exception as EE
-import qualified Control.Eff.State.Lazy as EE
+import qualified Control.Eff as EE (run)
+import qualified Control.Eff.Exception as EE (runExc, throwExc)
+import qualified Control.Eff.State.Lazy as EE (runState, get, put)
 
 --------------------------------------------------------------------------------
                         -- State Benchmarks --

@@ -194,7 +194,17 @@ benchmark core
     , mtl
     , extensible-effects >= 1.11 && < 1.12
 
-  ghc-options:          -Wall -O2
+  ghc-options:
+    -Wall
+    -fwarn-tabs
+    -fwarn-implicit-prelude
+    -fwarn-missing-import-lists
+    -O2
+
+  if impl(ghc >=8)
+    -- Flag -Wredundant-constraints is available only on GHC >=8.
+    ghc-options:        -Wredundant-constraints
 
   if flag(pedantic)
-    ghc-options:        -Werror
+    ghc-options:
+      -Werror
