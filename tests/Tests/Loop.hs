@@ -1,39 +1,42 @@
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE FlexibleContexts      #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-module Tests.Loop
-  ( runFixLoop
-  , runTailLoop
-  , runForeverLoop
-  ) where
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+module Tests.Loop (tests) where
 
-import           Control.Concurrent  (forkIO, killThread, threadDelay)
-import           Control.Monad       (forever)
-import           Control.Monad.Freer
-import           Data.Function       (fix)
+import Control.Concurrent (forkIO, killThread)
+import Control.Concurrent.QSemN (newQSemN, waitQSemN, signalQSemN)
+import Control.Monad ((>>), forever)
+import Data.Function (($), (.), fix)
+import System.IO (IO)
 
--- | This loops forever as expected
-fixLoop :: Member IO r => Eff r ()
-fixLoop = fix $ \fxLoop -> do
-  send $ putStrLn "fixLoop"
-  fxLoop
+import Test.Tasty (TestTree, testGroup, localOption, mkTimeout)
+import Test.Tasty.HUnit (testCase)
 
-runFixLoop :: IO ()
-runFixLoop = runM fixLoop
+import Control.Monad.Freer (Eff, Member, runM, send)
 
--- | This loops as expected
-tailLoop :: Member IO r => Eff r ()
-tailLoop = send (putStrLn "tailLoop") >> tailLoop
+tests :: TestTree
+tests = localOption timeout $ testGroup "Loop tests"
+    [ testCase "fix loop" $ testLoop fixLoop
+    , testCase "tail loop" $ testLoop tailLoop
+    , testCase "forever loop" $ testLoop foreverLoop
+    ]
+  where
+    timeout = mkTimeout 1000000
 
-runTailLoop :: IO ()
-runTailLoop = runM tailLoop
+testLoop :: (IO () -> Eff '[IO] ()) -> IO ()
+testLoop loop = do
+    s <- newQSemN 0
+    t <- forkIO . runM . loop $ signalQSemN s 1
+    waitQSemN s 5
+    killThread t
 
--- | This <<loop>>s.
-foreverLoop ::  Member IO r => Eff r ()
-foreverLoop = forever $ send $ putStrLn "loop"
+fixLoop :: Member IO r => IO () -> Eff r ()
+fixLoop action = fix $ \fxLoop -> do
+    send action
+    fxLoop
 
-runForeverLoop :: IO ()
-runForeverLoop = do
-  tid <- forkIO $ runM foreverLoop
-  threadDelay $ 10^6 * 2
-  killThread tid
+tailLoop :: Member IO r => IO () -> Eff r ()
+tailLoop action = let loop = send action >> loop in loop
+
+foreverLoop :: Member IO r => IO () -> Eff r ()
+foreverLoop action = forever $ send action

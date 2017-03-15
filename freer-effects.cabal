@@ -125,14 +125,12 @@ test-suite test
   hs-source-dirs:       tests
   main-is:              Tests.hs
   other-modules:
-      Tests.Common
-    , Tests.Coroutine
+      Tests.Coroutine
     , Tests.Exception
     , Tests.Fresh
     , Tests.NonDet
     , Tests.Reader
     , Tests.State
-    , Tests.StateRW
     , Tests.Loop
 
   default-language:     Haskell2010
@@ -145,10 +143,19 @@ test-suite test
     , tasty-quickcheck
     , QuickCheck
 
-  ghc-options:          -Wall
+  ghc-options:
+    -Wall
+    -fwarn-tabs
+    -fwarn-implicit-prelude
+    -fwarn-missing-import-lists
+
+  if impl(ghc >=8)
+    -- Flag -Wredundant-constraints is available only on GHC >=8.
+    ghc-options:        -Wredundant-constraints
 
   if flag(pedantic)
-    ghc-options:        -Werror
+    ghc-options:
+      -Werror
 
 test-suite hlint
   hs-source-dirs:       tests

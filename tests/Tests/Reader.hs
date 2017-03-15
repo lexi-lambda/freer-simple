@@ -1,26 +1,37 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE CPP #-}
-module Tests.Reader (
-  testReader,
-  testMultiReader,
-  testLocal
-) where
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+module Tests.Reader (tests) where
 
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative
-#endif
+import Prelude (Integer, (+), (*), fromIntegral)
 
-import Control.Monad.Freer
-import Control.Monad.Freer.Reader
+import Control.Applicative ((<$>), (<*>), pure)
+import Data.Eq (Eq((==)))
+import Data.Function (($), (.), flip)
+import Data.Int (Int)
 
-import Tests.Common
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
+
+import Control.Monad.Freer (run)
+import Control.Monad.Freer.Reader (runReader, ask, local)
+
+
+tests :: TestTree
+tests = testGroup "Reader tests"
+  [ testProperty "Reader passes along environment: n + x"
+    (\n x -> testReader n x == n + x)
+  , testProperty "Multiple readers work"
+    (\i n -> testMultiReader i n == ((i + 2) + fromIntegral (n + 1)))
+  , testProperty "Local injects into env"
+    (\env inc -> testLocal env inc == 2*(env+1) + inc)
+  ]
 
 --------------------------------------------------------------------------------
                             -- Examples --
 --------------------------------------------------------------------------------
 testReader :: Int -> Int -> Int
-testReader n x = run . flip runReader n $ ask `add` pure x
+testReader n x = run . flip runReader n $ (+) <$> ask <*> pure x
 
 {-
 t1rr' = run t1
@@ -33,7 +44,7 @@ testMultiReader i n = run . flip runReader i . flip runReader n $ t2
   where t2 = do
           v1 <- ask
           v2 <- ask
-          return $ fromIntegral (v1 + (1::Int)) + (v2 + (2::Integer))
+          pure $ fromIntegral (v1 + (1::Int)) + (v2 + (2::Integer))
 
 -- The opposite order of layers
 {- If we mess up, we get an error
@@ -44,5 +55,5 @@ t2rrr1' = run $ runReader (runReader t2 (20::Float)) (10::Float)
 
 testLocal :: Int -> Int -> Int
 testLocal env inc = run $ runReader t3 env
-  where t3 = t1 `add` local (+ inc) t1
-        t1 = ask `add` return (1 :: Int)
+  where t3 = (+) <$> t1 <*> local (+ inc) t1
+        t1 = (+) <$> ask <*> pure (1 :: Int)

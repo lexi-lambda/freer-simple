@@ -1,33 +1,53 @@
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE TypeOperators #-}
+module Tests.Exception (tests) where
 
-module Tests.Exception (
-  TooBig(..),
+import Prelude ((+))
 
-  testExceptionTakesPriority,
+import Control.Applicative ((<$>), (<*>), pure)
+import Control.Monad ((>>=), (>>))
+import Data.Either (Either(Left, Right))
+import Data.Eq (Eq((==)))
+import Data.Function (($), (.))
+import Data.Int (Int)
+import Data.Ord ((>))
+import Data.String (String)
+import Text.Show (Show)
 
-  ter1,
-  ter2,
-  ter3,
-  ter4,
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.HUnit (testCase, (@?=))
+import Test.Tasty.QuickCheck (testProperty)
 
-  ex2rr,
-  ex2rr1,
-  ex2rr2,
-) where
+import Control.Monad.Freer (Eff, Member, Members, run)
+import Control.Monad.Freer.Exception (Exc, runError, throwError, catchError)
+import Control.Monad.Freer.Reader (runReader, ask)
+import Control.Monad.Freer.State (State, runState, get, put)
 
-import Control.Monad.Freer
-import Control.Monad.Freer.Exception
-import Control.Monad.Freer.Reader
-import Control.Monad.Freer.State
 
-import Tests.Common
+tests :: TestTree
+tests = testGroup "Exception Eff tests"
+  [ testProperty "Exc takes precedence" (\x y -> testExceptionTakesPriority x y == Left y)
+  , testCase "uncaught: runState (runError t)" $
+      ter1 @?= (Left "exc", 2)
+  , testCase "uncaught: runError (runState t)" $
+      ter2 @?= Left "exc"
+  , testCase "caught: runState (runError t)" $
+      ter3 @?= (Right "exc", 2)
+  , testCase "caught: runError (runState t)" $
+      ter4 @?= Right ("exc", 2)
+  , testCase "success: runReader (runErrBig t)" (ex2rr @?= Right 5)
+  , testCase "uncaught: runReader (runErrBig t)" $
+      ex2rr1 @?= Left (TooBig 7)
+  , testCase "uncaught: runErrBig (runReader t)" $
+      ex2rr2 @?= Left (TooBig 7)
+  ]
 
 testExceptionTakesPriority :: Int -> Int -> Either Int Int
 testExceptionTakesPriority x y = run $ runError (go x y)
-  where go a b = return a `add` throwError b
+  where go a b = (+) <$> pure a <*> throwError b
 
 -- The following won't type: unhandled exception!
 -- ex2rw = run et2
@@ -52,7 +72,7 @@ ter2 :: Either String (String, Int)
 ter2 = run $ runError (runState tes1 (1::Int))
 
 teCatch :: Member (Exc String) r => Eff r a -> Eff r String
-teCatch m = catchError (m >> return "done") (\e -> return (e::String))
+teCatch m = catchError (m >> pure "done") (\e -> pure (e::String))
 
 ter3 :: (Either String String, Int)
 ter3 = run $ runState (runError (teCatch tes1)) (1::Int)
@@ -67,7 +87,7 @@ ex2 :: Member (Exc TooBig) r => Eff r Int -> Eff r Int
 ex2 m = do
   v <- m
   if v > 5 then throwError (TooBig v)
-     else return v
+     else pure v
 
 -- specialization to tell the type of the exception
 runErrBig :: Eff (Exc TooBig ': r) a -> Eff r (Either TooBig a)
