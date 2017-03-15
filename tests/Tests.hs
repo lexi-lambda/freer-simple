@@ -145,7 +145,7 @@ testLoop :: IO Int
 testLoop = do
   ref <- newIORef 0
   tid <- forkIO $ runM $ loop ref
-  threadDelay $ 10^6 * 2
+  threadDelay $ 10^(6 :: Int) * 2
   killThread tid
   readIORef ref
 
