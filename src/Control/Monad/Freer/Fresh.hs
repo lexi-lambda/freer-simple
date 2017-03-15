@@ -24,9 +24,9 @@ module Control.Monad.Freer.Fresh
     )
   where
 
-import Prelude (($!), (+), (<$>), (.), fst)
+import Prelude (($!), (+), (.), fst)
 
-import Control.Applicative (pure)
+import Control.Applicative (pure, (<$>))
 import Data.Int (Int)
 
 import Control.Monad.Freer.Internal (Eff, Member, handleRelayS, send)
