@@ -1,0 +1,132 @@
+name: freer-effects
+version: 0.3.0.0
+category: Control
+synopsis: Implementation of effect system for Haskell.
+description: |
+  Implementation of effect system for Haskell, which is based on the work of
+  Oleg Kiselyov et al.:
+  .
+  * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
+  .
+  * <http://okmij.org/ftp/Haskell/zseq.pdf Reflection without Remorse>
+  .
+  * <http://okmij.org/ftp/Haskell/extensible/exteff.pdf Extensible Effects>
+  .
+  The key features are:
+  .
+  * An efficient effect system for Haskell - as a library!
+  .
+  * Reimplementations of several common Haskell monad transformers as effects.
+  .
+  * Core components for defining your own Effects.
+github: IxpertaSolutions/freer-effects
+tested-with: GHC==8.0.2, GHC==8.0.1, GHC==7.10.3, GHC==7.8.4
+
+license: BSD3
+author: Allele Dev, Ixcom Core Team, and other contributors
+maintainer: ixcom-core@ixperta.com
+copyright: (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
+
+extra-source-files:
+    - README.md
+    - changelog.md
+
+flags:
+    pedantic:
+        description: Pass additional warning flags and -Werror to GHC.
+        manual: true
+        default: false
+
+    test-hlint:
+        description: Enable test suite that checks sources using HLint.
+        manual: true
+        default: true
+
+when:
+    - condition: flag(pedantic)
+      ghc-options:
+          - -Werror
+    - condition: impl(ghc >=8)
+      ghc-options:
+          # Introduced in GHC 8.
+          - -Wredundant-constraints
+          # Older Cabal generates warnings with its Paths_* module.
+          - -Wmissing-import-lists
+
+ghc-options:
+    - -Wall
+    - -fwarn-tabs
+    - -fwarn-implicit-prelude
+
+dependencies:
+    - base >=4.7 && <5
+
+library:
+    source-dirs: src
+    exposed-modules:
+        - Control.Monad.Freer
+        - Control.Monad.Freer.Coroutine
+        - Control.Monad.Freer.Cut
+        - Control.Monad.Freer.Exception
+        - Control.Monad.Freer.Fresh
+        - Control.Monad.Freer.Internal
+        - Control.Monad.Freer.NonDet
+        - Control.Monad.Freer.Reader
+        - Control.Monad.Freer.State
+        - Control.Monad.Freer.StateRW
+        - Control.Monad.Freer.Trace
+        - Control.Monad.Freer.Writer
+        - Data.FTCQueue
+        - Data.OpenUnion
+        - Data.OpenUnion.Internal
+
+    when:
+        - condition: impl(ghc >=7.10)
+          cpp-options: -DDEPRECATED_LANGUAGE_OVERLAPPING_INSTANCES
+
+executables:
+    freer-examples:
+        source-dirs: examples/src
+        main: Main.hs
+        dependencies:
+            - freer-effects
+
+tests:
+    unit:
+        source-dirs: tests
+        main: Tests.hs
+        dependencies:
+            # TODO: bounds
+            - QuickCheck
+            - freer-effects
+            - tasty
+            - tasty-hunit
+            - tasty-quickcheck
+
+    hlint:
+        source-dirs: tests
+        main: hlint.hs
+        other-modules: []
+        ghc-options:
+            - -threaded
+            - -with-rtsopts=-N
+        when:
+            - condition: flag(test-hlint)
+              then:
+                  buildable: true
+                  dependencies: [hlint ==1.9.*]
+              else:
+                  buildable: false
+
+benchmarks:
+    core:
+        source-dirs: bench
+        main: Core.hs
+        ghc-options: -O2
+        dependencies:
+            # TODO: bounds
+            - criterion
+            - extensible-effects >= 1.11 && < 1.12
+            - free
+            - freer-effects
+            - mtl

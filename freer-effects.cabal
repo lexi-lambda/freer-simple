@@ -1,217 +1,171 @@
+-- This file has been generated from package.yaml by hpack version 0.15.0.
+--
+-- see: https://github.com/sol/hpack
+
 name:                   freer-effects
 version:                0.3.0.0
 synopsis:               Implementation of effect system for Haskell.
-description:
-  Implementation of effect system for Haskell, which is based on the work of
-  Oleg Kiselyov et al.:
-  .
-  * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
-  .
-  * <http://okmij.org/ftp/Haskell/zseq.pdf Reflection without Remorse>
-  .
-  * <http://okmij.org/ftp/Haskell/extensible/exteff.pdf Extensible Effects>
-  .
-  The key features are:
-  .
-  * An efficient effect system for Haskell - as a library!
-  .
-  * Reimplementations of several common Haskell monad transformers as effects.
-  .
-  * Core components for defining your own Effects.
-
-license:                BSD3
+description:            Implementation of effect system for Haskell, which is based on the work of
+                        Oleg Kiselyov et al.:
+                        .
+                        * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
+                        .
+                        * <http://okmij.org/ftp/Haskell/zseq.pdf Reflection without Remorse>
+                        .
+                        * <http://okmij.org/ftp/Haskell/extensible/exteff.pdf Extensible Effects>
+                        .
+                        The key features are:
+                        .
+                        * An efficient effect system for Haskell - as a library!
+                        .
+                        * Reimplementations of several common Haskell monad transformers as effects.
+                        .
+                        * Core components for defining your own Effects.
 license-file:           LICENSE
+tested-with:            GHC==8.0.2, GHC==8.0.1, GHC==7.10.3, GHC==7.8.4
+category:               Control
+homepage:               https://github.com/IxpertaSolutions/freer-effects#readme
+bug-reports:            https://github.com/IxpertaSolutions/freer-effects/issues
 author:                 Allele Dev, Ixcom Core Team, and other contributors
 maintainer:             ixcom-core@ixperta.com
 copyright:              (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
-homepage:               https://github.com/IxpertaSolutions/freer-effects
-bug-reports:            https://github.com/IxpertaSolutions/freer-effects/issues
-category:               Control
-
+license:                BSD3
 build-type:             Simple
-cabal-version:          >=1.10
-tested-with:            GHC==8.0.2, GHC==8.0.1, GHC==7.10.3, GHC==7.8.4
+cabal-version:          >= 1.10
 
 extra-source-files:
-  README.md
-  changelog.md
+    changelog.md
+    README.md
 
 source-repository head
-  type:                 git
-  location:             https://github.com/IxpertaSolutions/freer-effects.git
-  branch:               master
+  type: git
+  location: https://github.com/IxpertaSolutions/freer-effects
 
 flag pedantic
-  description:          Pass additional warning flags and -Werror to GHC.
-  default:              False
-  manual:               True
+  description: Pass additional warning flags and -Werror to GHC.
+  manual: True
+  default: False
 
 flag test-hlint
-  description:          Enable test suite that checks sources using HLint.
-  default:              True
-  manual:               True
+  description: Enable test suite that checks sources using HLint.
+  manual: True
+  default: True
 
 library
-  hs-source-dirs:       src
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude
+  build-depends:
+      base >=4.7 && <5
+  if flag(pedantic)
+    ghc-options: -Werror
+  if impl(ghc >=8)
+    ghc-options: -Wredundant-constraints -Wmissing-import-lists
+  if impl(ghc >=7.10)
+    cpp-options: -DDEPRECATED_LANGUAGE_OVERLAPPING_INSTANCES
   exposed-modules:
       Control.Monad.Freer
-    , Control.Monad.Freer.Coroutine
-    , Control.Monad.Freer.Cut
-    , Control.Monad.Freer.Exception
-    , Control.Monad.Freer.Fresh
-    , Control.Monad.Freer.Internal
-    , Control.Monad.Freer.NonDet
-    , Control.Monad.Freer.Reader
-    , Control.Monad.Freer.State
-    , Control.Monad.Freer.StateRW
-    , Control.Monad.Freer.Trace
-    , Control.Monad.Freer.Writer
-    , Data.FTCQueue
-    , Data.OpenUnion
-    , Data.OpenUnion.Internal
-
-  default-language:     Haskell2010
-
-  build-depends:        base >=4.7 && <5
-
-  ghc-options:
-    -Wall
-    -fwarn-tabs
-    -fwarn-implicit-prelude
-    -fwarn-missing-import-lists
-
-  if impl(ghc >=7.10)
-    cpp-options:        -DDEPRECATED_LANGUAGE_OVERLAPPING_INSTANCES
-
-  if impl(ghc >=8)
-    -- Flag -Wredundant-constraints is available only on GHC >=8.
-    ghc-options:        -Wredundant-constraints
-
-  if flag(pedantic)
-    ghc-options:
-      -Werror
+      Control.Monad.Freer.Coroutine
+      Control.Monad.Freer.Cut
+      Control.Monad.Freer.Exception
+      Control.Monad.Freer.Fresh
+      Control.Monad.Freer.Internal
+      Control.Monad.Freer.NonDet
+      Control.Monad.Freer.Reader
+      Control.Monad.Freer.State
+      Control.Monad.Freer.StateRW
+      Control.Monad.Freer.Trace
+      Control.Monad.Freer.Writer
+      Data.FTCQueue
+      Data.OpenUnion
+      Data.OpenUnion.Internal
+  other-modules:
+      Paths_freer_effects
+  default-language: Haskell2010
 
 executable freer-examples
-  hs-source-dirs:       examples/src
-  main-is:              Main.hs
+  main-is: Main.hs
+  hs-source-dirs:
+      examples/src
+  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude
+  build-depends:
+      base >=4.7 && <5
+    , freer-effects
+  if flag(pedantic)
+    ghc-options: -Werror
+  if impl(ghc >=8)
+    ghc-options: -Wredundant-constraints -Wmissing-import-lists
   other-modules:
       Capitalize
-    , Console
-    , Coroutine
-    , Cut
-    , Fresh
-    , Trace
+      Console
+      Coroutine
+      Cut
+      Fresh
+      Trace
+  default-language: Haskell2010
 
-  default-language:     Haskell2010
-
-  build-depends:        base, freer-effects
-
-  ghc-options:
-    -Wall
-    -fwarn-tabs
-    -fwarn-implicit-prelude
-    -fwarn-missing-import-lists
-
-  if impl(ghc >=8)
-    -- Flag -Wredundant-constraints is available only on GHC >=8.
-    ghc-options:        -Wredundant-constraints
-
-  if flag(pedantic)
-    ghc-options:
-      -Werror
-
-test-suite test
-  type:                 exitcode-stdio-1.0
-  hs-source-dirs:       tests
-  main-is:              Tests.hs
-  other-modules:
-      Tests.Coroutine
-    , Tests.Exception
-    , Tests.Fresh
-    , Tests.NonDet
-    , Tests.Reader
-    , Tests.State
-    , Tests.Loop
-
-  default-language:     Haskell2010
-
+test-suite hlint
+  type: exitcode-stdio-1.0
+  main-is: hlint.hs
+  hs-source-dirs:
+      tests
+  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude -threaded -with-rtsopts=-N
   build-depends:
-      base
+      base >=4.7 && <5
+  if flag(pedantic)
+    ghc-options: -Werror
+  if impl(ghc >=8)
+    ghc-options: -Wredundant-constraints -Wmissing-import-lists
+  if flag(test-hlint)
+    build-depends:
+        hlint ==1.9.*
+    buildable: True
+  else
+    buildable: False
+  default-language: Haskell2010
+
+test-suite unit
+  type: exitcode-stdio-1.0
+  main-is: Tests.hs
+  hs-source-dirs:
+      tests
+  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude
+  build-depends:
+      base >=4.7 && <5
+    , QuickCheck
     , freer-effects
     , tasty
     , tasty-hunit
     , tasty-quickcheck
-    , QuickCheck
-
-  ghc-options:
-    -Wall
-    -fwarn-tabs
-    -fwarn-implicit-prelude
-    -fwarn-missing-import-lists
-
-  if impl(ghc >=8)
-    -- Flag -Wredundant-constraints is available only on GHC >=8.
-    ghc-options:        -Wredundant-constraints
-
   if flag(pedantic)
-    ghc-options:
-      -Werror
-
-test-suite hlint
-  hs-source-dirs:       tests
-  type:                 exitcode-stdio-1.0
-  main-is:              hlint.hs
-  default-language:     Haskell2010
-
-  if flag(test-hlint)
-    buildable:          True
-    build-depends:
-        base >=4.8 && <5.0
-      , hlint ==1.9.*
-  else
-    buildable:          False
-
-  ghc-options:
-    -Wall
-    -fwarn-tabs
-    -fwarn-implicit-prelude
-    -fwarn-missing-import-lists
-    -threaded
-    -with-rtsopts=-N
-
+    ghc-options: -Werror
   if impl(ghc >=8)
-    -- Flag -Wredundant-constraints is available only on GHC >=8.
-    ghc-options:        -Wredundant-constraints
-
-  if flag(pedantic)
-    ghc-options:        -Werror
+    ghc-options: -Wredundant-constraints -Wmissing-import-lists
+  other-modules:
+      Tests.Coroutine
+      Tests.Exception
+      Tests.Fresh
+      Tests.Loop
+      Tests.NonDet
+      Tests.Reader
+      Tests.State
+  default-language: Haskell2010
 
 benchmark core
-  type:                 exitcode-stdio-1.0
-  hs-source-dirs:       bench
-  main-is:              Core.hs
-
-  default-language:     Haskell2010
-
+  type: exitcode-stdio-1.0
+  main-is: Core.hs
+  hs-source-dirs:
+      bench
+  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude -O2
   build-depends:
-      base
+      base >=4.7 && <5
     , criterion
+    , extensible-effects >= 1.11 && < 1.12
     , free
     , freer-effects
     , mtl
-    , extensible-effects >= 1.11 && < 1.12
-
-  ghc-options:
-    -Wall
-    -fwarn-tabs
-    -fwarn-implicit-prelude
-    -fwarn-missing-import-lists
-    -O2
-
-  if impl(ghc >=8)
-    -- Flag -Wredundant-constraints is available only on GHC >=8.
-    ghc-options:        -Wredundant-constraints
-
   if flag(pedantic)
-    ghc-options:
-      -Werror
+    ghc-options: -Werror
+  if impl(ghc >=8)
+    ghc-options: -Wredundant-constraints -Wmissing-import-lists
+  default-language: Haskell2010
