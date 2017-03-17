@@ -1,18 +1,20 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-module Tests.Loop (tests) where
+module Tests.Loop (tests)
+  where
 
 import Control.Concurrent (forkIO, killThread)
-import Control.Concurrent.QSemN (newQSemN, waitQSemN, signalQSemN)
+import Control.Concurrent.QSemN (newQSemN, signalQSemN, waitQSemN)
 import Control.Monad ((>>), forever)
 import Data.Function (($), (.), fix)
 import System.IO (IO)
 
-import Test.Tasty (TestTree, testGroup, localOption, mkTimeout)
+import Test.Tasty (TestTree, localOption, mkTimeout, testGroup)
 import Test.Tasty.HUnit (testCase)
 
 import Control.Monad.Freer (Eff, Member, runM, send)
+
 
 tests :: TestTree
 tests = localOption timeout $ testGroup "Loop tests"

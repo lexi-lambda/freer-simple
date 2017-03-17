@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-module Main where
+module Main (main)
+  where
 
 import Prelude ((+))
 
@@ -27,25 +28,25 @@ import qualified Tests.Loop (tests)
                            -- Pure Tests --
 --------------------------------------------------------------------------------
 addInEff :: Int -> Int -> Int
-addInEff x y = run ((+) <$> pure x <*> pure y)
+addInEff x y = run $ (+) <$> pure x <*> pure y
 
 pureTests :: TestTree
 pureTests = testGroup "Pure Eff tests"
-  [ testProperty "Pure run just works: (+)"
-      (\x y -> addInEff x y == x + y)
-  ]
+    [ testProperty "Pure run just works: (+)"
+        $ \x y -> addInEff x y == x + y
+    ]
 
 --------------------------------------------------------------------------------
                              -- Runner --
 --------------------------------------------------------------------------------
 main :: IO ()
 main = defaultMain $ testGroup "Tests"
-  [ pureTests
-  , Tests.Coroutine.tests
-  , Tests.Exception.tests
-  , Tests.Fresh.tests
-  , Tests.NonDet.tests
-  , Tests.Reader.tests
-  , Tests.State.tests
-  , Tests.Loop.tests
-  ]
+    [ pureTests
+    , Tests.Coroutine.tests
+    , Tests.Exception.tests
+    , Tests.Fresh.tests
+    , Tests.NonDet.tests
+    , Tests.Reader.tests
+    , Tests.State.tests
+    , Tests.Loop.tests
+    ]
