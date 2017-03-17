@@ -28,105 +28,105 @@ maintainer: ixcom-core@ixperta.com
 copyright: (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
 
 extra-source-files:
-    - README.md
-    - changelog.md
+  - README.md
+  - changelog.md
 
 flags:
-    pedantic:
-        description: Pass additional warning flags and -Werror to GHC.
-        manual: true
-        default: false
+  pedantic:
+    description: Pass additional warning flags and -Werror to GHC.
+    manual: true
+    default: false
 
-    test-hlint:
-        description: Enable test suite that checks sources using HLint.
-        manual: true
-        default: true
+  test-hlint:
+    description: Enable test suite that checks sources using HLint.
+    manual: true
+    default: true
 
 when:
-    - condition: flag(pedantic)
-      ghc-options:
-          - -Werror
-    - condition: impl(ghc >=8)
-      ghc-options:
-          # Introduced in GHC 8.
-          - -Wredundant-constraints
-          # Older Cabal generates warnings with its Paths_* module.
-          - -Wmissing-import-lists
+  - condition: flag(pedantic)
+    ghc-options:
+        - -Werror
+  - condition: impl(ghc >=8)
+    ghc-options:
+      # Introduced in GHC 8.
+      - -Wredundant-constraints
+      # Older Cabal generates warnings with its Paths_* module.
+      - -Wmissing-import-lists
 
 ghc-options:
-    - -Wall
-    - -fwarn-tabs
-    - -fwarn-implicit-prelude
+  - -Wall
+  - -fwarn-tabs
+  - -fwarn-implicit-prelude
 
 dependencies:
-    - base >=4.7 && <5
+  - base >=4.7 && <5
 
 library:
-    source-dirs: src
-    exposed-modules:
-        - Control.Monad.Freer
-        - Control.Monad.Freer.Coroutine
-        - Control.Monad.Freer.Cut
-        - Control.Monad.Freer.Exception
-        - Control.Monad.Freer.Fresh
-        - Control.Monad.Freer.Internal
-        - Control.Monad.Freer.NonDet
-        - Control.Monad.Freer.Reader
-        - Control.Monad.Freer.State
-        - Control.Monad.Freer.StateRW
-        - Control.Monad.Freer.Trace
-        - Control.Monad.Freer.Writer
-        - Data.FTCQueue
-        - Data.OpenUnion
-        - Data.OpenUnion.Internal
+  source-dirs: src
+  exposed-modules:
+    - Control.Monad.Freer
+    - Control.Monad.Freer.Coroutine
+    - Control.Monad.Freer.Cut
+    - Control.Monad.Freer.Exception
+    - Control.Monad.Freer.Fresh
+    - Control.Monad.Freer.Internal
+    - Control.Monad.Freer.NonDet
+    - Control.Monad.Freer.Reader
+    - Control.Monad.Freer.State
+    - Control.Monad.Freer.StateRW
+    - Control.Monad.Freer.Trace
+    - Control.Monad.Freer.Writer
+    - Data.FTCQueue
+    - Data.OpenUnion
+    - Data.OpenUnion.Internal
 
-    when:
-        - condition: impl(ghc >=7.10)
-          cpp-options: -DDEPRECATED_LANGUAGE_OVERLAPPING_INSTANCES
+  when:
+    - condition: impl(ghc >=7.10)
+      cpp-options: -DDEPRECATED_LANGUAGE_OVERLAPPING_INSTANCES
 
 executables:
-    freer-examples:
-        source-dirs: examples/src
-        main: Main.hs
-        dependencies:
-            - freer-effects
+  freer-examples:
+    source-dirs: examples/src
+    main: Main.hs
+    dependencies:
+      - freer-effects
 
 tests:
-    unit:
-        source-dirs: tests
-        main: Tests.hs
-        dependencies:
-            # TODO: bounds
-            - QuickCheck
-            - freer-effects
-            - tasty
-            - tasty-hunit
-            - tasty-quickcheck
+  unit:
+    source-dirs: tests
+    main: Tests.hs
+    dependencies:
+      # TODO: bounds
+      - QuickCheck
+      - freer-effects
+      - tasty
+      - tasty-hunit
+      - tasty-quickcheck
 
-    hlint:
-        source-dirs: tests
-        main: hlint.hs
-        other-modules: []
-        ghc-options:
-            - -threaded
-            - -with-rtsopts=-N
-        when:
-            - condition: flag(test-hlint)
-              then:
-                  buildable: true
-                  dependencies: [hlint ==1.9.*]
-              else:
-                  buildable: false
+  hlint:
+    source-dirs: tests
+    main: hlint.hs
+    other-modules: []
+    ghc-options:
+      - -threaded
+      - -with-rtsopts=-N
+    when:
+      - condition: flag(test-hlint)
+        then:
+          buildable: true
+          dependencies: [hlint ==1.9.*]
+        else:
+          buildable: false
 
 benchmarks:
-    core:
-        source-dirs: bench
-        main: Core.hs
-        ghc-options: -O2
-        dependencies:
-            # TODO: bounds
-            - criterion
-            - extensible-effects >= 1.11 && < 1.12
-            - free
-            - freer-effects
-            - mtl
+  core:
+    source-dirs: bench
+    main: Core.hs
+    ghc-options: -O2
+    dependencies:
+      # TODO: bounds
+      - criterion
+      - extensible-effects >= 1.11 && < 1.12
+      - free
+      - freer-effects
+      - mtl
