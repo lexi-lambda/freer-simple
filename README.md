@@ -104,7 +104,7 @@ runConsolePure inputs req =
 You already have some [`mtl`](http://hackage.haskell.org/package/mtl) code and
 are afraid that combining effects with your current tranformer stack would not
 be possible? Package
-[`freer-extra`](https://github.com/trskop/freer-effects-extra) has some
+[`freer-effects-extra`](https://github.com/trskop/freer-effects-extra) has some
 `mtl`-related and other goodies.
 
 
