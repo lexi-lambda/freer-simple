@@ -22,6 +22,10 @@ All notable changes to this project will be documented in this file.
   helper function named `replyC`.
   [PR #25](https://github.com/IxpertaSolutions/freer-effects/pull/25)
   (**new**)
+* Introduced `Fresh` effect handlers `runFresh` and `evalFresh`. Function
+  `runFresh'` was deprecated in favour of `evalFresh`.
+  [PR #24](https://github.com/IxpertaSolutions/freer-effects/pull/24)
+  (**new, change**)
 
 ## [0.3.0.0] (March 06, 2017)
 
