@@ -24,31 +24,30 @@ module Control.Monad.Freer.Fresh
     )
   where
 
-import Prelude (($!), (+), (.), fst)
+import Prelude (($!), (+))
 
-import Control.Applicative (pure, (<$>))
+import Control.Applicative (pure)
+import Data.Function ((.))
+import Data.Functor ((<$>))
 import Data.Int (Int)
+import Data.Tuple (fst)
 
 import Control.Monad.Freer.Internal (Eff, Member, handleRelayS, send)
 
 
---------------------------------------------------------------------------------
-                             -- Fresh --
---------------------------------------------------------------------------------
-
 -- | Fresh effect model.
 data Fresh a where
-  Fresh :: Fresh Int
+    Fresh :: Fresh Int
 
 -- | Request a fresh effect.
 fresh :: Member Fresh effs => Eff effs Int
 fresh = send Fresh
 
--- | Handler for 'Fresh' effects, with an 'Int' for a starting value. The return
--- value includes the next fresh value.
+-- | Handler for 'Fresh' effects, with an 'Int' for a starting value. The
+-- return value includes the next fresh value.
 runFresh :: Eff (Fresh ': effs) a -> Int -> Eff effs (a, Int)
 runFresh m s =
-  handleRelayS s (\_s a -> pure (a, _s)) (\s' Fresh k -> (k $! s' + 1) s') m
+    handleRelayS s (\s' a -> pure (a, s')) (\s' Fresh k -> (k $! s' + 1) s') m
 
 -- | Handler for 'Fresh' effects, with an 'Int' for a starting value. Discards
 -- the next fresh value.
