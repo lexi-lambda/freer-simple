@@ -1,10 +1,14 @@
 Release Process
 ===============
 
+* Check that all deprecations, and remove those deprecated definitions
+  scheduled for removal.
 * Check that ChangeLog (`changelog.md`) is up-to-date. Update last (top-most)
   entry in ChangeLog to contain correct version number, and release date, which
   can be generated using `LC_ALL=en_GB date +'%B %d, %Y'`. Make sure that
   version number references correct diff URL.
+* Check that Cabal file (`freer-effects.cabal`) is up-to-date, and regenerate
+  it from `package.yaml` if its not.
 * Modify Cabal file (`freer-effects.cabal`) to contain `source-repository this`
   section with correct `tag:` value. Commit this to a separate branch (so
   called release branch), not `master`.
