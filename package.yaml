@@ -45,7 +45,7 @@ flags:
 when:
   - condition: flag(pedantic)
     ghc-options:
-        - -Werror
+      - -Werror
   - condition: impl(ghc >=8)
     ghc-options:
       # Introduced in GHC 8.
