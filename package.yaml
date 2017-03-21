@@ -3,8 +3,9 @@ version: 0.3.0.0
 category: Control
 synopsis: Implementation of effect system for Haskell.
 description: |
-  Implementation of effect system for Haskell, which is based on the work of
-  Oleg Kiselyov et al.:
+  Implementation of effect system for Haskell (actively maintained fork of
+  <http://hackage.haskell.org/package/freer freer>), which is based on the
+  work of Oleg Kiselyov et al.:
   .
   * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
   .

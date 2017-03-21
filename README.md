@@ -12,8 +12,9 @@
 
 # Description
 
-Library `freer-effects` is an implementation of effect system for Haskell,
-which is based on the work of Oleg Kiselyov et al.:
+Library `freer-effects` (actively maintained fork of
+[`freer`](http://hackage.haskell.org/package/freer)) is an implementation of
+effect system for Haskell, which is based on the work of Oleg Kiselyov et al.:
 
 * [Freer Monads, More Extensible Effects](http://okmij.org/ftp/Haskell/extensible/more.pdf)
 * [Reflection without Remorse](http://okmij.org/ftp/Haskell/zseq.pdf)
