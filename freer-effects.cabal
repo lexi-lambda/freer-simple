@@ -1,5 +1,5 @@
 name:                   freer-effects
-version:                0.3.0.0
+version:                0.3.0.1
 synopsis:               Implementation of effect system for Haskell.
 description:
   Implementation of effect system for Haskell, which is based on the work of
@@ -44,7 +44,7 @@ source-repository head
 source-repository this
   type:                 git
   location:             https://github.com/IxpertaSolutions/freer-effects.git
-  tag:                  0.3.0.0
+  tag:                  0.3.0.1
 
 flag pedantic
   description:          Pass additional warning flags and -Werror to GHC.

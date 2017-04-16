@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0.1] (April 16, 2017)
+
+* Relax `hlint` version bounds and disable `hlint` tests in non-developer
+  builds.
+  [#31](https://github.com/IxpertaSolutions/freer-effects/issues/31)
+
 ## [0.3.0.0] (March 06, 2017)
 
 * Package renamed to `freer-effects` to distinguish it from original `freer`.
@@ -85,5 +91,6 @@ All notable changes to this project will be documented in this file.
 
 * Initial release
 
+[0.3.0.1]: https://github.com/IxpertaSolutions/freer/compare/0.3.0.0...0.3.0.1
 [0.3.0.0]: https://github.com/IxpertaSolutions/freer/compare/0.2.4.1...0.3.0.0
 [0.2.4.1]: https://github.com/IxpertaSolutions/freer/compare/0.2.4.0...0.2.4.1
