@@ -156,8 +156,8 @@ test-suite hlint
   if flag(test-hlint)
     buildable:          True
     build-depends:
-        base >=4.8 && <5.0
-      , hlint ==1.9.*
+        base >=4.7 && <5.0
+      , hlint >=1.9
   else
     buildable:          False
 
