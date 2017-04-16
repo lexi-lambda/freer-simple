@@ -1,4 +1,4 @@
-module Tests.Common where
+module Tests.Common (add) where
 
 import Control.Applicative
 

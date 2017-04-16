@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
-module Trace where
+module Trace () where
 
 import Control.Monad.Freer
 import Control.Monad.Freer.Reader

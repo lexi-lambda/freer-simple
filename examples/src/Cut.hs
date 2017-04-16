@@ -1,4 +1,4 @@
-module Cut where
+module Cut () where
 
 -- import Control.Monad.Freer.Cut
 

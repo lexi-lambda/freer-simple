@@ -44,7 +44,7 @@
 -- Therefore, we can use a @Typeable@-like evidence in that universe. In our
 -- case a simple index of an element in the type-list is sufficient
 -- substitution for @Typeable@.
-module Data.OpenUnion.Internal
+module Data.OpenUnion.Internal (module Data.OpenUnion.Internal)
   where
 
 import Prelude ((+), (-))

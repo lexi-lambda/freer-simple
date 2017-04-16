@@ -2,7 +2,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeOperators #-}
-module Capitalize where
+module Capitalize
+    ( Capitalize
+    , capitalize
+    , runCapitalizeM
+    )
+  where
 
 import Data.Char (toUpper)
 

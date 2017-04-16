@@ -1,4 +1,4 @@
-module Coroutine where
+module Coroutine () where
 
 -- import Control.Monad.Freer.Coroutine
 

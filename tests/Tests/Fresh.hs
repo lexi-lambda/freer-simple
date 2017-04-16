@@ -1,4 +1,4 @@
-module Tests.Fresh where
+module Tests.Fresh (module Tests.Fresh) where
 
 import Control.Monad
 import Control.Monad.Freer

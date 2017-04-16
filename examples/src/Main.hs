@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
-module Main where
+module Main (main) where
 
 import Control.Monad (forever, when)
 import Data.List (intercalate)

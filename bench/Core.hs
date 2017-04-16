@@ -7,7 +7,7 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
-module Main where
+module Main (main) where
 
 import Prelude ((-))
 

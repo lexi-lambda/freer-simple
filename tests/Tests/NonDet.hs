@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
-module Tests.NonDet where
+module Tests.NonDet (module Tests.NonDet) where
 
 import Control.Applicative
 import Control.Monad

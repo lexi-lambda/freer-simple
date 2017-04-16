@@ -3,7 +3,17 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE CPP #-}
-module Console where
+module Console
+    ( Console
+    , exitSuccess'
+    , getLine'
+    , putStrLn'
+    , runConsole
+    , runConsoleM
+    , runConsolePure
+    , runConsolePureM
+    )
+  where
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (pure)

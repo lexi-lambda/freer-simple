@@ -1,4 +1,4 @@
-module Fresh where
+module Fresh () where
 
 import Control.Monad.Freer.Fresh
 import Control.Monad.Freer.Trace

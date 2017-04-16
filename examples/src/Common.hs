@@ -1,4 +1,4 @@
-module Common where
+module Common (add) where
 
 import Control.Applicative
 
