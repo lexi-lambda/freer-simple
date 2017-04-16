@@ -3,7 +3,13 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TypeOperators #-}
-module Capitalize where
+module Capitalize
+    ( Capitalize
+    , capitalize
+    , runCapitalizeM
+    , runCapitalizeM'
+    )
+  where
 
 import Control.Applicative (pure)
 import Data.Char (toUpper)

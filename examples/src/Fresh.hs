@@ -1,5 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-module Fresh where
+module Fresh (module Fresh) where
 
 import Data.Function (($), flip)
 import Data.Monoid ((<>))

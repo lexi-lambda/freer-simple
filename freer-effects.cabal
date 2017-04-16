@@ -50,7 +50,7 @@ flag pedantic
 flag test-hlint
   description: Enable test suite that checks sources using HLint.
   manual: True
-  default: True
+  default: False
 
 library
   hs-source-dirs:
@@ -119,7 +119,7 @@ test-suite hlint
     ghc-options: -Wredundant-constraints -Wmissing-import-lists
   if flag(test-hlint)
     build-depends:
-        hlint ==1.9.*
+        hlint >=1.9
     buildable: True
   else
     buildable: False

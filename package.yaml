@@ -41,7 +41,7 @@ flags:
   test-hlint:
     description: Enable test suite that checks sources using HLint.
     manual: true
-    default: true
+    default: false
 
 when:
   - condition: flag(pedantic)
@@ -115,7 +115,7 @@ tests:
       - condition: flag(test-hlint)
         then:
           buildable: true
-          dependencies: [hlint ==1.9.*]
+          dependencies: [hlint >=1.9]
         else:
           buildable: false
 

@@ -3,7 +3,17 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TypeOperators #-}
-module Console where
+module Console
+    ( Console
+    , exitSuccess'
+    , getLine'
+    , putStrLn'
+    , runConsole
+    , runConsoleM
+    , runConsolePure
+    , runConsolePureM
+    )
+  where
 
 import Prelude (error)
 
