@@ -1,12 +1,13 @@
--- This file has been generated from package.yaml by hpack version 0.15.0.
+-- This file has been generated from package.yaml by hpack version 0.17.0.
 --
 -- see: https://github.com/sol/hpack
 
 name:                   freer-effects
 version:                0.3.0.0
 synopsis:               Implementation of effect system for Haskell.
-description:            Implementation of effect system for Haskell, which is based on the work of
-                        Oleg Kiselyov et al.:
+description:            Implementation of effect system for Haskell (actively maintained fork of
+                        <http://hackage.haskell.org/package/freer freer>), which is based on the
+                        work of Oleg Kiselyov et al.:
                         .
                         * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
                         .
