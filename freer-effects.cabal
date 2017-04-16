@@ -53,7 +53,7 @@ flag pedantic
 
 flag test-hlint
   description:          Enable test suite that checks sources using HLint.
-  default:              True
+  default:              False
   manual:               True
 
 library
