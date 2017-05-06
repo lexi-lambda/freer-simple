@@ -53,6 +53,9 @@ module Control.Monad.Freer.Internal
     -- ** Sending Arbitrary Effect
     , send
 
+    -- ** Lifting Effect Stacks
+    , raise
+
     -- * Handling Effects
     , run
     , runM
@@ -267,6 +270,14 @@ interpose ret h = loop
         _      -> E u (tsingleton k)
       where
         k = qComp q loop
+
+-- | Embeds a less-constrained 'Eff' into a more-constrained one. Analogous to
+-- MTL's 'lift'.
+raise :: Eff effs a -> Eff (e ': effs) a
+raise = loop
+  where
+    loop (Val x) = pure x
+    loop (E u q) = E (weaken u) . tsingleton $ qComp q loop
 
 --------------------------------------------------------------------------------
                     -- Nondeterministic Choice --

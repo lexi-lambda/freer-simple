@@ -22,6 +22,9 @@ module Control.Monad.Freer
     -- ** Sending Arbitrary Effect
     , send
 
+    -- ** Lifting Effect Stacks
+    , raise
+
     -- * Handling Effects
     , Arr
     , run
@@ -47,6 +50,7 @@ import Control.Monad.Freer.Internal
     , Members
     , handleRelay
     , handleRelayS
+    , raise
     , run
     , runM
     , send
