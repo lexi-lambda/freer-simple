@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-* Introducing `replaceRelay` and `replaceRelayS`.
+* Introduced `replaceRelay` and `replaceRelayS`.
   [PR #27](https://github.com/IxpertaSolutions/freer-effects/pull/27)
   (**new**)
 * Fix: `Control.Monad.forever` causes `<<loop>>`
@@ -26,6 +26,9 @@ All notable changes to this project will be documented in this file.
   `runFresh'` was deprecated in favour of `evalFresh`.
   [PR #24](https://github.com/IxpertaSolutions/freer-effects/pull/24)
   (**new, change**)
+* Introduced `raise` to weaken an effect stack.
+  [PR #41](https://github.com/IxpertaSolutions/freer-effects/pull/41)
+  (**new**)
 
 ## [0.3.0.1] (April 16, 2017)
 
