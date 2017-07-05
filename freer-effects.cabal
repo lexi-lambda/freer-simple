@@ -64,6 +64,8 @@ library
     ghc-options: -Wredundant-constraints -Wmissing-import-lists
   if impl(ghc >=7.10)
     cpp-options: -DDEPRECATED_LANGUAGE_OVERLAPPING_INSTANCES
+  if impl(ghc >=8)
+    cpp-options: -DCUSTOM_TYPE_ERRORS
   exposed-modules:
       Control.Monad.Freer
       Control.Monad.Freer.Coroutine

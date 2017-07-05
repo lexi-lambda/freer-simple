@@ -29,6 +29,9 @@ All notable changes to this project will be documented in this file.
 * Introduced `raise` to weaken an effect stack.
   [PR #41](https://github.com/IxpertaSolutions/freer-effects/pull/41)
   (**new**)
+* Added support for custom type errors for unsolvable `Member` constraints.
+  [PR #48](https://github.com/IxpertaSolutions/freer-effects/pull/48)
+  (**new**)
 
 ## [0.3.0.1] (April 16, 2017)
 

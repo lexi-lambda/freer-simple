@@ -48,6 +48,9 @@ module Data.OpenUnion.Internal (module Data.OpenUnion.Internal)
   where
 
 import Prelude ((+), (-))
+#ifdef CUSTOM_TYPE_ERRORS
+import Prelude (error)
+#endif
 
 import Data.Bool (otherwise)
 import Data.Either (Either(Left, Right))
@@ -56,6 +59,10 @@ import Data.Function (($))
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Word (Word)
 import Unsafe.Coerce (unsafeCoerce)
+
+#ifdef CUSTOM_TYPE_ERRORS
+import GHC.TypeLits (TypeError, ErrorMessage((:<>:), (:$$:), ShowType, Text))
+#endif
 
 
 -- | Open union is a strong sum (existential with an evidence).
@@ -92,29 +99,43 @@ unsafePrj n (Union n' x)
 
 -- | Represents position of element @t :: * -> *@ in a type list
 -- @r :: [* -> *]@.
-newtype P t r = P {unP :: Word}
+newtype P t r w = P {unP :: Word}
 
 -- | Find an index of an element @t :: * -> *@ in a type list @r :: [* -> *]@.
--- The element must exist.
+-- The element must exist. The @w :: [* -> *]@ type represents the entire list,
+-- prior to recursion, and it is used to produce better type errors.
 --
 -- This is essentially a compile-time computation without run-time overhead.
-class FindElem (t :: * -> *) (r :: [* -> *]) where
+class FindElem (t :: * -> *) (r :: [* -> *]) (w :: [* -> *]) where
     -- | Position of the element @t :: * -> *@ in a type list @r :: [* -> *]@.
     --
     -- Position is computed during compilation, i.e. there is no run-time
     -- overhead.
     --
     -- /O(1)/
-    elemNo :: P t r
+    elemNo :: P t r w
 
 -- | Base case; element is at the current position in the list.
-instance FindElem t (t ': r) where
+instance FindElem t (t ': r) w where
     elemNo = P 0
 
 -- | Recursion; element is not at the current position, but is somewhere in the
 -- list.
-instance PRAGMA_OVERLAPPABLE FindElem t r => FindElem t (t' ': r) where
-    elemNo = P $ 1 + unP (elemNo :: P t r)
+instance PRAGMA_OVERLAPPABLE FindElem t r w => FindElem t (t' ': r) w where
+    elemNo = P $ 1 + unP (elemNo :: P t r w)
+
+#ifdef CUSTOM_TYPE_ERRORS
+-- | If we reach an empty list, that’s a failure, since it means the type isn’t
+-- in the list. For GHC >=8, we can render a custom type error that explicitly
+-- states what went wrong.
+instance TypeError ('Text "‘" ':<>: 'ShowType t
+                    ':<>: 'Text "’ is not a member of the type-level list"
+                    ':$$: 'Text "  ‘" ':<>: 'ShowType w ':<>: 'Text "’"
+                    ':$$: 'Text "In the constraint ("
+                    ':<>: 'ShowType (Member t w) ':<>: 'Text ")")
+  => FindElem t '[] w where
+    elemNo = error "impossible"
+#endif
 
 -- | This type class is used for two following purposes:
 --
@@ -129,7 +150,7 @@ instance PRAGMA_OVERLAPPABLE FindElem t r => FindElem t (t' ': r) where
 -- @
 -- 'prj' . 'inj' === 'Just'
 -- @
-class FindElem t r => Member (t :: * -> *) r where
+class FindElem t r r => Member (t :: * -> *) r where
     -- | Takes a request of type @t :: * -> *@, and injects it into the
     -- 'Union'.
     --
@@ -143,11 +164,11 @@ class FindElem t r => Member (t :: * -> *) r where
     -- /O(1)/
     prj :: Union r a -> Maybe (t a)
 
-instance FindElem t r => Member t r where
-    inj = unsafeInj $ unP (elemNo :: P t r)
+instance FindElem t r r => Member t r where
+    inj = unsafeInj $ unP (elemNo :: P t r r)
     {-# INLINE inj #-}
 
-    prj = unsafePrj $ unP (elemNo :: P t r)
+    prj = unsafePrj $ unP (elemNo :: P t r r)
     {-# INLINE prj #-}
 
 -- | Orthogonal decomposition of a @'Union' (t ': r) :: * -> *@. 'Right' value
