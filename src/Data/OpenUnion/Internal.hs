@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -7,18 +8,10 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-
--- GHC >=7.10 deprecated OverlappingInstances in favour of instance by instance
--- annotation using OVERLAPPABLE and OVERLAPPING pragmas.
-#ifdef DEPRECATED_LANGUAGE_OVERLAPPING_INSTANCES
-#define PRAGMA_OVERLAPPABLE {-# OVERLAPPABLE #-}
-#else
-{-# LANGUAGE OverlappingInstances #-}
-#define PRAGMA_OVERLAPPABLE
-#endif
 
 -- |
 -- Module:       Data.OpenUnion.Internal
@@ -47,22 +40,16 @@
 module Data.OpenUnion.Internal (module Data.OpenUnion.Internal)
   where
 
-import Prelude ((+), (-))
-#ifdef CUSTOM_TYPE_ERRORS
-import Prelude (error)
-#endif
+import Prelude ((+), (-), error)
 
 import Data.Bool (otherwise)
 import Data.Either (Either(Left, Right))
 import Data.Eq ((==))
-import Data.Function (($))
+import Data.Function (($), id)
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Word (Word)
-import Unsafe.Coerce (unsafeCoerce)
-
-#ifdef CUSTOM_TYPE_ERRORS
 import GHC.TypeLits (TypeError, ErrorMessage((:<>:), (:$$:), ShowType, Text))
-#endif
+import Unsafe.Coerce (unsafeCoerce)
 
 
 -- | Open union is a strong sum (existential with an evidence).
@@ -121,10 +108,9 @@ instance FindElem t (t ': r) w where
 
 -- | Recursion; element is not at the current position, but is somewhere in the
 -- list.
-instance PRAGMA_OVERLAPPABLE FindElem t r w => FindElem t (t' ': r) w where
+instance {-# OVERLAPPABLE #-} FindElem t r w => FindElem t (t' ': r) w where
     elemNo = P $ 1 + unP (elemNo :: P t r w)
 
-#ifdef CUSTOM_TYPE_ERRORS
 -- | If we reach an empty list, that’s a failure, since it means the type isn’t
 -- in the list. For GHC >=8, we can render a custom type error that explicitly
 -- states what went wrong.
@@ -135,7 +121,6 @@ instance TypeError ('Text "‘" ':<>: 'ShowType t
                     ':<>: 'ShowType (Member t w) ':<>: 'Text ")")
   => FindElem t '[] w where
     elemNo = error "impossible"
-#endif
 
 -- | This type class is used for two following purposes:
 --
@@ -208,3 +193,19 @@ extract (Union _ a) = unsafeCoerce a
 weaken :: Union r a -> Union (any ': r) a
 weaken (Union n a) = Union (n + 1) a
 {-# INLINE weaken #-}
+
+infixr 5 :++:
+type family xs :++: ys where
+  '[] :++: ys = ys
+  (x ': xs) :++: ys = x ': (xs :++: ys)
+
+class Weakens q where
+  weakens :: Union r a -> Union (q :++: r) a
+
+instance Weakens '[] where
+  weakens = id
+  {-# INLINE weakens #-}
+
+instance Weakens xs => Weakens (x ': xs) where
+  weakens u = weaken (weakens @xs u)
+  {-# INLINEABLE weakens #-}

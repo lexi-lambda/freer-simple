@@ -28,6 +28,8 @@ module Data.OpenUnion
       Union
 
     -- * Open Union Operations
+    , Weakens(..)
+    , (:++:)
     , decomp
     , weaken
     , extract
@@ -47,6 +49,8 @@ import GHC.Exts (Constraint)
 import Data.OpenUnion.Internal
     ( Member(inj, prj)
     , Union
+    , Weakens(weakens)
+    , (:++:)
     , decomp
     , extract
     , weaken

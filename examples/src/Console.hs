@@ -1,44 +1,47 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ExplicitForAll #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 module Console
-    ( Console
-    , exitSuccess'
-    , getLine'
-    , putStrLn'
-    , runConsole
-    , runConsoleM
-    , runConsolePure
-    , runConsolePureM
-    )
-  where
+  ( Console
+  , exitSuccess'
+  , getLine'
+  , putStrLn'
+  , runConsole
+  , runConsoleM
+  , runConsolePure
+  , runConsolePureM
+  ) where
 
 import Prelude (error)
 
 import Control.Applicative (pure)
 import Control.Monad ((>>=), (>>))
-import Data.Either (Either(Left, Right))
-import Data.Function (($), (.))
-import Data.List (reverse)
+import Data.Either (either)
+import Data.Function (($), (&), (.), const, flip)
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.String (String)
-import Data.Tuple (snd)
+import Data.Tuple (fst, snd)
 import System.Exit (exitSuccess)
 import System.IO (IO, getLine, putStrLn)
 
-import Control.Monad.Freer (Member, send, run, runM, handleRelay, handleRelayS)
-import Control.Monad.Freer.Internal (Arr, Eff(Val, E), decomp, qApp, tsingleton)
+import Control.Monad.Freer (Eff, Member, interpret, reinterpret3, send, run, runM)
+import Control.Monad.Freer.Exception (Exc, runError, throwError)
+import Control.Monad.Freer.State (State, get, put, runState)
+import Control.Monad.Freer.Writer (Writer, runWriter, tell)
 
 
 -------------------------------------------------------------------------------
                           -- Effect Model --
 -------------------------------------------------------------------------------
 data Console s where
-    PutStrLn    :: String -> Console ()
-    GetLine     :: Console String
-    ExitSuccess :: Console ()
+  PutStrLn    :: String -> Console ()
+  GetLine     :: Console String
+  ExitSuccess :: Console ()
 
 putStrLn' :: Member Console r => String -> Eff r ()
 putStrLn' = send . PutStrLn
@@ -52,60 +55,57 @@ exitSuccess' = send ExitSuccess
 -------------------------------------------------------------------------------
                      -- Effectful Interpreter Simple --
 -------------------------------------------------------------------------------
-runConsole :: Eff '[Console, IO] w -> IO w
-runConsole req = runM (handleRelay pure go req)
+runConsole :: Eff '[Console, IO] a -> IO a
+runConsole req = runM (interpret go req)
   where
-    go :: Console v -> Arr '[IO] v w -> Eff '[IO] w
-    go (PutStrLn msg) q = send (putStrLn msg) >>= q
-    go GetLine q = send getLine >>= q
-    go ExitSuccess q = send exitSuccess >>= q
+    go :: Console a -> Eff '[IO] a
+    go (PutStrLn msg) = send (putStrLn msg)
+    go GetLine = send getLine
+    go ExitSuccess = send exitSuccess
 
 -------------------------------------------------------------------------------
                         -- Pure Interpreter Simple --
 -------------------------------------------------------------------------------
 runConsolePure :: [String] -> Eff '[Console] w -> [String]
-runConsolePure inputs req =
-    reverse . snd $ run (handleRelayS (inputs, []) (\s _ -> pure s) go req)
+runConsolePure inputs req = snd . fst $
+    run (runWriter (runState (runError (reinterpret3 go req)) inputs))
   where
-    go :: ([String], [String])
-       -> Console v
-       -> (([String], [String]) -> Arr '[] v ([String], [String]))
-       -> Eff '[] ([String], [String])
-    go (is, os) (PutStrLn msg) q = q (is, msg : os) ()
-    go (i:is, os) GetLine q = q (is, os) i
-    go ([], _) GetLine _ = error "Not enough lines"
-    go (_, os) ExitSuccess _ = pure ([], os)
-
+    go :: Console v -> Eff '[Exc (), State [String], Writer [String]] v
+    go (PutStrLn msg) = tell [msg]
+    go GetLine = get >>= \case
+      [] -> error "not enough lines"
+      (x:xs) -> put xs >> pure x
+    go ExitSuccess = throwError ()
 
 -------------------------------------------------------------------------------
                      -- Effectful Interpreter for Deeper Stack --
 -------------------------------------------------------------------------------
-runConsoleM :: Member IO r => Eff (Console ': r) w -> Eff r w
-runConsoleM (Val x) = pure x
-runConsoleM (E u q) = case decomp u of
-    Right (PutStrLn msg) -> send (putStrLn msg) >> runConsoleM (qApp q ())
-    Right GetLine        -> send getLine >>=       runConsoleM . qApp q
-    Right ExitSuccess    -> send exitSuccess
-    Left u'              -> E u' (tsingleton (runConsoleM . qApp q))
+runConsoleM :: forall effs a. Member IO effs
+            => Eff (Console ': effs) a -> Eff effs a
+runConsoleM = interpret go
+  where
+    go :: forall b. Console b -> Eff effs b
+    go (PutStrLn msg) = send (putStrLn msg)
+    go GetLine = send getLine
+    go ExitSuccess = send exitSuccess
 
 -------------------------------------------------------------------------------
                      -- Pure Interpreter for Deeper Stack --
 -------------------------------------------------------------------------------
 runConsolePureM
-    :: [String]
-    -> Eff (Console ': r) w
-    -> Eff r (Maybe w,([String],[String]))
-    -- ^ (Nothing for ExitSuccess, (unconsumed input, produced output))
-runConsolePureM inputs = f (inputs,[]) where
-    f
-        :: ([String],[String])
-        -> Eff (Console ': r) w
-        -> Eff r (Maybe w,([String],[String]))
-    f st (Val x) = pure (Just x, st)
-    f st@(is,os) (E u q) = case decomp u of
-        Right (PutStrLn msg) -> f (is, msg : os) (qApp q ())
-        Right GetLine        -> case is of
-            x:s -> f (s,os) (qApp q x)
-            []  -> error "Not enough lines"
-        Right ExitSuccess    -> pure (Nothing, st)
-        Left u'              -> E u' (tsingleton (f st . qApp q))
+  :: forall effs w
+   . [String]
+  -> Eff (Console ': effs) w
+  -> Eff effs (Maybe w, [String], [String])
+runConsolePureM inputs req = do
+    ((x, inputs'), output) <- reinterpret3 go req
+      & runError & flip runState inputs & runWriter
+    pure (either (const Nothing) Just x, inputs', output)
+  where
+    go :: Console v
+       -> Eff (Exc () ': State [String] ': Writer [String] ': effs) v
+    go (PutStrLn msg) = tell [msg]
+    go GetLine = get >>= \case
+      [] -> error "not enough lines"
+      (x:xs) -> put xs >> pure x
+    go ExitSuccess = throwError ()

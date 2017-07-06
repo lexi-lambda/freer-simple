@@ -4,6 +4,8 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -66,6 +68,7 @@ module Control.Monad.Freer.Internal
     , interpose
     , replaceRelay
     , replaceRelayS
+    , replaceRelayN
 
     -- *** Low-level Functions for Building Effect Handlers
     , qApp
@@ -214,6 +217,24 @@ replaceRelay pure' bind = loop
         Right x -> bind x k
         Left  u -> E (weaken u) (tsingleton k)
       where
+        k = qComp q loop
+
+replaceRelayN
+  :: forall gs t a effs w
+   . Weakens gs
+  => (a -> Eff (gs :++: effs) w)
+  -> (forall x. t x -> Arr (gs :++: effs) x w -> Eff (gs :++: effs) w)
+  -> Eff (t ': effs) a
+  -> Eff (gs :++: effs) w
+replaceRelayN pure' bind = loop
+  where
+    loop :: Eff (t ': effs) a -> Eff (gs :++: effs) w
+    loop (Val x)  = pure' x
+    loop (E u' (q :: Arrs (t ': effs) b a)) = case decomp u' of
+        Right x -> bind x k
+        Left  u -> E (weakens @gs u) (tsingleton k)
+      where
+        k :: Arr (gs :++: effs) b w
         k = qComp q loop
 
 -- | Given a request, either handle it or relay it.

@@ -60,32 +60,12 @@ ghc-options:
   - -fwarn-implicit-prelude
 
 dependencies:
-  - base >=4.7 && <5
+  - base >=4.9 && <5
 
 library:
   source-dirs: src
-  exposed-modules:
-    - Control.Monad.Freer
-    - Control.Monad.Freer.Coroutine
-    - Control.Monad.Freer.Cut
-    - Control.Monad.Freer.Exception
-    - Control.Monad.Freer.Fresh
-    - Control.Monad.Freer.Internal
-    - Control.Monad.Freer.NonDet
-    - Control.Monad.Freer.Reader
-    - Control.Monad.Freer.State
-    - Control.Monad.Freer.StateRW
-    - Control.Monad.Freer.Trace
-    - Control.Monad.Freer.Writer
-    - Data.FTCQueue
-    - Data.OpenUnion
-    - Data.OpenUnion.Internal
-
-  when:
-    - condition: impl(ghc >=7.10)
-      cpp-options: -DDEPRECATED_LANGUAGE_OVERLAPPING_INSTANCES
-    - condition: impl(ghc >=8)
-      cpp-options: -DCUSTOM_TYPE_ERRORS
+  dependencies:
+  - natural-transformation >=0.2
 
 executables:
   freer-examples:
