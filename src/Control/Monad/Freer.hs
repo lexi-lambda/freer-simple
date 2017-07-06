@@ -40,11 +40,14 @@ module Control.Monad.Freer
   , reinterpret2
   , reinterpret3
   , reinterpretN
+  , translate
+  , translateM
   ) where
 
 import Control.Applicative (pure)
-import Control.Monad ((>>=))
+import Control.Monad (Monad, (>>=))
 import Control.Natural (type (~>))
+import Data.Function ((.))
 
 import Control.Monad.Freer.Internal
   ( Arr
@@ -100,3 +103,32 @@ reinterpretN
   :: forall gs f effs. Weakens gs
   => (f ~> Eff (gs :++: effs)) -> Eff (f ': effs) ~> Eff (gs :++: effs)
 reinterpretN f = replaceRelayN @gs pure (\e -> (f e >>=))
+
+-- | Runs an effect by translating it into another effect. This is effectively a
+-- more restricted form of 'reinterpret', since both produce a natural
+-- transformation from @'Eff' (f ': effs)@ to @'Eff' (g ': effs)@ for some
+-- effects @f@ and @g@, but 'translate' does not permit using any of the other
+-- effects in the implementation of the interpreter.
+--
+-- In practice, this difference in functionality is not particularly useful, and
+-- 'reinterpret' easily subsumes all of the functionality of 'translate', but
+-- the way 'translate' restricts the result leads to much better type inference.
+--
+-- @
+-- 'translate' f = 'reinterpret' ('send' . f)
+-- @
+translate :: (f ~> g) -> Eff (f ': effs) ~> Eff (g ': effs)
+translate f = reinterpret (send . f)
+
+-- | Like 'translate', this function runs an effect by translating it into
+-- another effect in isolation, without access to the other effects in @effs@.
+-- Unlike 'translate', this runs the effect in a final monad in @effs@, intended
+-- to be run with 'runM'.
+--
+-- @
+-- 'translateM' f = 'interpret' ('sendM' . f)
+-- @
+translateM
+  :: (Monad m, LastMember m effs)
+  => (eff ~> m) -> Eff (eff ': effs) ~> Eff effs
+translateM f = interpret (sendM . f)
