@@ -29,7 +29,7 @@ import Data.Tuple (fst, snd)
 import System.Exit (exitSuccess)
 import System.IO (IO, getLine, putStrLn)
 
-import Control.Monad.Freer (Eff, Member, interpret, reinterpret3, send, run, runM)
+import Control.Monad.Freer (Eff, LastMember, Member, interpretM, reinterpret3, run, runM, send)
 import Control.Monad.Freer.Exception (Exc, runError, throwError)
 import Control.Monad.Freer.State (State, get, put, runState)
 import Control.Monad.Freer.Writer (Writer, runWriter, tell)
@@ -56,12 +56,10 @@ exitSuccess' = send ExitSuccess
                      -- Effectful Interpreter Simple --
 -------------------------------------------------------------------------------
 runConsole :: Eff '[Console, IO] a -> IO a
-runConsole req = runM (interpret go req)
-  where
-    go :: Console a -> Eff '[IO] a
-    go (PutStrLn msg) = send (putStrLn msg)
-    go GetLine = send getLine
-    go ExitSuccess = send exitSuccess
+runConsole = runM . interpretM (\case
+  PutStrLn msg -> putStrLn msg
+  GetLine -> getLine
+  ExitSuccess -> exitSuccess)
 
 -------------------------------------------------------------------------------
                         -- Pure Interpreter Simple --
@@ -80,14 +78,12 @@ runConsolePure inputs req = snd . fst $
 -------------------------------------------------------------------------------
                      -- Effectful Interpreter for Deeper Stack --
 -------------------------------------------------------------------------------
-runConsoleM :: forall effs a. Member IO effs
+runConsoleM :: forall effs a. LastMember IO effs
             => Eff (Console ': effs) a -> Eff effs a
-runConsoleM = interpret go
-  where
-    go :: forall b. Console b -> Eff effs b
-    go (PutStrLn msg) = send (putStrLn msg)
-    go GetLine = send getLine
-    go ExitSuccess = send exitSuccess
+runConsoleM = interpretM $ \case
+  PutStrLn msg -> putStrLn msg
+  GetLine -> getLine
+  ExitSuccess -> exitSuccess
 
 -------------------------------------------------------------------------------
                      -- Pure Interpreter for Deeper Stack --

@@ -41,7 +41,7 @@ module Control.Monad.Freer
   , reinterpret3
   , reinterpretN
   , translate
-  , translateM
+  , interpretM
   ) where
 
 import Control.Applicative (pure)
@@ -120,15 +120,16 @@ reinterpretN f = replaceRelayN @gs pure (\e -> (f e >>=))
 translate :: (f ~> g) -> Eff (f ': effs) ~> Eff (g ': effs)
 translate f = reinterpret (send . f)
 
--- | Like 'translate', this function runs an effect by translating it into
+-- | Like 'interpret', this function runs an effect without introducting another
+-- one. Like 'translate', this function runs an effect by translating it into
 -- another effect in isolation, without access to the other effects in @effs@.
--- Unlike 'translate', this runs the effect in a final monad in @effs@, intended
--- to be run with 'runM'.
+-- Unlike either of those functions, however, this runs the effect in a final
+-- monad in @effs@, intended to be run with 'runM'.
 --
 -- @
--- 'translateM' f = 'interpret' ('sendM' . f)
+-- 'interpretM' f = 'interpret' ('sendM' . f)
 -- @
-translateM
+interpretM
   :: (Monad m, LastMember m effs)
   => (eff ~> m) -> Eff (eff ': effs) ~> Eff effs
-translateM f = interpret (sendM . f)
+interpretM f = interpret (sendM . f)
