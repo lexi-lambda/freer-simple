@@ -37,6 +37,7 @@ module Data.OpenUnion
     -- * Open Union Membership Constraints
     , Member(..)
     , Members
+    , LastMember
     )
   where
 
@@ -60,3 +61,10 @@ import Data.OpenUnion.Internal
 type family Members m r :: Constraint where
     Members (t ': c) r = (Member t r, Members c r)
     Members '[] r = ()
+
+type family Last effs where
+  Last (eff ': '[]) = eff
+  Last (_ ': effs) = Last effs
+
+class (Member m effs, m ~ Last effs) => LastMember m effs
+instance (Member m effs, m ~ Last effs) => LastMember m effs

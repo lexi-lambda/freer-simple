@@ -59,6 +59,7 @@ library
   build-depends:
       base >=4.9 && <5
     , natural-transformation >=0.2
+    , transformers-base
   if flag(pedantic)
     ghc-options: -Werror
   if impl(ghc >=8)

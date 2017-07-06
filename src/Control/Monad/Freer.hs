@@ -20,9 +20,11 @@ module Control.Monad.Freer
     -- ** Effect Constraints
   , Member
   , Members
+  , LastMember
 
     -- ** Sending Arbitrary Effect
   , send
+  , sendM
 
     -- ** Lifting Effect Stacks
   , raise
@@ -47,6 +49,7 @@ import Control.Natural (type (~>))
 import Control.Monad.Freer.Internal
   ( Arr
   , Eff
+  , LastMember
   , Member
   , Members
   , Weakens
@@ -58,6 +61,7 @@ import Control.Monad.Freer.Internal
   , run
   , runM
   , send
+  , sendM
   )
 
 -- | The simplest way to produce an effect handler. Given a natural

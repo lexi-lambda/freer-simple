@@ -1,7 +1,9 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -17,6 +19,8 @@
 
 -- Due to re-export of Data.FTCQueue, and Data.OpenUnion.
 {-# OPTIONS_GHC -fno-warn-missing-import-lists #-}
+-- Due to sendM.
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 
 -- |
 -- Module:       Control.Monad.Freer.Internal
@@ -54,6 +58,7 @@ module Control.Monad.Freer.Internal
 
     -- ** Sending Arbitrary Effect
     , send
+    , sendM
 
     -- ** Lifting Effect Stacks
     , raise
@@ -81,14 +86,9 @@ module Control.Monad.Freer.Internal
 
 import Prelude (error)  -- Function error is used for imposible cases.
 
-import Control.Applicative
-    ( Alternative((<|>), empty)
-    , Applicative((<*>), pure)
-    )
-import Control.Monad
-    ( Monad((>>=), return)
-    , MonadPlus(mplus, mzero)
-    )
+import Control.Applicative (Alternative((<|>), empty), Applicative((<*>), pure))
+import Control.Monad (Monad((>>=), return), MonadPlus(mplus, mzero))
+import Control.Monad.Base (MonadBase(liftBase))
 import Data.Bool (Bool)
 import Data.Either (Either(Left, Right))
 import Data.Function (($), (.))
@@ -156,9 +156,20 @@ instance Monad (Eff effs) where
     E u q >>= k = E u (q |> k)
     {-# INLINE (>>=) #-}
 
+instance (MonadBase b m, LastMember m effs) => MonadBase b (Eff effs) where
+    liftBase = sendM . liftBase
+    {-# INLINE liftBase #-}
+
 -- | Send a request and wait for a reply.
 send :: Member eff effs => eff a -> Eff effs a
 send t = E (inj t) (tsingleton Val)
+
+-- | Identical to 'send', but specialized to the final effect in @effs@ to
+-- assist type inference. This is useful for running actions in a monad
+-- transformer stack used in conjunction with 'runM'.
+sendM :: (Monad m, LastMember m effs) => m a -> Eff effs a
+sendM = send
+{-# INLINE sendM #-}
 
 --------------------------------------------------------------------------------
                        -- Base Effect Runner --

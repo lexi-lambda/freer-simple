@@ -66,6 +66,7 @@ library:
   source-dirs: src
   dependencies:
   - natural-transformation >=0.2
+  - transformers-base
 
 executables:
   freer-examples:
