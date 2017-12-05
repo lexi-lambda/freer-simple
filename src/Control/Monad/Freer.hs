@@ -22,7 +22,7 @@ module Control.Monad.Freer
   , Members
   , LastMember
 
-    -- ** Sending Arbitrary Effect
+    -- ** Sending Arbitrary Effects
   , send
   , sendM
 
@@ -30,19 +30,27 @@ module Control.Monad.Freer
   , raise
 
     -- * Handling Effects
-  , Arr
   , run
   , runM
 
     -- ** Building Effect Handlers
+    -- *** Basic effect handlers
   , interpret
+  , interpose
+    -- *** Derived effect handlers
   , reinterpret
   , reinterpret2
   , reinterpret3
   , reinterpretN
   , translate
+    -- *** Monadic effect handlers
   , interpretM
+    -- *** Advanced effect handlers
+  , interpretWith
+  , interposeWith
   ) where
+
+import qualified Control.Monad.Freer.Internal as Internal
 
 import Control.Applicative (pure)
 import Control.Monad (Monad, (>>=))
@@ -50,8 +58,7 @@ import Control.Natural (type (~>))
 import Data.Function ((.))
 
 import Control.Monad.Freer.Internal
-  ( Arr
-  , Eff
+  ( Eff
   , LastMember
   , Member
   , Members
@@ -72,7 +79,12 @@ import Control.Monad.Freer.Internal
 -- effects @effs@, produces a natural transformation from @'Eff' (eff ': effs)@
 -- to @'Eff' effs@.
 interpret :: (eff ~> Eff effs) -> Eff (eff ': effs) ~> Eff effs
-interpret f = handleRelay pure (\e -> (f e >>=))
+interpret f = interpretWith (\e -> (f e >>=))
+
+-- | Like 'interpret', but instead of handling the effect, allows responding to
+-- the effect while leaving it unhandled.
+interpose :: Member eff effs => (eff ~> Eff effs) -> Eff effs ~> Eff effs
+interpose f = interposeWith (\e -> (f e >>=))
 
 -- | Like 'interpret', but instead of removing the interpreted effect @f@,
 -- reencodes it in some new effect @g@.
@@ -120,7 +132,7 @@ reinterpretN f = replaceRelayN @gs pure (\e -> (f e >>=))
 translate :: (f ~> g) -> Eff (f ': effs) ~> Eff (g ': effs)
 translate f = reinterpret (send . f)
 
--- | Like 'interpret', this function runs an effect without introducting another
+-- | Like 'interpret', this function runs an effect without introducing another
 -- one. Like 'translate', this function runs an effect by translating it into
 -- another effect in isolation, without access to the other effects in @effs@.
 -- Unlike either of those functions, however, this runs the effect in a final
@@ -133,3 +145,33 @@ interpretM
   :: (Monad m, LastMember m effs)
   => (eff ~> m) -> Eff (eff ': effs) ~> Eff effs
 interpretM f = interpret (sendM . f)
+
+-- | A highly general way of handling an effect. Like 'interpret', but
+-- explicitly passes the /continuation/, a function of type @v -> 'Eff' effs b@,
+-- to the handler function. Most handlers invoke this continuation to resume the
+-- computation with a particular value as the result, but some handlers may
+-- return a value without resumption, effectively aborting the computation to
+-- the point where the handler is invoked. This is useful for implementing
+-- things like 'Control.Monad.Freer.Error.catchError', for example.
+--
+-- @
+-- 'interpret' f = 'interpretWith' (\e -> (f e '>>='))
+-- @
+interpretWith
+  :: (forall v. eff v -> (v -> Eff effs b) -> Eff effs b)
+  -> Eff (eff ': effs) b
+  -> Eff effs b
+interpretWith = handleRelay pure
+
+-- | Combines the interposition behavior of 'interpose' with the
+-- continuation-passing capabilities of 'interpretWith'.
+--
+-- @
+-- 'interpose' f = 'interposeWith' (\e -> (f e '>>='))
+-- @
+interposeWith
+  :: Member eff effs
+  => (forall v. eff v -> (v -> Eff effs b) -> Eff effs b)
+  -> Eff effs b
+  -> Eff effs b
+interposeWith = Internal.interpose pure

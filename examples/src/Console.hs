@@ -30,7 +30,7 @@ import System.Exit (exitSuccess)
 import System.IO (IO, getLine, putStrLn)
 
 import Control.Monad.Freer (Eff, LastMember, Member, interpretM, reinterpret3, run, runM, send)
-import Control.Monad.Freer.Exception (Exc, runError, throwError)
+import Control.Monad.Freer.Error (Error, runError, throwError)
 import Control.Monad.Freer.State (State, get, put, runState)
 import Control.Monad.Freer.Writer (Writer, runWriter, tell)
 
@@ -68,7 +68,7 @@ runConsolePure :: [String] -> Eff '[Console] w -> [String]
 runConsolePure inputs req = snd . fst $
     run (runWriter (runState (runError (reinterpret3 go req)) inputs))
   where
-    go :: Console v -> Eff '[Exc (), State [String], Writer [String]] v
+    go :: Console v -> Eff '[Error (), State [String], Writer [String]] v
     go (PutStrLn msg) = tell [msg]
     go GetLine = get >>= \case
       [] -> error "not enough lines"
@@ -99,7 +99,7 @@ runConsolePureM inputs req = do
     pure (either (const Nothing) Just x, inputs', output)
   where
     go :: Console v
-       -> Eff (Exc () ': State [String] ': Writer [String] ': effs) v
+       -> Eff (Error () ': State [String] ': Writer [String] ': effs) v
     go (PutStrLn msg) = tell [msg]
     go GetLine = get >>= \case
       [] -> error "not enough lines"

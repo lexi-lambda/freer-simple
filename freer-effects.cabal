@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.17.0.
+-- This file has been generated from package.yaml by hpack version 0.18.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -68,7 +68,7 @@ library
       Control.Monad.Freer
       Control.Monad.Freer.Coroutine
       Control.Monad.Freer.Cut
-      Control.Monad.Freer.Exception
+      Control.Monad.Freer.Error
       Control.Monad.Freer.Fresh
       Control.Monad.Freer.Internal
       Control.Monad.Freer.NonDet
@@ -80,6 +80,8 @@ library
       Data.FTCQueue
       Data.OpenUnion
       Data.OpenUnion.Internal
+  other-modules:
+      Paths_freer_effects
   default-language: Haskell2010
 
 executable freer-examples

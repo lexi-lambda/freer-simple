@@ -6,7 +6,7 @@ module Cut () where
 
 {-
 -- The signature is inferred
-tcut1 :: (Member Choose r, Member (Exc CutFalse) r) => Eff r Int
+tcut1 :: (Member Choose r, Member (Error CutFalse) r) => Eff r Int
 tcut1 = (return (1::Int) `mplus'` return 2) `mplus'`
          ((cutfalse `mplus'` return 4) `mplus'`
           return 5)

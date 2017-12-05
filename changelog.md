@@ -51,7 +51,7 @@ All notable changes to this project will be documented in this file.
 * Add `evalState` and `execState` convenience functions
   [freer!14](https://gitlab.com/queertypes/freer/merge_requests/14)
 * Data constructors of `Yield`, `CutFalse`, `Fresh`, `State` and `Trace`
-  are now exposed in addition to `Exc`, `Reader` and `Writer`
+  are now exposed in addition to `Error`, `Reader` and `Writer`
 * Generalised type signature of `asks`.
   [#7](https://github.com/IxpertaSolutions/freer-effects/issues/7)
 * Renamed modules `Data.Open.Union.*` to `Data.OpenUnion.*`.

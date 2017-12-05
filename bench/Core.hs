@@ -35,7 +35,7 @@ import Criterion.Main (defaultMain)
 
 import Control.Monad.Freer (Member, Eff, run, send)
 import Control.Monad.Freer.Internal (Eff(E, Val), decomp, qApp, tsingleton)
-import Control.Monad.Freer.Exception (runError, throwError)
+import Control.Monad.Freer.Error (runError, throwError)
 import Control.Monad.Freer.State (get, put, runState)
 import Control.Monad.Freer.StateRW (ask, tell, runStateR)
 
