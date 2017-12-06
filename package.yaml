@@ -1,11 +1,11 @@
-name: freer-effects
-version: 0.3.0.0
+name: freer-simple
+version: 1.0.0.0
 category: Control
-synopsis: Implementation of effect system for Haskell.
+synopsis: Implementation of an effect system for Haskell.
 description: |
-  Implementation of effect system for Haskell (actively maintained fork of
-  <http://hackage.haskell.org/package/freer freer>), which is based on the
-  work of Oleg Kiselyov et al.:
+  An implementation of an effect system for Haskell (a fork of
+  <http://hackage.haskell.org/package/freer-effects freer-effects>), which is
+  based on the work of Oleg Kiselyov et al.:
 
     * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
     * <http://okmij.org/ftp/Haskell/zseq.pdf Reflection without Remorse>
@@ -16,16 +16,16 @@ description: |
     * An efficient effect system for Haskell - as a library!
     * Reimplementations of several common Haskell monad transformers as effects.
     * Core components for defining your own Effects.
-github: lexi-lambda/freer-effects
 
+github: lexi-lambda/freer-simple
 license: BSD3
 author: Allele Dev, Ixcom Core Team, Alexis King, and other contributors
 maintainer: Alexis King <lexi.lambda@gmail.com>
 copyright: (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.; 2017 Alexis King
 
 extra-source-files:
+- CHANGELOG.md
 - README.md
-- changelog.md
 
 ghc-options:
 - -Wall
@@ -62,7 +62,7 @@ executables:
     source-dirs: examples/src
     main: Main.hs
     dependencies:
-    - freer-effects
+    - freer-simple
 
 tests:
   unit:
@@ -70,7 +70,7 @@ tests:
     main: Tests.hs
     dependencies:
     - QuickCheck
-    - freer-effects
+    - freer-simple
     - tasty
     - tasty-hunit
     - tasty-quickcheck
@@ -82,7 +82,7 @@ benchmarks:
     ghc-options: -O2
     dependencies:
     - criterion
-    - extensible-effects >= 1.11 && < 1.12
+    - extensible-effects
     - free
-    - freer-effects
+    - freer-simple
     - mtl
