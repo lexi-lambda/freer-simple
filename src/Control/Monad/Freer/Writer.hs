@@ -1,8 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.Writer
 -- Description:  Composable Writer effects.
@@ -18,24 +13,19 @@
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Writer
-    ( Writer(..)
-    , tell
-    , runWriter
-    )
-  where
+  ( Writer(..)
+  , tell
+  , runWriter
+  ) where
 
-import Control.Applicative (pure)
 import Control.Arrow (second)
-import Data.Function (($))
-import Data.Functor ((<$>))
-import Data.Monoid (Monoid, (<>), mempty)
+import Data.Monoid ((<>))
 
 import Control.Monad.Freer.Internal (Eff, Member, handleRelay, send)
 
-
 -- | Writer effects - send outputs to an effect environment.
 data Writer w a where
-    Writer :: w -> Writer w ()
+  Writer :: w -> Writer w ()
 
 -- | Send a change to the attached environment.
 tell :: Member (Writer w) effs => w -> Eff effs ()
@@ -44,4 +34,4 @@ tell w = send $ Writer w
 -- | Simple handler for 'Writer' effects.
 runWriter :: Monoid w => Eff (Writer w ': effs) a -> Eff effs (a, w)
 runWriter = handleRelay (\a -> pure (a, mempty)) $ \(Writer w) k ->
-    second (w <>) <$> k ()
+  second (w <>) <$> k ()

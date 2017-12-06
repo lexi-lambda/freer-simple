@@ -1,32 +1,8 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeOperators #-}
 module Main (main) where
 
-import Prelude ((-))
+import Control.Monad (replicateM_)
 
-import Control.Applicative (pure)
-import Control.Monad ((>>=), (>>), replicateM_)
-import Data.Either (Either(Left, Right))
-import Data.Function ((.), ($), id)
-import Data.Functor (Functor)
-import Data.Int (Int)
-import Data.Maybe (Maybe)
-import Data.Ord ((<=))
-import Data.String (String)
-import System.IO (IO)
-
-#if MIN_VERSION_mtl(2,2,1)
 import qualified Control.Monad.Except as MTL
-#else
-import qualified Control.Monad.Error as MTL
-#endif
 import qualified Control.Monad.State as MTL
 import qualified Control.Monad.Free as Free
 
@@ -39,9 +15,9 @@ import Control.Monad.Freer.Error (runError, throwError)
 import Control.Monad.Freer.State (get, put, runState)
 import Control.Monad.Freer.StateRW (ask, tell, runStateR)
 
-import qualified Control.Eff as EE (run)
-import qualified Control.Eff.Exception as EE (runExc, throwExc)
-import qualified Control.Eff.State.Lazy as EE (runState, get, put)
+import qualified Control.Eff as EE
+import qualified Control.Eff.Exception as EE
+import qualified Control.Eff.State.Lazy as EE
 
 --------------------------------------------------------------------------------
                         -- State Benchmarks --

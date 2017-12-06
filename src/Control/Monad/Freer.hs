@@ -1,10 +1,5 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
+
 -- |
 -- Module:       Control.Monad.Freer
 -- Description:  Freer - an extensible effects library
@@ -50,12 +45,9 @@ module Control.Monad.Freer
   , interposeWith
   ) where
 
-import qualified Control.Monad.Freer.Internal as Internal
-
-import Control.Applicative (pure)
-import Control.Monad (Monad, (>>=))
 import Control.Natural (type (~>))
-import Data.Function ((.))
+
+import qualified Control.Monad.Freer.Internal as Internal
 
 import Control.Monad.Freer.Internal
   ( Eff

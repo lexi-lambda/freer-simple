@@ -1,11 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeOperators #-}
 module Console
   ( Console
   , exitSuccess'
@@ -17,17 +9,8 @@ module Console
   , runConsolePureM
   ) where
 
-import Prelude (error)
-
-import Control.Applicative (pure)
-import Control.Monad ((>>=), (>>))
-import Data.Either (either)
-import Data.Function (($), (&), (.), const, flip)
-import Data.Maybe (Maybe(Just, Nothing))
-import Data.String (String)
-import Data.Tuple (fst, snd)
+import Data.Function ((&))
 import System.Exit (exitSuccess)
-import System.IO (IO, getLine, putStrLn)
 
 import Control.Monad.Freer (Eff, LastMember, Member, interpretM, reinterpret3, run, runM, send)
 import Control.Monad.Freer.Error (Error, runError, throwError)

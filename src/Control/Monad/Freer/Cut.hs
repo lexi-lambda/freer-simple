@@ -1,7 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.Cut
 -- Description:  An implementation of logical Cut.
@@ -16,16 +12,14 @@
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Cut
-    ( CutFalse(..)
-    , cutFalse
---  , call
-    )
-  where
+  ( CutFalse(..)
+  , cutFalse
+  -- , call
+  ) where
 
 -- import Control.Monad
 import Control.Monad.Freer.Error (Error, throwError)
 import Control.Monad.Freer.Internal (Eff, Member)
-
 
 data CutFalse = CutFalse
 -- data Choose a b = Choose [a] b

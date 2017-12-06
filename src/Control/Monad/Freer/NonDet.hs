@@ -1,8 +1,5 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE TypeOperators #-}
+
 -- |
 -- Module:       Control.Monad.Freer.NonDet
 -- Description:  Non deterministic effects
@@ -14,51 +11,46 @@
 --
 -- Composable handler for 'NonDet' effects.
 module Control.Monad.Freer.NonDet
-    ( NonDet(..)
-    , makeChoiceA
-    , msplit
-    )
-  where
+  ( NonDet(..)
+  , makeChoiceA
+  , msplit
+  ) where
 
-import Control.Applicative (Alternative, (<|>), empty, pure)
-import Control.Monad (liftM2, msum, return)
-import Data.Bool (Bool(False, True))
-import Data.Function (($), (.))
-import Data.Maybe (Maybe(Just, Nothing))
+import Control.Applicative (Alternative, (<|>), empty)
+import Control.Monad (msum)
 
 import Control.Monad.Freer.Internal
-    ( Eff(E, Val)
-    , Member
-    , NonDet(MPlus, MZero)
-    , handleRelay
-    , prj
-    , qApp
-    , qComp
-    , tsingleton
-    )
-
+  ( Eff(E, Val)
+  , Member
+  , NonDet(MPlus, MZero)
+  , handleRelay
+  , prj
+  , qApp
+  , qComp
+  , tsingleton
+  )
 
 -- | A handler for nondeterminstic effects.
 makeChoiceA
     :: Alternative f
     => Eff (NonDet ': effs) a
     -> Eff effs (f a)
-makeChoiceA = handleRelay (return . pure) $ \m k ->
-    case m of
-        MZero -> return empty
-        MPlus -> liftM2 (<|>) (k True) (k False)
+makeChoiceA = handleRelay (pure . pure) $ \m k ->
+  case m of
+    MZero -> pure empty
+    MPlus -> (<|>) <$> k True <*> k False
 
 msplit
-    :: Member NonDet effs
-    => Eff effs a
-    -> Eff effs (Maybe (a, Eff effs a))
+  :: Member NonDet effs
+  => Eff effs a
+  -> Eff effs (Maybe (a, Eff effs a))
 msplit = loop []
   where
-    loop jq (Val x) = return (Just (x, msum jq))
+    loop jq (Val x) = pure (Just (x, msum jq))
     loop jq (E u q) = case prj u of
         Just MZero -> case jq of
-            []      -> return Nothing
-            (j:jq') -> loop jq' j
+          []      -> pure Nothing
+          (j:jq') -> loop jq' j
         Just MPlus -> loop (qApp q False : jq) (qApp q True)
         Nothing    -> E u (tsingleton k)
       where

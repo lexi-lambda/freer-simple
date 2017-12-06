@@ -1,7 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.Error
 -- Description:  An Error effect and handler.
@@ -16,20 +12,14 @@
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Error
-    ( Error(..)
-    , throwError
-    , runError
-    , catchError
-    , handleError
-    )
-  where
-
-import Control.Applicative (pure)
-import Data.Either (Either(Left, Right))
-import Data.Function ((.))
+  ( Error(..)
+  , throwError
+  , runError
+  , catchError
+  , handleError
+  ) where
 
 import Control.Monad.Freer.Internal (Eff, Member, handleRelay, interpose, send)
-
 
 --------------------------------------------------------------------------------
                            -- Exceptions --

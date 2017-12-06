@@ -1,15 +1,8 @@
+{-# OPTIONS_GHC -Wno-redundant-constraints #-} -- Due to sendM.
+{-# OPTIONS_HADDOCK not-home #-}
+
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
 
 -- The following is needed to define MonadPlus instance. It is decidable
 -- (there is no recursion!), but GHC cannot see that.
@@ -17,10 +10,7 @@
 -- TODO: Remove once GHC can deduce the decidability of this instance.
 {-# LANGUAGE UndecidableInstances #-}
 
--- Due to re-export of Data.FTCQueue, and Data.OpenUnion.
-{-# OPTIONS_GHC -fno-warn-missing-import-lists #-}
--- Due to sendM.
-{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+
 
 -- |
 -- Module:       Control.Monad.Freer.Internal
@@ -39,65 +29,55 @@
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Internal
-    (
-    -- * Effect Monad
-      Eff(..)
-    , Arr
-    , Arrs
+  ( -- * Effect Monad
+    Eff(..)
+  , Arr
+  , Arrs
 
     -- ** Open Union
     --
     -- | Open Union (type-indexed co-product) of effects.
-    , module Data.OpenUnion
+  , module Data.OpenUnion
 
     -- ** Fast Type-aligned Queue
     --
     -- | Fast type-aligned queue optimized to effectful functions of type
     -- @(a -> m b)@.
-    , module Data.FTCQueue
+  , module Data.FTCQueue
 
     -- ** Sending Arbitrary Effect
-    , send
-    , sendM
+  , send
+  , sendM
 
     -- ** Lifting Effect Stacks
-    , raise
+  , raise
 
     -- * Handling Effects
-    , run
-    , runM
+  , run
+  , runM
 
     -- ** Building Effect Handlers
-    , handleRelay
-    , handleRelayS
-    , interpose
-    , replaceRelay
-    , replaceRelayS
-    , replaceRelayN
+  , handleRelay
+  , handleRelayS
+  , interpose
+  , replaceRelay
+  , replaceRelayS
+  , replaceRelayN
 
     -- *** Low-level Functions for Building Effect Handlers
-    , qApp
-    , qComp
+  , qApp
+  , qComp
 
     -- ** Nondeterminism Effect
-    , NonDet(..)
-    )
-  where
+  , NonDet(..)
+  ) where
 
-import Prelude (error)  -- Function error is used for imposible cases.
-
-import Control.Applicative (Alternative((<|>), empty), Applicative((<*>), pure))
-import Control.Monad (Monad((>>=), return), MonadPlus(mplus, mzero))
-import Control.Monad.Base (MonadBase(liftBase))
-import Data.Bool (Bool)
-import Data.Either (Either(Left, Right))
-import Data.Function (($), (.))
-import Data.Functor (Functor(fmap))
-import Data.Maybe (Maybe(Just))
+import Control.Applicative (Alternative(..))
+import Control.Monad (MonadPlus(..))
+import Control.Monad.Base (MonadBase, liftBase)
 
 import Data.FTCQueue
 import Data.OpenUnion
-
 
 -- | Effectful arrow type: a function from @a :: *@ to @b :: *@ that also does
 -- effects denoted by @effs :: [* -> *]@.
@@ -113,20 +93,20 @@ type Arrs effs a b = FTCQueue (Eff effs) a b
 -- different types of effects can be interleaved, and so that the produced code
 -- is efficient.
 data Eff effs a
-    = Val a
-    -- ^ Pure value (@'return' = 'pure' = 'Val'@).
-    | forall b. E (Union effs b) (Arrs effs b a)
-    -- ^ Sending a request of type @Union effs@ with the continuation
-    -- @'Arrs' r b a@.
+  = Val a
+  -- ^ Pure value (@'return' = 'pure' = 'Val'@).
+  | forall b. E (Union effs b) (Arrs effs b a)
+  -- ^ Sending a request of type @Union effs@ with the continuation
+  -- @'Arrs' r b a@.
 
 -- | Function application in the context of an array of effects,
 -- @'Arrs' effs b w@.
 qApp :: Arrs effs b w -> b -> Eff effs w
 qApp q' x = case tviewl q' of
-    TOne k  -> k x
-    k :| t -> case k x of
-        Val y -> qApp t y
-        E u q -> E u (q >< t)
+  TOne k  -> k x
+  k :| t -> case k x of
+    Val y -> qApp t y
+    E u q -> E u (q >< t)
 
 -- | Composition of effectful arrows ('Arrs'). Allows for the caller to change
 -- the effect environment, as well.
@@ -134,31 +114,27 @@ qComp :: Arrs effs a b -> (Eff effs b -> Eff effs' c) -> Arr effs' a c
 qComp g h a = h $ qApp g a
 
 instance Functor (Eff effs) where
-    fmap f (Val x) = Val (f x)
-    fmap f (E u q) = E u (q |> (Val . f))
-    {-# INLINE fmap #-}
+  fmap f (Val x) = Val (f x)
+  fmap f (E u q) = E u (q |> (Val . f))
+  {-# INLINE fmap #-}
 
 instance Applicative (Eff effs) where
-    pure = Val
-    {-# INLINE pure #-}
+  pure = Val
+  {-# INLINE pure #-}
 
-    Val f <*> Val x = Val $ f x
-    Val f <*> E u q = E u (q |> (Val . f))
-    E u q <*> m     = E u (q |> (`fmap` m))
-    {-# INLINE (<*>) #-}
+  Val f <*> Val x = Val $ f x
+  Val f <*> E u q = E u (q |> (Val . f))
+  E u q <*> m     = E u (q |> (`fmap` m))
+  {-# INLINE (<*>) #-}
 
 instance Monad (Eff effs) where
-    -- Future versions of GHC will consider any other definition as error.
-    return = pure
-    {-# INLINE return #-}
-
-    Val x >>= k = k x
-    E u q >>= k = E u (q |> k)
-    {-# INLINE (>>=) #-}
+  Val x >>= k = k x
+  E u q >>= k = E u (q |> k)
+  {-# INLINE (>>=) #-}
 
 instance (MonadBase b m, LastMember m effs) => MonadBase b (Eff effs) where
-    liftBase = sendM . liftBase
-    {-# INLINE liftBase #-}
+  liftBase = sendM . liftBase
+  {-# INLINE liftBase #-}
 
 -- | Send a request and wait for a reply.
 send :: Member eff effs => eff a -> Eff effs a
@@ -191,18 +167,18 @@ run _       = error "Internal:run - This (E) should never happen"
 runM :: Monad m => Eff '[m] a -> m a
 runM (Val x) = return x
 runM (E u q) = case extract u of
-    mb -> mb >>= runM . qApp q
-    -- The other case is unreachable since Union [] a cannot be constructed.
-    -- Therefore, run is a total function if its argument terminates.
+  mb -> mb >>= runM . qApp q
+  -- The other case is unreachable since Union [] a cannot be constructed.
+  -- Therefore, run is a total function if its argument terminates.
 
 -- | Like 'replaceRelay', but with support for an explicit state to help
 -- implement the interpreter.
 replaceRelayS
-    :: s
-    -> (s -> a -> Eff (v ': effs) w)
-    -> (forall x. s -> t x -> (s -> Arr (v ': effs) x w) -> Eff (v ': effs) w)
-    -> Eff (t ': effs) a
-    -> Eff (v ': effs) w
+  :: s
+  -> (s -> a -> Eff (v ': effs) w)
+  -> (forall x. s -> t x -> (s -> Arr (v ': effs) x w) -> Eff (v ': effs) w)
+  -> Eff (t ': effs) a
+  -> Eff (v ': effs) w
 replaceRelayS s' pure' bind = loop s'
   where
     loop s (Val x)  = pure' s x
@@ -217,10 +193,10 @@ replaceRelayS s' pure' bind = loop s'
 -- defined in terms of other ones without leaking intermediary implementation
 -- details through the type signature.
 replaceRelay
-    :: (a -> Eff (v ': effs) w)
-    -> (forall x. t x -> Arr (v ': effs) x w -> Eff (v ': effs) w)
-    -> Eff (t ': effs) a
-    -> Eff (v ': effs) w
+  :: (a -> Eff (v ': effs) w)
+  -> (forall x. t x -> Arr (v ': effs) x w -> Eff (v ': effs) w)
+  -> Eff (t ': effs) a
+  -> Eff (v ': effs) w
 replaceRelay pure' bind = loop
   where
     loop (Val x)  = pure' x
@@ -250,13 +226,13 @@ replaceRelayN pure' bind = loop
 
 -- | Given a request, either handle it or relay it.
 handleRelay
-    :: (a -> Eff effs b)
-    -- ^ Handle a pure value.
-    -> (forall v. eff v -> Arr effs v b -> Eff effs b)
-    -- ^ Handle a request for effect of type @eff :: * -> *@.
-    -> Eff (eff ': effs) a
-    -> Eff effs b
-    -- ^ Result with effects of type @eff :: * -> *@ handled.
+  :: (a -> Eff effs b)
+  -- ^ Handle a pure value.
+  -> (forall v. eff v -> Arr effs v b -> Eff effs b)
+  -- ^ Handle a request for effect of type @eff :: * -> *@.
+  -> Eff (eff ': effs) a
+  -> Eff effs b
+  -- ^ Result with effects of type @eff :: * -> *@ handled.
 handleRelay ret h = loop
   where
     loop (Val x)  = ret x
@@ -270,14 +246,14 @@ handleRelay ret h = loop
 -- @s :: *@ to be handled for the target effect, or relayed to a handler that
 -- can- handle the target effect.
 handleRelayS
-    :: s
-    -> (s -> a -> Eff effs b)
-    -- ^ Handle a pure value.
-    -> (forall v. s -> eff v -> (s -> Arr effs v b) -> Eff effs b)
-    -- ^ Handle a request for effect of type @eff :: * -> *@.
-    -> Eff (eff ': effs) a
-    -> Eff effs b
-    -- ^ Result with effects of type @eff :: * -> *@ handled.
+  :: s
+  -> (s -> a -> Eff effs b)
+  -- ^ Handle a pure value.
+  -> (forall v. s -> eff v -> (s -> Arr effs v b) -> Eff effs b)
+  -- ^ Handle a request for effect of type @eff :: * -> *@.
+  -> Eff (eff ': effs) a
+  -> Eff effs b
+  -- ^ Result with effects of type @eff :: * -> *@ handled.
 handleRelayS s' ret h = loop s'
   where
     loop s (Val x)  = ret s x
@@ -289,11 +265,11 @@ handleRelayS s' ret h = loop s'
 
 -- | Intercept the request and possibly reply to it, but leave it unhandled.
 interpose
-    :: Member eff effs
-    => (a -> Eff effs b)
-    -> (forall v. eff v -> Arr effs v b -> Eff effs b)
-    -> Eff effs a
-    -> Eff effs b
+  :: Member eff effs
+  => (a -> Eff effs b)
+  -> (forall v. eff v -> Arr effs v b -> Eff effs b)
+  -> Eff effs a
+  -> Eff effs b
 interpose ret h = loop
   where
     loop (Val x) = ret x
@@ -317,13 +293,13 @@ raise = loop
 
 -- | A data type for representing nondeterminstic choice.
 data NonDet a where
-    MZero :: NonDet a
-    MPlus :: NonDet Bool
+  MZero :: NonDet a
+  MPlus :: NonDet Bool
 
 instance Member NonDet effs => Alternative (Eff effs) where
-    empty = mzero
-    (<|>) = mplus
+  empty = mzero
+  (<|>) = mplus
 
 instance Member NonDet effs => MonadPlus (Eff effs) where
-    mzero       = send MZero
-    mplus m1 m2 = send MPlus >>= \x -> if x then m1 else m2
+  mzero       = send MZero
+  mplus m1 m2 = send MPlus >>= \x -> if x then m1 else m2

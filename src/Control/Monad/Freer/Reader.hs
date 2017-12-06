@@ -1,9 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeOperators #-}
 -- |
 -- Module:       Control.Monad.Freer.Reader
 -- Description:  Reader effects, for encapsulating an environment.
@@ -18,38 +12,32 @@
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Reader
-    (
-    -- * Reader Effect
-      Reader(..)
+  ( -- * Reader Effect
+    Reader(..)
 
     -- * Reader Operations
-    , ask
-    , asks
-    , local
+  , ask
+  , asks
+  , local
 
     -- * Reader Handlers
-    , runReader
+  , runReader
 
     -- * Example 1: Simple Reader Usage
     -- $simpleReaderExample
 
     -- * Example 2: Modifying Reader Content With @local@
     -- $localExample
-    )
-  where
-
-import Control.Applicative (pure)
-import Data.Functor ((<$>))
+  ) where
 
 import Control.Monad.Freer.Internal
-    ( Arr
-    , Eff
-    , Member
-    , handleRelay
-    , interpose
-    , send
-    )
-
+  ( Arr
+  , Eff
+  , Member
+  , handleRelay
+  , interpose
+  , send
+  )
 
 -- | Represents shared immutable environment of type @(e :: *)@ which is made
 -- available to effectful computation.
@@ -63,10 +51,10 @@ ask = send Reader
 -- | Request a value of the environment, and apply as selector\/projection
 -- function to it.
 asks
-    :: Member (Reader e) effs
-    => (e -> a)
-    -- ^ The selector\/projection function to be applied to the environment.
-    -> Eff effs a
+  :: Member (Reader e) effs
+  => (e -> a)
+  -- ^ The selector\/projection function to be applied to the environment.
+  -> Eff effs a
 asks f = f <$> ask
 
 -- | Handler for 'Reader' effects.
@@ -78,15 +66,15 @@ runReader m e = handleRelay pure (\Reader k -> k e) m
 -- This function is like a relay; it is both an admin for 'Reader' requests,
 -- and a requestor of them.
 local
-    :: forall e a effs. Member (Reader e) effs
-    => (e -> e)
-    -> Eff effs a
-    -> Eff effs a
+  :: forall e a effs. Member (Reader e) effs
+  => (e -> e)
+  -> Eff effs a
+  -> Eff effs a
 local f m = do
-    e <- f <$> ask
-    let h :: Reader e v -> Arr effs v a -> Eff effs a
-        h Reader k = k e
-    interpose pure h m
+  e <- f <$> ask
+  let h :: Reader e v -> Arr effs v a -> Eff effs a
+      h Reader k = k e
+  interpose pure h m
 
 -- $simpleReaderExample
 --

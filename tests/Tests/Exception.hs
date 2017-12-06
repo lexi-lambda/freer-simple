@@ -1,23 +1,4 @@
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE TypeOperators #-}
-module Tests.Exception (tests)
-  where
-
-import Prelude ((+))
-
-import Control.Applicative ((<*>), pure)
-import Control.Monad ((>>), (>>=))
-import Data.Either (Either(Left, Right))
-import Data.Eq (Eq((==)))
-import Data.Function (($), (.))
-import Data.Functor ((<$>))
-import Data.Int (Int)
-import Data.Ord ((>))
-import Data.String (String)
-import Text.Show (Show)
+module Tests.Exception (tests) where
 
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
@@ -28,26 +9,25 @@ import Control.Monad.Freer.Error (Error, catchError, runError, throwError)
 import Control.Monad.Freer.Reader (ask, runReader)
 import Control.Monad.Freer.State (State, get, put, runState)
 
-
 tests :: TestTree
 tests = testGroup "Exception Eff tests"
-    [ testProperty "Error takes precedence"
-        $ \x y -> testExceptionTakesPriority x y == Left y
-    , testCase "uncaught: runState (runError t)"
-        $ ter1 @?= (Left "exc", 2)
-    , testCase "uncaught: runError (runState t)"
-        $ ter2 @?= Left "exc"
-    , testCase "caught: runState (runError t)"
-        $ ter3 @?= (Right "exc", 2)
-    , testCase "caught: runError (runState t)"
-        $ ter4 @?= Right ("exc", 2)
-    , testCase "success: runReader (runErrBig t)"
-        $ ex2rr @?= Right 5
-    , testCase "uncaught: runReader (runErrBig t)"
-        $ ex2rr1 @?= Left (TooBig 7)
-    , testCase "uncaught: runErrBig (runReader t)"
-        $ ex2rr2 @?= Left (TooBig 7)
-    ]
+  [ testProperty "Error takes precedence"
+      $ \x y -> testExceptionTakesPriority x y == Left y
+  , testCase "uncaught: runState (runError t)"
+      $ ter1 @?= (Left "exc", 2)
+  , testCase "uncaught: runError (runState t)"
+      $ ter2 @?= Left "exc"
+  , testCase "caught: runState (runError t)"
+      $ ter3 @?= (Right "exc", 2)
+  , testCase "caught: runError (runState t)"
+      $ ter4 @?= Right ("exc", 2)
+  , testCase "success: runReader (runErrBig t)"
+      $ ex2rr @?= Right 5
+  , testCase "uncaught: runReader (runErrBig t)"
+      $ ex2rr1 @?= Left (TooBig 7)
+  , testCase "uncaught: runErrBig (runReader t)"
+      $ ex2rr2 @?= Left (TooBig 7)
+  ]
 
 testExceptionTakesPriority :: Int -> Int -> Either Int Int
 testExceptionTakesPriority x y = run $ runError (go x y)
@@ -89,10 +69,10 @@ newtype TooBig = TooBig Int
 
 ex2 :: Member (Error TooBig) r => Eff r Int -> Eff r Int
 ex2 m = do
-    v <- m
-    if v > 5
-        then throwError (TooBig v)
-        else pure v
+  v <- m
+  if v > 5
+    then throwError (TooBig v)
+    else pure v
 
 -- | Specialization to tell the type of the exception.
 runErrBig :: Eff (Error TooBig ': r) a -> Eff r (Either TooBig a)

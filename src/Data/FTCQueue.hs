@@ -1,5 +1,3 @@
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 -- |
 -- Module:       Data.FTCQueue
 -- Description:  Fast type-aligned queue optimized to effectful functions.
@@ -20,23 +18,21 @@
 -- * Research: <http://okmij.org/ftp/Haskell/Reflection.html>
 -- * <https://hackage.haskell.org/package/type-aligned type-aligned> (FTCQueue)
 module Data.FTCQueue
-    ( FTCQueue
-    , tsingleton
-    , (|>)
-    , snoc
-    , (><)
-    , append
-    , ViewL(..)
-    , tviewl
-    )
-  where
-
+  ( FTCQueue
+  , tsingleton
+  , (|>)
+  , snoc
+  , (><)
+  , append
+  , ViewL(..)
+  , tviewl
+  ) where
 
 -- | Non-empty tree. Deconstruction operations make it more and more
 -- left-leaning
 data FTCQueue m a b where
-    Leaf :: (a -> m b) -> FTCQueue m a b
-    Node :: FTCQueue m a x -> FTCQueue m x b -> FTCQueue m a b
+  Leaf :: (a -> m b) -> FTCQueue m a b
+  Node :: FTCQueue m a x -> FTCQueue m x b -> FTCQueue m a b
 
 -- | Build a leaf from a single operation. [O(1)]
 tsingleton :: (a -> m b) -> FTCQueue m a b
@@ -65,8 +61,8 @@ append = (><)
 
 -- | Left view deconstruction data structure.
 data ViewL m a b where
-    TOne  :: (a -> m b) -> ViewL m a b
-    (:|)  :: (a -> m x) -> FTCQueue m x b -> ViewL m a b
+  TOne  :: (a -> m b) -> ViewL m a b
+  (:|)  :: (a -> m x) -> FTCQueue m x b -> ViewL m a b
 
 -- | Left view deconstruction. [average O(1)]
 tviewl :: FTCQueue m a b -> ViewL m a b

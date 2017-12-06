@@ -6,66 +6,55 @@ description: |
   Implementation of effect system for Haskell (actively maintained fork of
   <http://hackage.haskell.org/package/freer freer>), which is based on the
   work of Oleg Kiselyov et al.:
-  .
-  * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
-  .
-  * <http://okmij.org/ftp/Haskell/zseq.pdf Reflection without Remorse>
-  .
-  * <http://okmij.org/ftp/Haskell/extensible/exteff.pdf Extensible Effects>
-  .
+
+    * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
+    * <http://okmij.org/ftp/Haskell/zseq.pdf Reflection without Remorse>
+    * <http://okmij.org/ftp/Haskell/extensible/exteff.pdf Extensible Effects>
+
   The key features are:
-  .
-  * An efficient effect system for Haskell - as a library!
-  .
-  * Reimplementations of several common Haskell monad transformers as effects.
-  .
-  * Core components for defining your own Effects.
-github: IxpertaSolutions/freer-effects
-tested-with: GHC==8.0.2, GHC==8.0.1, GHC==7.10.3, GHC==7.8.4
+
+    * An efficient effect system for Haskell - as a library!
+    * Reimplementations of several common Haskell monad transformers as effects.
+    * Core components for defining your own Effects.
+github: lexi-lambda/freer-effects
 
 license: BSD3
-author: Allele Dev, Ixcom Core Team, and other contributors
-maintainer: ixcom-core@ixperta.com
-copyright: (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
+author: Allele Dev, Ixcom Core Team, Alexis King, and other contributors
+maintainer: Alexis King <lexi.lambda@gmail.com>
+copyright: (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.; 2017 Alexis King
 
 extra-source-files:
-  - README.md
-  - changelog.md
-
-flags:
-  pedantic:
-    description: Pass additional warning flags and -Werror to GHC.
-    manual: true
-    default: false
-
-  test-hlint:
-    description: Enable test suite that checks sources using HLint.
-    manual: true
-    default: false
-
-when:
-  - condition: flag(pedantic)
-    ghc-options:
-      - -Werror
-  - condition: impl(ghc >=8)
-    ghc-options:
-      # Introduced in GHC 8.
-      - -Wredundant-constraints
-      # Older Cabal generates warnings with its Paths_* module.
-      - -Wmissing-import-lists
+- README.md
+- changelog.md
 
 ghc-options:
-  - -Wall
-  - -fwarn-tabs
-  - -fwarn-implicit-prelude
+- -Wall
+- -Wcompat
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wredundant-constraints
+
+default-extensions:
+- ConstraintKinds
+- DataKinds
+- DeriveFunctor
+- FlexibleContexts
+- FlexibleInstances
+- GADTs
+- LambdaCase
+- MultiParamTypeClasses
+- RankNTypes
+- ScopedTypeVariables
+- TypeApplications
+- TypeOperators
 
 dependencies:
-  - base >=4.9 && <5
+- base >= 4.9 && < 5
 
 library:
   source-dirs: src
   dependencies:
-  - natural-transformation >=0.2
+  - natural-transformation >= 0.2
   - transformers-base
 
 executables:
@@ -73,34 +62,18 @@ executables:
     source-dirs: examples/src
     main: Main.hs
     dependencies:
-      - freer-effects
+    - freer-effects
 
 tests:
   unit:
     source-dirs: tests
     main: Tests.hs
     dependencies:
-      # TODO: bounds
-      - QuickCheck
-      - freer-effects
-      - tasty
-      - tasty-hunit
-      - tasty-quickcheck
-
-  hlint:
-    source-dirs: tests
-    main: hlint.hs
-    other-modules: []
-    ghc-options:
-      - -threaded
-      - -with-rtsopts=-N
-    when:
-      - condition: flag(test-hlint)
-        then:
-          buildable: true
-          dependencies: [hlint >=1.9]
-        else:
-          buildable: false
+    - QuickCheck
+    - freer-effects
+    - tasty
+    - tasty-hunit
+    - tasty-quickcheck
 
 benchmarks:
   core:
@@ -108,9 +81,8 @@ benchmarks:
     main: Core.hs
     ghc-options: -O2
     dependencies:
-      # TODO: bounds
-      - criterion
-      - extensible-effects >= 1.11 && < 1.12
-      - free
-      - freer-effects
-      - mtl
+    - criterion
+    - extensible-effects >= 1.11 && < 1.12
+    - free
+    - freer-effects
+    - mtl

@@ -1,33 +1,24 @@
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-module Tests.Coroutine (tests)
-  where
+-- This is necessary to work around a weird infinite loop bug in GHC 8.0.x. I
+-- have no idea what causes it, but disabling these extensions in this module
+-- avoids the problem.
+{-# LANGUAGE NoGADTs #-}
+{-# LANGUAGE NoMonoLocalBinds #-}
 
-import Prelude ((+), even)
+module Tests.Coroutine (tests) where
 
-import Control.Applicative ((<*>), pure)
-import Control.Monad ((>>), (>>=), unless)
-import Data.Bool (Bool, (&&))
-import Data.Eq ((==))
-import Data.Function (($), (.))
-import Data.Functor ((<$>))
-import Data.Int (Int)
-import Data.Tuple (snd)
+import Control.Monad (unless)
 
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import Control.Monad.Freer (Eff, Members, run)
 import Control.Monad.Freer.Coroutine
-    ( Status(Continue, Done)
-    , Yield
-    , runC
-    , yield
-    )
+  ( Status(Continue, Done)
+  , Yield
+  , runC
+  , yield
+  )
 import Control.Monad.Freer.State (State, modify, runState)
-
 
 tests :: TestTree
 tests = testGroup "Coroutine Eff tests"
@@ -47,11 +38,11 @@ runTestCoroutine list = snd . run $ runState effTestCoroutine 0
   where
     testCoroutine :: Members '[Yield () Int, State Int] r => Eff r ()
     testCoroutine = do
-        -- Yield for two elements and hope they're both odd.
-        b <- (&&)
-            <$> yield () (even :: Int -> Bool)
-            <*> yield () (even :: Int -> Bool)
-        unless b $ modify (+ (1 :: Int)) >> testCoroutine
+      -- Yield for two elements and hope they're both odd.
+      b <- (&&)
+          <$> yield () (even :: Int -> Bool)
+          <*> yield () (even :: Int -> Bool)
+      unless b $ modify (+ (1 :: Int)) >> testCoroutine
 
     effTestCoroutine = runC testCoroutine >>= handleStatus list
       where

@@ -2,37 +2,32 @@
 --
 -- see: https://github.com/sol/hpack
 
-name:                   freer-effects
-version:                0.3.0.0
-synopsis:               Implementation of effect system for Haskell.
-description:            Implementation of effect system for Haskell (actively maintained fork of
-                        <http://hackage.haskell.org/package/freer freer>), which is based on the
-                        work of Oleg Kiselyov et al.:
-                        .
-                        * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
-                        .
-                        * <http://okmij.org/ftp/Haskell/zseq.pdf Reflection without Remorse>
-                        .
-                        * <http://okmij.org/ftp/Haskell/extensible/exteff.pdf Extensible Effects>
-                        .
-                        The key features are:
-                        .
-                        * An efficient effect system for Haskell - as a library!
-                        .
-                        * Reimplementations of several common Haskell monad transformers as effects.
-                        .
-                        * Core components for defining your own Effects.
-license-file:           LICENSE
-tested-with:            GHC==8.0.2, GHC==8.0.1, GHC==7.10.3, GHC==7.8.4
-category:               Control
-homepage:               https://github.com/IxpertaSolutions/freer-effects#readme
-bug-reports:            https://github.com/IxpertaSolutions/freer-effects/issues
-author:                 Allele Dev, Ixcom Core Team, and other contributors
-maintainer:             ixcom-core@ixperta.com
-copyright:              (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
-license:                BSD3
-build-type:             Simple
-cabal-version:          >= 1.10
+name:           freer-effects
+version:        0.3.0.0
+synopsis:       Implementation of effect system for Haskell.
+description:    Implementation of effect system for Haskell (actively maintained fork of
+                <http://hackage.haskell.org/package/freer freer>), which is based on the
+                work of Oleg Kiselyov et al.:
+                .
+                  * <http://okmij.org/ftp/Haskell/extensible/more.pdf Freer Monads, More Extensible Effects>
+                  * <http://okmij.org/ftp/Haskell/zseq.pdf Reflection without Remorse>
+                  * <http://okmij.org/ftp/Haskell/extensible/exteff.pdf Extensible Effects>
+                .
+                The key features are:
+                .
+                  * An efficient effect system for Haskell - as a library!
+                  * Reimplementations of several common Haskell monad transformers as effects.
+                  * Core components for defining your own Effects.
+category:       Control
+homepage:       https://github.com/lexi-lambda/freer-effects#readme
+bug-reports:    https://github.com/lexi-lambda/freer-effects/issues
+author:         Allele Dev, Ixcom Core Team, Alexis King, and other contributors
+maintainer:     Alexis King <lexi.lambda@gmail.com>
+copyright:      (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.; 2017 Alexis King
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
 
 extra-source-files:
     changelog.md
@@ -40,30 +35,17 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/IxpertaSolutions/freer-effects
-
-flag pedantic
-  description: Pass additional warning flags and -Werror to GHC.
-  manual: True
-  default: False
-
-flag test-hlint
-  description: Enable test suite that checks sources using HLint.
-  manual: True
-  default: False
+  location: https://github.com/lexi-lambda/freer-effects
 
 library
   hs-source-dirs:
       src
-  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude
+  default-extensions: ConstraintKinds DataKinds DeriveFunctor FlexibleContexts FlexibleInstances GADTs LambdaCase MultiParamTypeClasses RankNTypes ScopedTypeVariables TypeApplications TypeOperators
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
-      base >=4.9 && <5
-    , natural-transformation >=0.2
+      base >= 4.9 && < 5
+    , natural-transformation >= 0.2
     , transformers-base
-  if flag(pedantic)
-    ghc-options: -Werror
-  if impl(ghc >=8)
-    ghc-options: -Wredundant-constraints -Wmissing-import-lists
   exposed-modules:
       Control.Monad.Freer
       Control.Monad.Freer.Coroutine
@@ -88,14 +70,11 @@ executable freer-examples
   main-is: Main.hs
   hs-source-dirs:
       examples/src
-  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude
+  default-extensions: ConstraintKinds DataKinds DeriveFunctor FlexibleContexts FlexibleInstances GADTs LambdaCase MultiParamTypeClasses RankNTypes ScopedTypeVariables TypeApplications TypeOperators
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
-      base >=4.9 && <5
+      base >= 4.9 && < 5
     , freer-effects
-  if flag(pedantic)
-    ghc-options: -Werror
-  if impl(ghc >=8)
-    ghc-options: -Wredundant-constraints -Wmissing-import-lists
   other-modules:
       Capitalize
       Console
@@ -105,43 +84,20 @@ executable freer-examples
       Trace
   default-language: Haskell2010
 
-test-suite hlint
-  type: exitcode-stdio-1.0
-  main-is: hlint.hs
-  hs-source-dirs:
-      tests
-  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude -threaded -with-rtsopts=-N
-  build-depends:
-      base >=4.9 && <5
-  if flag(pedantic)
-    ghc-options: -Werror
-  if impl(ghc >=8)
-    ghc-options: -Wredundant-constraints -Wmissing-import-lists
-  if flag(test-hlint)
-    build-depends:
-        hlint >=1.9
-    buildable: True
-  else
-    buildable: False
-  default-language: Haskell2010
-
 test-suite unit
   type: exitcode-stdio-1.0
   main-is: Tests.hs
   hs-source-dirs:
       tests
-  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude
+  default-extensions: ConstraintKinds DataKinds DeriveFunctor FlexibleContexts FlexibleInstances GADTs LambdaCase MultiParamTypeClasses RankNTypes ScopedTypeVariables TypeApplications TypeOperators
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
-      base >=4.9 && <5
+      base >= 4.9 && < 5
     , QuickCheck
     , freer-effects
     , tasty
     , tasty-hunit
     , tasty-quickcheck
-  if flag(pedantic)
-    ghc-options: -Werror
-  if impl(ghc >=8)
-    ghc-options: -Wredundant-constraints -Wmissing-import-lists
   other-modules:
       Tests.Coroutine
       Tests.Exception
@@ -157,16 +113,13 @@ benchmark core
   main-is: Core.hs
   hs-source-dirs:
       bench
-  ghc-options: -Wall -fwarn-tabs -fwarn-implicit-prelude -O2
+  default-extensions: ConstraintKinds DataKinds DeriveFunctor FlexibleContexts FlexibleInstances GADTs LambdaCase MultiParamTypeClasses RankNTypes ScopedTypeVariables TypeApplications TypeOperators
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -O2
   build-depends:
-      base >=4.9 && <5
+      base >= 4.9 && < 5
     , criterion
     , extensible-effects >= 1.11 && < 1.12
     , free
     , freer-effects
     , mtl
-  if flag(pedantic)
-    ghc-options: -Werror
-  if impl(ghc >=8)
-    ghc-options: -Wredundant-constraints -Wmissing-import-lists
   default-language: Haskell2010

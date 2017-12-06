@@ -1,14 +1,4 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-module Main (main)
-  where
-
-import Prelude ((+))
-
-import Control.Applicative ((<$>), (<*>), pure)
-import Data.Eq ((==))
-import Data.Function (($))
-import Data.Int (Int)
-import System.IO (IO)
+module Main (main) where
 
 import Test.Tasty (TestTree, testGroup, defaultMain)
 import Test.Tasty.QuickCheck (testProperty)
@@ -23,7 +13,6 @@ import qualified Tests.Reader (tests)
 import qualified Tests.State (tests)
 import qualified Tests.Loop (tests)
 
-
 --------------------------------------------------------------------------------
                            -- Pure Tests --
 --------------------------------------------------------------------------------
@@ -32,21 +21,21 @@ addInEff x y = run $ (+) <$> pure x <*> pure y
 
 pureTests :: TestTree
 pureTests = testGroup "Pure Eff tests"
-    [ testProperty "Pure run just works: (+)"
-        $ \x y -> addInEff x y == x + y
-    ]
+  [ testProperty "Pure run just works: (+)"
+      $ \x y -> addInEff x y == x + y
+  ]
 
 --------------------------------------------------------------------------------
                              -- Runner --
 --------------------------------------------------------------------------------
 main :: IO ()
 main = defaultMain $ testGroup "Tests"
-    [ pureTests
-    , Tests.Coroutine.tests
-    , Tests.Exception.tests
-    , Tests.Fresh.tests
-    , Tests.NonDet.tests
-    , Tests.Reader.tests
-    , Tests.State.tests
-    , Tests.Loop.tests
-    ]
+  [ pureTests
+  , Tests.Coroutine.tests
+  , Tests.Exception.tests
+  , Tests.Fresh.tests
+  , Tests.NonDet.tests
+  , Tests.Reader.tests
+  , Tests.State.tests
+  , Tests.Loop.tests
+  ]

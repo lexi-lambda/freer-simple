@@ -1,9 +1,6 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
-module Trace (module Trace) where
 
-import Prelude ((+))
+module Trace (module Trace) where
 
 import Control.Applicative ((<$>), (<*>), pure)
 import Data.Function (($))

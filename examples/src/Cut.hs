@@ -1,4 +1,3 @@
-{-# LANGUAGE NoImplicitPrelude #-}
 module Cut () where
 
 -- import Control.Monad.Freer.Cut

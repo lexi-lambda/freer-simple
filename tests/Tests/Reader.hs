@@ -1,16 +1,4 @@
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-module Tests.Reader (tests)
-  where
-
-import Prelude (Integer, (+), (*), fromIntegral)
-
-import Control.Applicative ((<*>), pure)
-import Data.Eq (Eq((==)))
-import Data.Function (($), (.), flip)
-import Data.Functor ((<$>))
-import Data.Int (Int)
+module Tests.Reader (tests) where
 
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
@@ -18,16 +6,15 @@ import Test.Tasty.QuickCheck (testProperty)
 import Control.Monad.Freer (run)
 import Control.Monad.Freer.Reader (ask, local, runReader)
 
-
 tests :: TestTree
 tests = testGroup "Reader tests"
-    [ testProperty "Reader passes along environment: n + x"
-        $ \n x -> testReader n x == n + x
-    , testProperty "Multiple readers work"
-        $ \i n -> testMultiReader i n == (i + 2) + fromIntegral (n + 1)
-    , testProperty "Local injects into env"
-        $ \env inc -> testLocal env inc == 2 * (env + 1) + inc
-    ]
+  [ testProperty "Reader passes along environment: n + x"
+      $ \n x -> testReader n x == n + x
+  , testProperty "Multiple readers work"
+      $ \i n -> testMultiReader i n == (i + 2) + fromIntegral (n + 1)
+  , testProperty "Local injects into env"
+      $ \env inc -> testLocal env inc == 2 * (env + 1) + inc
+  ]
 
 --------------------------------------------------------------------------------
                             -- Examples --
@@ -45,9 +32,9 @@ testMultiReader :: Integer -> Int -> Integer
 testMultiReader i = run . flip runReader i . runReader t2
   where
     t2 = do
-        v1 <- ask
-        v2 <- ask
-        pure $ fromIntegral (v1 + (1 :: Int)) + (v2 + (2 :: Integer))
+      v1 <- ask
+      v2 <- ask
+      pure $ fromIntegral (v1 + (1 :: Int)) + (v2 + (2 :: Integer))
 
 -- The opposite order of layers
 {- If we mess up, we get an error

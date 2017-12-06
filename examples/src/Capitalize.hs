@@ -1,8 +1,3 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE TypeOperators #-}
 module Capitalize
   ( Capitalize
   , capitalize
@@ -10,12 +5,7 @@ module Capitalize
   , runCapitalizeM'
   ) where
 
-import Control.Applicative (pure)
 import Data.Char (toUpper)
-import Data.Either (Either(Left, Right))
-import Data.Function (($), (.))
-import Data.List (map)
-import Data.String (String)
 
 import Control.Monad.Freer (Member, interpret, send)
 import Control.Monad.Freer.Internal (Eff(Val, E), decomp, qApp, tsingleton)
