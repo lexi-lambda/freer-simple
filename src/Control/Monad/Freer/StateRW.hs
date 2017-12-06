@@ -25,15 +25,12 @@ import Control.Monad.Freer.Writer (Writer(..), tell)
 import Control.Monad.Freer.Internal (Eff(..), decomp, qComp, tsingleton)
 
 -- | State handler, using 'Reader' and 'Writer' effects.
-runStateR :: Eff (Writer s ': Reader s ': effs) a -> s -> Eff effs (a, s)
-runStateR m s = loop s m
+runStateR :: s -> Eff (Writer s ': Reader s ': effs) a -> Eff effs (a, s)
+runStateR s' (Val x) = return (x, s')
+runStateR s' (E u q) = case decomp u of
+    Right (Tell o) -> k o ()
+    Left  u'  -> case decomp u' of
+      Right Ask -> k s' s'
+      Left u'' -> E u'' (tsingleton (k s'))
   where
-    loop :: s -> Eff (Writer s ': Reader s ': effs) a -> Eff effs (a, s)
-    loop s' (Val x) = return (x, s')
-    loop s' (E u q) = case decomp u of
-        Right (Writer o) -> k o ()
-        Left  u'  -> case decomp u' of
-          Right Reader -> k s' s'
-          Left u'' -> E u'' (tsingleton (k s'))
-      where
-        k s'' = qComp q (loop s'')
+    k s'' = qComp q (runStateR s'')

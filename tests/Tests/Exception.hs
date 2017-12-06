@@ -49,19 +49,19 @@ tes1 :: (Members '[State Int, Error String] r) => Eff r b
 tes1 = incr >> throwError "exc"
 
 ter1 :: (Either String Int, Int)
-ter1 = run $ runState (runError tes1) (1 :: Int)
+ter1 = run $ runState (1 :: Int) (runError tes1)
 
 ter2 :: Either String (String, Int)
-ter2 = run $ runError (runState tes1 (1 :: Int))
+ter2 = run $ runError (runState (1 :: Int) tes1)
 
 teCatch :: Member (Error String) r => Eff r a -> Eff r String
 teCatch m = (m >> pure "done") `catchError` \e -> pure (e :: String)
 
 ter3 :: (Either String String, Int)
-ter3 = run $ runState (runError (teCatch tes1)) (1 :: Int)
+ter3 = run $ runState (1 :: Int) (runError (teCatch tes1))
 
 ter4 :: Either String (String, Int)
-ter4 = run $ runError (runState (teCatch tes1) (1 :: Int))
+ter4 = run $ runError (runState (1 :: Int) (teCatch tes1))
 
 -- | The example from the paper.
 newtype TooBig = TooBig Int
@@ -79,11 +79,11 @@ runErrBig :: Eff (Error TooBig ': r) a -> Eff r (Either TooBig a)
 runErrBig = runError
 
 ex2rr :: Either TooBig Int
-ex2rr = run $ runReader (runErrBig (ex2 ask)) (5 :: Int)
+ex2rr = run $ runReader (5 :: Int) (runErrBig (ex2 ask))
 
 ex2rr1 :: Either TooBig Int
-ex2rr1 = run $ runReader (runErrBig (ex2 ask)) (7 :: Int)
+ex2rr1 = run $ runReader (7 :: Int) (runErrBig (ex2 ask))
 
 -- | Different order of handlers (layers).
 ex2rr2 :: Either TooBig Int
-ex2rr2 = run $ runErrBig (runReader (ex2 ask) (7 :: Int))
+ex2rr2 = run $ runErrBig (runReader (7 :: Int) (ex2 ask))

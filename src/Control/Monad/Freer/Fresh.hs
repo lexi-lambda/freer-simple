@@ -17,13 +17,12 @@ module Control.Monad.Freer.Fresh
   , fresh
   , runFresh
   , evalFresh
-  , runFresh'
   ) where
 
 import Control.Monad.Freer.Internal (Eff, Member, handleRelayS, send)
 
 -- | Fresh effect model.
-data Fresh a where
+data Fresh r where
   Fresh :: Fresh Int
 
 -- | Request a fresh effect.
@@ -32,18 +31,11 @@ fresh = send Fresh
 
 -- | Handler for 'Fresh' effects, with an 'Int' for a starting value. The
 -- return value includes the next fresh value.
-runFresh :: Eff (Fresh ': effs) a -> Int -> Eff effs (a, Int)
-runFresh m s =
-  handleRelayS s (\s' a -> pure (a, s')) (\s' Fresh k -> (k $! s' + 1) s') m
+runFresh :: Int -> Eff (Fresh ': effs) a -> Eff effs (a, Int)
+runFresh s =
+  handleRelayS s (\s' a -> pure (a, s')) (\s' Fresh k -> (k $! s' + 1) s')
 
 -- | Handler for 'Fresh' effects, with an 'Int' for a starting value. Discards
 -- the next fresh value.
-evalFresh :: Eff (Fresh ': effs) a -> Int -> Eff effs a
-evalFresh = ((fst <$>) .) . runFresh
-
--- | Backward compatibility alias for 'evalFresh'.
-runFresh' :: Eff (Fresh ': effs) a -> Int -> Eff effs a
-runFresh' = evalFresh
-{-# DEPRECATED runFresh'
-    "Use `evalFresh` instead, this function will be removed in next release."
-  #-}
+evalFresh :: Int -> Eff (Fresh ': effs) a -> Eff effs a
+evalFresh s = fmap fst . runFresh s

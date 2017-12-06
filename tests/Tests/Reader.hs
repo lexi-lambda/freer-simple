@@ -20,7 +20,7 @@ tests = testGroup "Reader tests"
                             -- Examples --
 --------------------------------------------------------------------------------
 testReader :: Int -> Int -> Int
-testReader n x = run . flip runReader n $ (+) <$> ask <*> pure x
+testReader n x = run . runReader n $ (+) <$> ask <*> pure x
 
 {-
 t1rr' = run t1
@@ -29,7 +29,7 @@ t1rr' = run t1
 -}
 
 testMultiReader :: Integer -> Int -> Integer
-testMultiReader i = run . flip runReader i . runReader t2
+testMultiReader i j = run . runReader i $ runReader j t2
   where
     t2 = do
       v1 <- ask
@@ -44,7 +44,7 @@ t2rrr1' = run $ runReader (runReader t2 (20 :: Float)) (10 :: Float)
 -}
 
 testLocal :: Int -> Int -> Int
-testLocal env inc = run $ runReader t3 env
+testLocal env inc = run $ runReader env t3
   where
     t3 = (+) <$> t1 <*> local (+ inc) t1
     t1 = (+) <$> ask <*> pure (1 :: Int)

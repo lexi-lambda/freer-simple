@@ -27,7 +27,7 @@ mapMdebug f (h:t) = do
   pure (h':t')
 
 tMd :: IO [Int]
-tMd = runTrace $ runReader (mapMdebug f [1..5]) (10::Int)
+tMd = runTrace $ runReader (10::Int) (mapMdebug f [1..5])
  where f x = (+) <$> ask <*> pure x
 {-
 mapMdebug: 1
@@ -40,10 +40,10 @@ mapMdebug: 5
 
 -- duplicate layers
 tdup :: IO ()
-tdup = runTrace $ runReader m (10::Int)
+tdup = runTrace $ runReader (10::Int) m
  where
  m = do
-     runReader tr (20::Int)
+     runReader (20::Int) tr
      tr
  tr = do
       v <- ask

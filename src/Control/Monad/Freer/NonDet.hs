@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
-
 -- |
 -- Module:       Control.Monad.Freer.NonDet
 -- Description:  Non deterministic effects
@@ -20,9 +18,9 @@ import Control.Applicative (Alternative, (<|>), empty)
 import Control.Monad (msum)
 
 import Control.Monad.Freer.Internal
-  ( Eff(E, Val)
+  ( Eff(..)
   , Member
-  , NonDet(MPlus, MZero)
+  , NonDet(..)
   , handleRelay
   , prj
   , qApp
@@ -32,9 +30,9 @@ import Control.Monad.Freer.Internal
 
 -- | A handler for nondeterminstic effects.
 makeChoiceA
-    :: Alternative f
-    => Eff (NonDet ': effs) a
-    -> Eff effs (f a)
+  :: Alternative f
+  => Eff (NonDet ': effs) a
+  -> Eff effs (f a)
 makeChoiceA = handleRelay (pure . pure) $ \m k ->
   case m of
     MZero -> pure empty

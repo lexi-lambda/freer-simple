@@ -9,7 +9,7 @@ import Control.Monad.Freer.Trace (runTrace, trace)
 -- Fresh 0
 -- Fresh 1
 traceFresh :: IO ()
-traceFresh = runTrace $ flip evalFresh 0 $ do
+traceFresh = runTrace $ evalFresh 0 $ do
   n <- fresh
   trace $ "Fresh " ++ show n
   n' <- fresh

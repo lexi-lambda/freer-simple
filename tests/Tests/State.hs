@@ -30,17 +30,17 @@ tests = testGroup "State tests"
   ]
 
 testPutGet :: Int -> Int -> (Int, Int)
-testPutGet n start = run $ runState go start
+testPutGet n start = run $ runState start go
   where
     go = put n >> get
 
 testPutGetRW :: Int -> Int -> (Int, Int)
-testPutGetRW n start = run $ runStateR go start
+testPutGetRW n start = run $ runStateR start go
   where
     go = tell n >> ask
 
 testPutGetPutGetPlus :: Int -> Int -> Int -> (Int, Int)
-testPutGetPutGetPlus p1 p2 start = run $ runState go start
+testPutGetPutGetPlus p1 p2 start = run $ runState start go
   where
     go = do
       put p1
@@ -50,7 +50,7 @@ testPutGetPutGetPlus p1 p2 start = run $ runState go start
       pure (x + y)
 
 testPutGetPutGetPlusRW :: Int -> Int -> Int -> (Int, Int)
-testPutGetPutGetPlusRW p1 p2 start = run $ runStateR go start
+testPutGetPutGetPlusRW p1 p2 start = run $ runStateR start go
   where
     go = do
       tell p1
@@ -60,13 +60,13 @@ testPutGetPutGetPlusRW p1 p2 start = run $ runStateR go start
       pure (x+y)
 
 testGetStart :: Int -> (Int, Int)
-testGetStart = run . runState get
+testGetStart = run . flip runState get
 
 testGetStartRW :: Int -> (Int, Int)
-testGetStartRW = run . runStateR ask
+testGetStartRW = run . flip runStateR ask
 
 testEvalState :: Int -> Int
-testEvalState = run . evalState go
+testEvalState = run . flip evalState go
   where
     go = do
       x <- get
@@ -75,4 +75,4 @@ testEvalState = run . evalState go
       pure x
 
 testExecState :: Int -> Int
-testExecState n = run $ execState (put n) 0
+testExecState n = run $ execState 0 (put n)

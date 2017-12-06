@@ -19,36 +19,36 @@ module Control.Monad.Freer.Error
   , handleError
   ) where
 
-import Control.Monad.Freer.Internal (Eff, Member, handleRelay, interpose, send)
-
---------------------------------------------------------------------------------
-                           -- Exceptions --
---------------------------------------------------------------------------------
+import Control.Monad.Freer (Eff, Member, interposeWith, interpretWith, send)
+import Control.Monad.Freer.Internal (handleRelay)
 
 -- | Exceptions of the type @e :: *@ with no resumption.
-newtype Error e a = Error e
+newtype Error e r where
+  Error :: e -> Error e r
 
 -- | Throws an error carrying information of type @e :: *@.
-throwError :: Member (Error e) effs => e -> Eff effs a
+throwError :: forall e effs a. Member (Error e) effs => e -> Eff effs a
 throwError e = send (Error e)
 
 -- | Handler for exception effects. If there are no exceptions thrown, returns
 -- 'Right'. If exceptions are thrown and not handled, returns 'Left', while
 -- interrupting the execution of any other effect handlers.
-runError :: Eff (Error e ': effs) a -> Eff effs (Either e a)
-runError = handleRelay (pure . Right) (\(Error e) _k -> pure (Left e))
+runError :: forall e effs a. Eff (Error e ': effs) a -> Eff effs (Either e a)
+runError = handleRelay (pure . Right) (\(Error e) _ -> pure (Left e))
 
 -- | A catcher for Exceptions. Handlers are allowed to rethrow exceptions.
 catchError
-  :: Member (Error e) effs
+  :: forall e effs a
+   . Member (Error e) effs
   => Eff effs a
   -> (e -> Eff effs a)
   -> Eff effs a
-catchError m handle = interpose pure (\(Error e) _ -> handle e) m
+catchError m handle = interposeWith (\(Error e) _ -> handle e) m
 
 -- | A catcher for Exceptions. Handlers are /not/ allowed to rethrow exceptions.
 handleError
-  :: Eff (Error e ': effs) a
+  :: forall e effs a
+   . Eff (Error e ': effs) a
   -> (e -> Eff effs a)
   -> Eff effs a
-handleError m handle = handleRelay pure (\(Error e) _ -> handle e) m
+handleError m handle = interpretWith (\(Error e) _ -> handle e) m

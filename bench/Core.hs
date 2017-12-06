@@ -10,7 +10,7 @@ import Criterion (bench, bgroup, whnf)
 import Criterion.Main (defaultMain)
 
 import Control.Monad.Freer (Member, Eff, run, send)
-import Control.Monad.Freer.Internal (Eff(E, Val), decomp, qApp, tsingleton)
+import Control.Monad.Freer.Internal (Eff(..), decomp, qApp, tsingleton)
 import Control.Monad.Freer.Error (runError, throwError)
 import Control.Monad.Freer.State (get, put, runState)
 import Control.Monad.Freer.StateRW (ask, tell, runStateR)
@@ -24,7 +24,7 @@ import qualified Control.Eff.State.Lazy as EE
 --------------------------------------------------------------------------------
 
 oneGet :: Int -> (Int, Int)
-oneGet = run . runState get
+oneGet n = run (runState n get)
 
 oneGetMTL :: Int -> (Int, Int)
 oneGetMTL = MTL.runState MTL.get
@@ -33,11 +33,11 @@ oneGetEE :: Int -> (Int, Int)
 oneGetEE n = EE.run $ EE.runState n EE.get
 
 countDown :: Int -> (Int, Int)
-countDown start = run (runState go start)
+countDown start = run (runState start go)
   where go = get >>= (\n -> if n <= 0 then pure n else put (n-1) >> go)
 
 countDownRW :: Int -> (Int, Int)
-countDownRW start = run (runStateR go start)
+countDownRW start = run (runStateR start go)
   where go = ask >>= (\n -> if n <= 0 then pure n else tell (n-1) >> go)
 
 countDownMTL :: Int -> (Int, Int)
@@ -52,7 +52,7 @@ countDownEE start = EE.run $ EE.runState start go
                        -- Exception + State --
 --------------------------------------------------------------------------------
 countDownExc :: Int -> Either String (Int,Int)
-countDownExc start = run $ runError (runState go start)
+countDownExc start = run $ runError (runState start go)
   where go = get >>= (\n -> if n <= (0 :: Int) then throwError "wat" else put (n-1) >> go)
 
 countDownExcMTL :: Int -> Either String (Int,Int)

@@ -17,7 +17,6 @@ import Console
   , runConsoleM
   )
 import Coroutine ()
-import Cut ()
 import Fresh ()
 import Trace ()
 

@@ -30,51 +30,43 @@ module Control.Monad.Freer.Reader
     -- $localExample
   ) where
 
-import Control.Monad.Freer.Internal
-  ( Arr
-  , Eff
-  , Member
-  , handleRelay
-  , interpose
-  , send
-  )
+import Control.Monad.Freer (Eff, Member, interpose, interpret, send)
 
 -- | Represents shared immutable environment of type @(e :: *)@ which is made
 -- available to effectful computation.
-data Reader e a where
-  Reader :: Reader e e
+data Reader r a where
+  Ask :: Reader r r
 
 -- | Request a value of the environment.
-ask :: Member (Reader e) effs => Eff effs e
-ask = send Reader
+ask :: forall r effs. Member (Reader r) effs => Eff effs r
+ask = send Ask
 
 -- | Request a value of the environment, and apply as selector\/projection
 -- function to it.
 asks
-  :: Member (Reader e) effs
-  => (e -> a)
+  :: forall r effs a
+   . Member (Reader r) effs
+  => (r -> a)
   -- ^ The selector\/projection function to be applied to the environment.
   -> Eff effs a
 asks f = f <$> ask
 
 -- | Handler for 'Reader' effects.
-runReader :: Eff (Reader e ': effs) a -> e -> Eff effs a
-runReader m e = handleRelay pure (\Reader k -> k e) m
+runReader :: forall r effs a. r -> Eff (Reader r ': effs) a -> Eff effs a
+runReader r = interpret (\Ask -> pure r)
 
 -- | Locally rebind the value in the dynamic environment.
 --
 -- This function is like a relay; it is both an admin for 'Reader' requests,
 -- and a requestor of them.
 local
-  :: forall e a effs. Member (Reader e) effs
-  => (e -> e)
+  :: forall r effs a. Member (Reader r) effs
+  => (r -> r)
   -> Eff effs a
   -> Eff effs a
 local f m = do
-  e <- f <$> ask
-  let h :: Reader e v -> Arr effs v a -> Eff effs a
-      h Reader k = k e
-  interpose pure h m
+  r <- asks f
+  interpose @(Reader r) (\Ask -> pure r) m
 
 -- $simpleReaderExample
 --
@@ -93,14 +85,14 @@ local f m = do
 -- >
 -- > -- Returns True if the "count" variable contains correct bindings size.
 -- > isCountCorrect :: Bindings -> Bool
--- > isCountCorrect bindings = run $ runReader calc_isCountCorrect bindings
+-- > isCountCorrect bindings = run $ runReader bindings calc_isCountCorrect
 -- >
 -- > -- The Reader effect, which implements this complicated check.
 -- > calc_isCountCorrect :: Eff '[Reader Bindings] Bool
 -- > calc_isCountCorrect = do
--- >     count <- asks (lookupVar "count")
--- >     bindings <- (ask :: Eff '[Reader Bindings] Bindings)
--- >     return (count == (Map.size bindings))
+-- >   count <- asks (lookupVar "count")
+-- >   bindings <- (ask :: Eff '[Reader Bindings] Bindings)
+-- >   return (count == (Map.size bindings))
 -- >
 -- > -- The selector function to  use with 'asks'.
 -- > -- Returns value of the variable with specified name.
@@ -112,8 +104,8 @@ local f m = do
 -- >
 -- > main :: IO ()
 -- > main = putStrLn
--- >     $ "Count is correct for bindings " ++ show sampleBindings ++ ": "
--- >     ++ show (isCountCorrect sampleBindings)
+-- >   $ "Count is correct for bindings " ++ show sampleBindings ++ ": "
+-- >   ++ show (isCountCorrect sampleBindings)
 
 -- $localExample
 --
@@ -129,8 +121,8 @@ local f m = do
 -- >
 -- > calculateContentLen :: Eff '[Reader String] Int
 -- > calculateContentLen = do
--- >     content <- (ask :: Eff '[Reader String] String)
--- >     return (length content)
+-- >   content <- (ask :: Eff '[Reader String] String)
+-- >   return (length content)
 -- >
 -- > -- Calls calculateContentLen after adding a prefix to the Reader content.
 -- > calculateModifiedContentLen :: Eff '[Reader String] Int
@@ -138,8 +130,8 @@ local f m = do
 -- >
 -- > main :: IO ()
 -- > main = do
--- >     let s = "12345";
--- >     let modifiedLen = run $ runReader calculateModifiedContentLen s;
--- >     let len = run $ runReader calculateContentLen s ;
--- >     putStrLn $ "Modified 's' length: " ++ (show modifiedLen)
--- >     putStrLn $ "Original 's' length: " ++ (show len)
+-- >   let s = "12345"
+-- >   let modifiedLen = run $ runReader s calculateModifiedContentLen
+-- >   let len = run $ runReader s calculateContentLen
+-- >   putStrLn $ "Modified 's' length: " ++ (show modifiedLen)
+-- >   putStrLn $ "Original 's' length: " ++ (show len)

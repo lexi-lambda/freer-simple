@@ -24,14 +24,14 @@ import Data.Monoid ((<>))
 import Control.Monad.Freer.Internal (Eff, Member, handleRelay, send)
 
 -- | Writer effects - send outputs to an effect environment.
-data Writer w a where
-  Writer :: w -> Writer w ()
+data Writer w r where
+  Tell :: w -> Writer w ()
 
 -- | Send a change to the attached environment.
-tell :: Member (Writer w) effs => w -> Eff effs ()
-tell w = send $ Writer w
+tell :: forall w effs. Member (Writer w) effs => w -> Eff effs ()
+tell w = send (Tell w)
 
 -- | Simple handler for 'Writer' effects.
-runWriter :: Monoid w => Eff (Writer w ': effs) a -> Eff effs (a, w)
-runWriter = handleRelay (\a -> pure (a, mempty)) $ \(Writer w) k ->
+runWriter :: forall w effs a. Monoid w => Eff (Writer w ': effs) a -> Eff effs (a, w)
+runWriter = handleRelay (\a -> pure (a, mempty)) $ \(Tell w) k ->
   second (w <>) <$> k ()

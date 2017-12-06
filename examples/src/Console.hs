@@ -49,7 +49,7 @@ runConsole = runM . interpretM (\case
 -------------------------------------------------------------------------------
 runConsolePure :: [String] -> Eff '[Console] w -> [String]
 runConsolePure inputs req = snd . fst $
-    run (runWriter (runState (runError (reinterpret3 go req)) inputs))
+    run (runWriter (runState inputs (runError (reinterpret3 go req))))
   where
     go :: Console v -> Eff '[Error (), State [String], Writer [String]] v
     go (PutStrLn msg) = tell [msg]
@@ -78,7 +78,7 @@ runConsolePureM
   -> Eff effs (Maybe w, [String], [String])
 runConsolePureM inputs req = do
     ((x, inputs'), output) <- reinterpret3 go req
-      & runError & flip runState inputs & runWriter
+      & runError & runState inputs & runWriter
     pure (either (const Nothing) Just x, inputs', output)
   where
     go :: Console v

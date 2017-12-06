@@ -10,8 +10,6 @@
 -- TODO: Remove once GHC can deduce the decidability of this instance.
 {-# LANGUAGE UndecidableInstances #-}
 
-
-
 -- |
 -- Module:       Control.Monad.Freer.Internal
 -- Description:  Mechanisms to make effects work.
@@ -60,6 +58,7 @@ module Control.Monad.Freer.Internal
   , handleRelay
   , handleRelayS
   , interpose
+  , interposeS
   , replaceRelay
   , replaceRelayS
   , replaceRelayN
@@ -139,6 +138,7 @@ instance (MonadBase b m, LastMember m effs) => MonadBase b (Eff effs) where
 -- | Send a request and wait for a reply.
 send :: Member eff effs => eff a -> Eff effs a
 send t = E (inj t) (tsingleton Val)
+{-# INLINE send #-}
 
 -- | Identical to 'send', but specialized to the final effect in @effs@ to
 -- assist type inference. This is useful for running actions in a monad
@@ -187,6 +187,7 @@ replaceRelayS s' pure' bind = loop s'
         Left  u -> E (weaken u) (tsingleton (k s))
       where
         k s'' x = loop s'' $ qApp q x
+{-# INLINE replaceRelayS #-}
 
 -- | Interpret an effect by transforming it into another effect on top of the
 -- stack. The primary use case of this function is allow interpreters to be
@@ -205,6 +206,7 @@ replaceRelay pure' bind = loop
         Left  u -> E (weaken u) (tsingleton k)
       where
         k = qComp q loop
+{-# INLINE replaceRelay #-}
 
 replaceRelayN
   :: forall gs t a effs w
@@ -223,6 +225,7 @@ replaceRelayN pure' bind = loop
       where
         k :: Arr (gs :++: effs) b w
         k = qComp q loop
+{-# INLINE replaceRelayN #-}
 
 -- | Given a request, either handle it or relay it.
 handleRelay
@@ -241,6 +244,7 @@ handleRelay ret h = loop
         Left  u -> E u (tsingleton k)
       where
         k = qComp q loop
+{-# INLINE handleRelay #-}
 
 -- | Parameterized 'handleRelay'. Allows sending along some state of type
 -- @s :: *@ to be handled for the target effect, or relayed to a handler that
@@ -262,6 +266,7 @@ handleRelayS s' ret h = loop s'
         Left  u -> E u (tsingleton (k s))
       where
         k s'' x = loop s'' $ qApp q x
+{-# INLINE handleRelayS #-}
 
 -- | Intercept the request and possibly reply to it, but leave it unhandled.
 interpose
@@ -278,6 +283,26 @@ interpose ret h = loop
         _      -> E u (tsingleton k)
       where
         k = qComp q loop
+{-# INLINE interpose #-}
+
+-- | Like 'interpose', but with support for an explicit state to help implement
+-- the interpreter.
+interposeS
+  :: Member eff effs
+  => s
+  -> (s -> a -> Eff effs b)
+  -> (forall v. s -> eff v -> (s -> Arr effs v b) -> Eff effs b)
+  -> Eff effs a
+  -> Eff effs b
+interposeS s' ret h = loop s'
+  where
+    loop s (Val x) = ret s x
+    loop s (E u q) = case prj u of
+        Just x -> h s x k
+        _      -> E u (tsingleton (k s))
+      where
+        k s'' x = loop s'' $ qApp q x
+{-# INLINE interposeS #-}
 
 -- | Embeds a less-constrained 'Eff' into a more-constrained one. Analogous to
 -- MTL's 'lift'.
@@ -286,6 +311,7 @@ raise = loop
   where
     loop (Val x) = pure x
     loop (E u q) = E (weaken u) . tsingleton $ qComp q loop
+{-# INLINE raise #-}
 
 --------------------------------------------------------------------------------
                     -- Nondeterministic Choice --

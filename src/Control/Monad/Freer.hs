@@ -70,18 +70,21 @@ import Control.Monad.Freer.Internal
 -- transformation from some effect @eff@ to some effectful computation with
 -- effects @effs@, produces a natural transformation from @'Eff' (eff ': effs)@
 -- to @'Eff' effs@.
-interpret :: (eff ~> Eff effs) -> Eff (eff ': effs) ~> Eff effs
+interpret :: forall eff effs. (eff ~> Eff effs) -> Eff (eff ': effs) ~> Eff effs
 interpret f = interpretWith (\e -> (f e >>=))
+{-# INLINE interpret #-}
 
 -- | Like 'interpret', but instead of handling the effect, allows responding to
 -- the effect while leaving it unhandled.
-interpose :: Member eff effs => (eff ~> Eff effs) -> Eff effs ~> Eff effs
+interpose :: forall eff effs. Member eff effs => (eff ~> Eff effs) -> Eff effs ~> Eff effs
 interpose f = interposeWith (\e -> (f e >>=))
+{-# INLINE interpose #-}
 
 -- | Like 'interpret', but instead of removing the interpreted effect @f@,
 -- reencodes it in some new effect @g@.
-reinterpret :: (f ~> Eff (g ': effs)) -> Eff (f ': effs) ~> Eff (g ': effs)
+reinterpret :: forall f g effs. (f ~> Eff (g ': effs)) -> Eff (f ': effs) ~> Eff (g ': effs)
 reinterpret f = replaceRelay pure (\e -> (f e >>=))
+{-# INLINE reinterpret #-}
 
 -- | Like 'reinterpret', but encodes the @f@ effect in /two/ new effects instead
 -- of just one.
@@ -89,6 +92,7 @@ reinterpret2
   :: forall f g h effs
    . (f ~> Eff (g ': h ': effs)) -> Eff (f ': effs) ~> Eff (g ': h ': effs)
 reinterpret2 = reinterpretN @[g, h]
+{-# INLINE reinterpret2 #-}
 
 -- | Like 'reinterpret', but encodes the @f@ effect in /three/ new effects
 -- instead of just one.
@@ -97,6 +101,7 @@ reinterpret3
    . (f ~> Eff (g ': h ': i ': effs))
   -> Eff (f ': effs) ~> Eff (g ': h ': i ': effs)
 reinterpret3 = reinterpretN @[g, h, i]
+{-# INLINE reinterpret3 #-}
 
 -- | Like 'interpret', 'reinterpret', 'reinterpret2', and 'reinterpret3', but
 -- allows the result to have any number of additional effects instead of simply
@@ -107,6 +112,7 @@ reinterpretN
   :: forall gs f effs. Weakens gs
   => (f ~> Eff (gs :++: effs)) -> Eff (f ': effs) ~> Eff (gs :++: effs)
 reinterpretN f = replaceRelayN @gs pure (\e -> (f e >>=))
+{-# INLINE reinterpretN #-}
 
 -- | Runs an effect by translating it into another effect. This is effectively a
 -- more restricted form of 'reinterpret', since both produce a natural
@@ -121,8 +127,9 @@ reinterpretN f = replaceRelayN @gs pure (\e -> (f e >>=))
 -- @
 -- 'translate' f = 'reinterpret' ('send' . f)
 -- @
-translate :: (f ~> g) -> Eff (f ': effs) ~> Eff (g ': effs)
+translate :: forall f g effs. (f ~> g) -> Eff (f ': effs) ~> Eff (g ': effs)
 translate f = reinterpret (send . f)
+{-# INLINE translate #-}
 
 -- | Like 'interpret', this function runs an effect without introducing another
 -- one. Like 'translate', this function runs an effect by translating it into
@@ -134,9 +141,11 @@ translate f = reinterpret (send . f)
 -- 'interpretM' f = 'interpret' ('sendM' . f)
 -- @
 interpretM
-  :: (Monad m, LastMember m effs)
+  :: forall eff effs m
+   . (Monad m, LastMember m effs)
   => (eff ~> m) -> Eff (eff ': effs) ~> Eff effs
 interpretM f = interpret (sendM . f)
+{-# INLINE interpretM #-}
 
 -- | A highly general way of handling an effect. Like 'interpret', but
 -- explicitly passes the /continuation/, a function of type @v -> 'Eff' effs b@,
@@ -150,10 +159,12 @@ interpretM f = interpret (sendM . f)
 -- 'interpret' f = 'interpretWith' (\e -> (f e '>>='))
 -- @
 interpretWith
-  :: (forall v. eff v -> (v -> Eff effs b) -> Eff effs b)
+  :: forall eff effs b
+   . (forall v. eff v -> (v -> Eff effs b) -> Eff effs b)
   -> Eff (eff ': effs) b
   -> Eff effs b
 interpretWith = handleRelay pure
+{-# INLINE interpretWith #-}
 
 -- | Combines the interposition behavior of 'interpose' with the
 -- continuation-passing capabilities of 'interpretWith'.
@@ -162,8 +173,10 @@ interpretWith = handleRelay pure
 -- 'interpose' f = 'interposeWith' (\e -> (f e '>>='))
 -- @
 interposeWith
-  :: Member eff effs
+  :: forall eff effs b
+   . Member eff effs
   => (forall v. eff v -> (v -> Eff effs b) -> Eff effs b)
   -> Eff effs b
   -> Eff effs b
 interposeWith = Internal.interpose pure
+{-# INLINE interposeWith #-}
