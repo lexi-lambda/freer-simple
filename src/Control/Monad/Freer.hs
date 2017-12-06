@@ -3,7 +3,7 @@
 -- |
 -- Module:       Control.Monad.Freer
 -- Description:  Freer - an extensible effects library
--- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.
+-- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.; 2017 Alexis King
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental

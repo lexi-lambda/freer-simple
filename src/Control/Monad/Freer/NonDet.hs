@@ -3,7 +3,7 @@
 -- |
 -- Module:       Control.Monad.Freer.NonDet
 -- Description:  Non deterministic effects
--- Copyright:    2017 Ixperta Solutions s.r.o.
+-- Copyright:    2017 Ixperta Solutions s.r.o.; 2017 Alexis King
 -- License:      BSD3
 -- Maintainer:   ixcom-core@ixperta.com
 -- Stability:    experimental
