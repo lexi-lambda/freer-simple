@@ -3,7 +3,7 @@
 -- Description:  Reader effects, for encapsulating an environment.
 -- Copyright:    (c) 2016 Allele Dev; 2017 Ixperta Solutions s.r.o.; 2017 Alexis King
 -- License:      BSD3
--- Maintainer:   ixcom-core@ixperta.com
+-- Maintainer:   Alexis King <lexi.lambda@gmail.com>
 -- Stability:    experimental
 -- Portability:  GHC specific language extensions.
 --

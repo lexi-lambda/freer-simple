@@ -7,7 +7,7 @@ import System.Environment (getArgs)
 
 import Control.Monad.Freer (Eff, Member, run, runM)
 
-import Capitalize (Capitalize, capitalize, runCapitalizeM)
+import Capitalize (Capitalize, capitalize, runCapitalize)
 import Console
   ( Console
   , exitSuccess'
@@ -34,23 +34,23 @@ capitalizingService = forever $ do
 mainPure :: IO ()
 mainPure = print . run
     . runConsolePureM ["cat", "fish", "dog", "bird", ""]
-    $ runCapitalizeM capitalizingService
+    $ runCapitalize capitalizingService
 
 mainConsoleA :: IO ()
-mainConsoleA = runM (runConsoleM (runCapitalizeM capitalizingService))
---             |     |             |              |
---      IO () -'     |             |              |
---     Eff '[IO] () -'             |              |
---          Eff '[Console, IO] () -'              |
---             Eff '[Capitalize, Console, IO] () -'
+mainConsoleA = runM (runConsoleM (runCapitalize capitalizingService))
+--             |     |            |             |
+--      IO () -'     |            |             |
+--     Eff '[IO] () -'            |             |
+--         Eff '[Console, IO] () -'             |
+--           Eff '[Capitalize, Console, IO] () -'
 
 mainConsoleB :: IO ()
-mainConsoleB = runM (runCapitalizeM (runConsoleM capitalizingService))
---             |     |             |              |
---      IO () -'     |             |              |
---     Eff '[IO] () -'             |              |
---       Eff '[Capitalize, IO] () -'              |
---             Eff '[Console, Capitalize, IO] () -'
+mainConsoleB = runM (runCapitalize (runConsoleM capitalizingService))
+--             |     |              |           |
+--      IO () -'     |              |           |
+--     Eff '[IO] () -'              |           |
+--        Eff '[Capitalize, IO] () -'           |
+--           Eff '[Console, Capitalize, IO] () -'
 
 examples :: [(String, IO ())]
 examples =
