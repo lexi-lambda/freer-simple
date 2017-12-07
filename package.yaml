@@ -83,7 +83,7 @@ benchmarks:
     ghc-options: -O2
     dependencies:
     - criterion
-    - extensible-effects
+    - extensible-effects < 2
     - free
     - freer-simple
     - mtl

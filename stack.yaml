@@ -3,7 +3,8 @@ resolver: lts-8.21
 packages:
 - '.'
 
-extra-deps: []
+extra-deps:
+- extensible-effects-1.11.1.0
 
 flags: {}
 extra-package-dbs: []
