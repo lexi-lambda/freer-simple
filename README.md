@@ -107,7 +107,7 @@ LICENSE file for more details.
 
 # Acknowledgements
 
-Package `freer-effects` started as a fork of [freer-effects](http://hackage.haskell.org/package/freer-effects) by Ixperta Solutions, which in turn is a fork of [freer](http://hackage.haskell.org/package/freer) by Allele Dev. All implementations are based on the paper and reference implementation by Oleg Kiselyov. In particular:
+The `freer-simple` package started as a fork of [freer-effects](http://hackage.haskell.org/package/freer-effects) by Ixperta Solutions, which in turn is a fork of [freer](http://hackage.haskell.org/package/freer) by Allele Dev. All implementations are based on the paper and reference implementation by Oleg Kiselyov. In particular:
 
   - `Data.OpenUnion` maps to [OpenUnion51.hs](http://okmij.org/ftp/Haskell/extensible/OpenUnion51.hs)
   - `Data.FTCQueue` maps to [FTCQueue1](http://okmij.org/ftp/Haskell/extensible/FTCQueue1.hs)

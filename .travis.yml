@@ -28,6 +28,7 @@ matrix:
 
   allow_failures:
   # Nightly builds are allowed to fail
+  - env: ARGS="--resolver nightly-2017-07-31"
   - env: ARGS="--resolver nightly"
 
 before_install:
