@@ -42,14 +42,37 @@ import Data.OpenUnion.Internal
   , weaken
   )
 
-
-type family Members m r :: Constraint where
-  Members (t ': c) r = (Member t r, Members c r)
-  Members '[] r = ()
+-- | A shorthand constraint that represents a combination of multiple 'Member'
+-- constraints. That is, the following 'Members' constraint:
+--
+-- @
+-- 'Members' '[Foo, Bar, Baz] effs
+-- @
+--
+-- …is equivalent to the following set of 'Member' constraints:
+--
+-- @
+-- ('Member' Foo effs, 'Member' Bar effs, 'Member' baz effs)
+-- @
+--
+-- Note that, since each effect is translated into a separate 'Member'
+-- constraint, the order of the effects does /not/ matter.
+type family Members effs effs' :: Constraint where
+  Members (eff ': effs) effs' = (Member eff effs', Members effs effs')
+  Members '[] effs' = ()
 
 type family Last effs where
   Last (eff ': '[]) = eff
   Last (_ ': effs) = Last effs
 
-class (Member m effs, m ~ Last effs) => LastMember m effs
+-- | Like 'Member', @'LastMember' eff effs@ is a constraint that requires that
+-- @eff@ is in the type-level list @effs@. However, /unlike/ 'Member',
+-- 'LastMember' requires @m@ be the __final__ effect in @effs@.
+--
+-- Generally, this is not especially useful, since it is preferable for
+-- computations to be agnostic to the order of effects, but it is quite useful
+-- in combination with 'Control.Monad.Freer.sendM' or
+-- 'Control.Monad.Base.liftBase' to embed ordinary monadic effects within an
+-- 'Control.Monad.Freer.Eff' computation.
+class (Member m effs, m ~ Last effs) => LastMember m effs | effs -> m
 instance (Member m effs, m ~ Last effs) => LastMember m effs

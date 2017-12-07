@@ -104,32 +104,44 @@ instance TypeError ('Text "‘" ':<>: 'ShowType t
     => FindElem t '[] w where
   elemNo = error "impossible"
 
--- | This type class is used for two following purposes:
+-- | A constraint that requires that a particular effect, @eff@, is a member of
+-- the type-level list @effs@. This is used to parameterize an
+-- 'Control.Monad.Freer.Eff' computation over an arbitrary list of effects, so
+-- long as @eff@ is /somewhere/ in the list.
 --
--- * As a @Constraint@ it guarantees that @t :: * -> *@ is a member of a
---   type-list @r :: [* -> *]@.
---
--- * Provides a way how to inject\/project @t :: * -> *@ into\/from a 'Union',
---   respectively.
---
--- Following law has to hold:
+-- For example, a computation that only needs access to a cell of mutable state
+-- containing an 'Integer' would likely use the following type:
 --
 -- @
--- 'prj' . 'inj' === 'Just'
+-- 'Member' ('Control.Monad.Freer.State.State' 'Integer') effs => 'Control.Monad.Freer.Eff' effs ()
 -- @
-class FindElem t r r => Member (t :: * -> *) r where
+class FindElem eff effs effs => Member (eff :: * -> *) effs where
+  -- This type class is used for two following purposes:
+  --
+  -- * As a @Constraint@ it guarantees that @t :: * -> *@ is a member of a
+  --   type-list @r :: [* -> *]@.
+  --
+  -- * Provides a way how to inject\/project @t :: * -> *@ into\/from a 'Union',
+  --   respectively.
+  --
+  -- Following law has to hold:
+  --
+  -- @
+  -- 'prj' . 'inj' === 'Just'
+  -- @
+
   -- | Takes a request of type @t :: * -> *@, and injects it into the
   -- 'Union'.
   --
   -- /O(1)/
-  inj :: t a -> Union r a
+  inj :: eff a -> Union effs a
 
   -- | Project a value of type @'Union' (t ': r) :: * -> *@ into a possible
   -- summand of the type @t :: * -> *@. 'Nothing' means that @t :: * -> *@ is
   -- not the value stored in the @'Union' (t ': r) :: * -> *@.
   --
   -- /O(1)/
-  prj :: Union r a -> Maybe (t a)
+  prj :: Union effs a -> Maybe (eff a)
 
 instance FindElem t r r => Member t r where
   inj = unsafeInj $ unP (elemNo :: P t r r)

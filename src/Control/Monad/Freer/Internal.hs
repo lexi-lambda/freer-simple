@@ -74,6 +74,7 @@ module Control.Monad.Freer.Internal
 import Control.Applicative (Alternative(..))
 import Control.Monad (MonadPlus(..))
 import Control.Monad.Base (MonadBase, liftBase)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 
 import Data.FTCQueue
 import Data.OpenUnion
@@ -88,9 +89,30 @@ type Arr effs a b = a -> Eff effs b
 -- queue.
 type Arrs effs a b = FTCQueue (Eff effs) a b
 
--- | The Eff monad provides a way to use effects in Haskell, in such a way that
--- different types of effects can be interleaved, and so that the produced code
--- is efficient.
+-- | The 'Eff' monad provides the implementation of a computation that performs
+-- an arbitrary set of algebraic effects. In @'Eff' effs a@, @effs@ is a
+-- type-level list that contains all the effects that the computation may
+-- perform. For example, a computation that produces an 'Integer' by consuming a
+-- 'String' from the global environment and acting upon a single mutable cell
+-- containing a 'Bool' would have the following type:
+--
+-- @
+-- 'Eff' '['Control.Monad.Freer.Reader.Reader' 'String', 'Control.Monad.Freer.State.State' 'Bool'] 'Integer'
+-- @
+--
+-- Normally, a concrete list of effects is not used to parameterize 'Eff'.
+-- Instead, the 'Member' or 'Members' constraints are used to express
+-- constraints on the list of effects without coupling a computation to a
+-- concrete list of effects. For example, the above example would more commonly
+-- be expressed with the following type:
+--
+-- @
+-- 'Members' '['Control.Monad.Freer.Reader.Reader' 'String', 'Control.Monad.Freer.State.State' 'Bool'] effs => 'Eff' effs 'Integer'
+-- @
+--
+-- This abstraction allows the computation to be used in functions that may
+-- perform other effects, and it also allows the effects to be handled in any
+-- order.
 data Eff effs a
   = Val a
   -- ^ Pure value (@'return' = 'pure' = 'Val'@).
@@ -135,7 +157,14 @@ instance (MonadBase b m, LastMember m effs) => MonadBase b (Eff effs) where
   liftBase = sendM . liftBase
   {-# INLINE liftBase #-}
 
--- | Send a request and wait for a reply.
+instance (MonadIO m, LastMember m effs) => MonadIO (Eff effs) where
+  liftIO = sendM . liftIO
+  {-# INLINE liftIO #-}
+
+-- | “Sends” an effect, which should be a value defined as part of an effect
+-- algebra (see the module documentation for "Control.Monad.Freer"), to an
+-- effectful computation. This is used to connect the definition of an effect to
+-- the 'Eff' monad so that it can be used and handled.
 send :: Member eff effs => eff a -> Eff effs a
 send t = E (inj t) (tsingleton Val)
 {-# INLINE send #-}
@@ -151,19 +180,29 @@ sendM = send
                        -- Base Effect Runner --
 --------------------------------------------------------------------------------
 
--- | Runs a set of Effects. Requires that all effects are consumed.
--- Typically composed as follows:
+-- | Runs a pure 'Eff' computation, since an 'Eff' computation that performs no
+-- effects (i.e. has no effects in its type-level list) is guaranteed to be
+-- pure. This is usually used as the final step of running an effectful
+-- computation, after all other effects have been discharged using effect
+-- handlers.
+--
+-- Typically, this function is composed as follows:
 --
 -- @
--- 'run' . runEff1 eff1Arg . runEff2 eff2Arg1 eff2Arg2 $ someProgram
+-- someProgram
+--   'Data.Function.&' runEff1 eff1Arg
+--   'Data.Function.&' runEff2 eff2Arg1 eff2Arg2
+--   'Data.Function.&' 'run'
 -- @
 run :: Eff '[] a -> a
 run (Val x) = x
 run _       = error "Internal:run - This (E) should never happen"
 
--- | Runs a set of Effects. Requires that all effects are consumed, except for
--- a single effect known to be a monad. The value returned is a computation in
--- that monad. This is useful for plugging in traditional transformer stacks.
+-- | Like 'run', 'runM' runs an 'Eff' computation and extracts the result.
+-- /Unlike/ 'run', 'runM' allows a single effect to remain within the type-level
+-- list, which must be a monad. The value returned is a computation in that
+-- monad, which is useful in conjunction with 'sendM' or 'liftBase' for plugging
+-- in traditional transformer stacks.
 runM :: Monad m => Eff '[m] a -> m a
 runM (Val x) = return x
 runM (E u q) = case extract u of
