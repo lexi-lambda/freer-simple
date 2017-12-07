@@ -1,7 +1,7 @@
 name: freer-simple
 version: 1.0.0.0
 category: Control
-synopsis: Implementation of an effect system for Haskell.
+synopsis: Implementation of a friendly effect system for Haskell.
 description: |
   An implementation of an effect system for Haskell (a fork of
   <http://hackage.haskell.org/package/freer-effects freer-effects>), which is
