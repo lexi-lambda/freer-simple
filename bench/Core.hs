@@ -13,7 +13,6 @@ import Control.Monad.Freer (Member, Eff, run, send)
 import Control.Monad.Freer.Internal (Eff(..), decomp, qApp, tsingleton)
 import Control.Monad.Freer.Error (runError, throwError)
 import Control.Monad.Freer.State (get, put, runState)
-import Control.Monad.Freer.StateRW (ask, tell, runStateR)
 
 import qualified Control.Eff as EE
 import qualified Control.Eff.Exception as EE
@@ -35,10 +34,6 @@ oneGetEE n = EE.run $ EE.runState n EE.get
 countDown :: Int -> (Int, Int)
 countDown start = run (runState start go)
   where go = get >>= (\n -> if n <= 0 then pure n else put (n-1) >> go)
-
-countDownRW :: Int -> (Int, Int)
-countDownRW start = run (runStateR start go)
-  where go = ask >>= (\n -> if n <= 0 then pure n else tell (n-1) >> go)
 
 countDownMTL :: Int -> (Int, Int)
 countDownMTL = MTL.runState go
@@ -149,7 +144,6 @@ main =
     ],
     bgroup "Countdown Bench" [
         bench "freer.State"    $ whnf countDown 10000
-      , bench "freer.StateRW"  $ whnf countDownRW 10000
       , bench "mtl.State"      $ whnf countDownMTL 10000
       , bench "ee.State"       $ whnf countDownEE 10000
     ],
