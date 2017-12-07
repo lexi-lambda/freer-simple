@@ -19,9 +19,8 @@ The key features of `freer-simple` are:
     - `Reader`
     - `Writer`
     - `State`
-    - `StateRW` — State in terms of Reader/Writer.
     - `Trace`
-    - `Exception`
+    - `Error`
   - Core components for defining your own Effects.
 
 # Example: Console DSL
@@ -41,18 +40,18 @@ import System.Exit hiding (ExitCode(ExitSuccess))
 --------------------------------------------------------------------------------
                                -- Effect Model --
 --------------------------------------------------------------------------------
-data Console s where
+data Console r where
   PutStrLn    :: String -> Console ()
   GetLine     :: Console String
   ExitSuccess :: Console ()
 
-putStrLn' :: Member Console r => String -> Eff r ()
+putStrLn' :: Member Console effs => String -> Eff effs ()
 putStrLn' = send . PutStrLn
 
-getLine' :: Member Console r => Eff r String
+getLine' :: Member Console effs => Eff effs String
 getLine' = send GetLine
 
-exitSuccess' :: Member Console r => Eff r ()
+exitSuccess' :: Member Console effs => Eff effs ()
 exitSuccess' = send ExitSuccess
 
 --------------------------------------------------------------------------------
@@ -69,7 +68,7 @@ runConsole = runM . interpretM (\case
 --------------------------------------------------------------------------------
 runConsolePure :: [String] -> Eff '[Console] w -> [String]
 runConsolePure inputs req = snd . fst $
-    run (runWriter (runState (runError (reinterpret3 go req)) inputs))
+    run (runWriter (runState inputs (runError (reinterpret3 go req))))
   where
     go :: Console v -> Eff '[Error (), State [String], Writer [String]] v
     go (PutStrLn msg) = tell [msg]
@@ -102,8 +101,7 @@ More information about `stack` can be found in its [documentation](https://haske
 
 # Licensing
 
-This project is distrubted under a BSD3 license. See the included
-LICENSE file for more details.
+This project is distributed under a BSD3 license. See the included LICENSE file for more details.
 
 # Acknowledgements
 
