@@ -217,6 +217,7 @@ module Control.Monad.Freer
     -- *** Basic effect handlers
   , interpret
   , interpose
+  , subsume
     -- *** Derived effect handlers
   , reinterpret
   , reinterpret2
@@ -264,6 +265,12 @@ interpret f = interpretWith (\e -> (f e >>=))
 interpose :: forall eff effs. Member eff effs => (eff ~> Eff effs) -> Eff effs ~> Eff effs
 interpose f = interposeWith (\e -> (f e >>=))
 {-# INLINE interpose #-}
+
+-- | Interprets an effect in terms of another identical effect. This can be used
+-- to eliminate duplicate effects.
+subsume :: forall eff effs. Member eff effs => Eff (eff ': effs) ~> Eff effs
+subsume = interpret send
+{-# INLINE subsume #-}
 
 -- | Like 'interpret', but instead of removing the interpreted effect @f@,
 -- reencodes it in some new effect @g@.
