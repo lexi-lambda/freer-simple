@@ -27,6 +27,7 @@ module Control.Monad.Freer.State
   , get
   , put
   , modify
+  , gets
 
     -- * State Handlers
   , runState
@@ -60,6 +61,11 @@ put s = send (Put s)
 -- @(s -> s)@.
 modify :: forall s effs. Member (State s) effs => (s -> s) -> Eff effs ()
 modify f = fmap f get >>= put
+
+-- | Retrieve a specific component of the current state using the provided
+-- projection function.
+gets :: forall s a effs. Member (State s) effs => (s -> a) -> Eff effs a
+gets f = f <$> get
 
 -- | Handler for 'State' effects.
 runState :: forall s effs a. s -> Eff (State s ': effs) a -> Eff effs (a, s)
