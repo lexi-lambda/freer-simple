@@ -1,5 +1,5 @@
 name: freer-simple
-version: 1.0.1.0
+version: 1.0.1.1
 category: Control
 synopsis: Implementation of a friendly effect system for Haskell.
 description: |

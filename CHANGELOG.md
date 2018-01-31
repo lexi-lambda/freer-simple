@@ -1,3 +1,7 @@
+# 1.0.1.1
+
+- Fixed a bug that could cause `Member` constraints to erroneously fail to solve ([#3](https://github.com/lexi-lambda/freer-simple/pull/3)).
+
 # 1.0.1.0
 
 - Added `subsume` to `Control.Monad.Freer` for deduplicating effects.
