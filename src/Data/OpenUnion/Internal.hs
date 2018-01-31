@@ -69,30 +69,34 @@ unsafePrj n (Union n' x)
 
 -- | Represents position of element @t :: * -> *@ in a type list
 -- @r :: [* -> *]@.
-newtype P t r w = P {unP :: Word}
+newtype P t r = P {unP :: Word}
 
 -- | Find an index of an element @t :: * -> *@ in a type list @r :: [* -> *]@.
 -- The element must exist. The @w :: [* -> *]@ type represents the entire list,
 -- prior to recursion, and it is used to produce better type errors.
 --
 -- This is essentially a compile-time computation without run-time overhead.
-class FindElem (t :: * -> *) (r :: [* -> *]) (w :: [* -> *]) where
+class FindElem (t :: * -> *) (r :: [* -> *]) where
   -- | Position of the element @t :: * -> *@ in a type list @r :: [* -> *]@.
   --
   -- Position is computed during compilation, i.e. there is no run-time
   -- overhead.
   --
   -- /O(1)/
-  elemNo :: P t r w
+  elemNo :: P t r
 
 -- | Base case; element is at the current position in the list.
-instance FindElem t (t ': r) w where
+instance FindElem t (t ': r) where
   elemNo = P 0
 
 -- | Recursion; element is not at the current position, but is somewhere in the
 -- list.
-instance {-# OVERLAPPABLE #-} FindElem t r w => FindElem t (t' ': r) w where
-  elemNo = P $ 1 + unP (elemNo :: P t r w)
+instance {-# OVERLAPPABLE #-} FindElem t r => FindElem t (t' ': r) where
+  elemNo = P $ 1 + unP (elemNo :: P t r)
+
+-- | Instance resolution for this class fails with a custom type error
+-- if @t :: * -> *@ is not in the list @r :: [* -> *]@.
+class IfNotFound (t :: * -> *) (r :: [* -> *]) (w :: [* -> *])
 
 -- | If we reach an empty list, that’s a failure, since it means the type isn’t
 -- in the list. For GHC >=8, we can render a custom type error that explicitly
@@ -102,8 +106,16 @@ instance TypeError ('Text "‘" ':<>: 'ShowType t
                     ':$$: 'Text "  ‘" ':<>: 'ShowType w ':<>: 'Text "’"
                     ':$$: 'Text "In the constraint ("
                     ':<>: 'ShowType (Member t w) ':<>: 'Text ")")
-    => FindElem t '[] w where
-  elemNo = error "impossible"
+    => IfNotFound t '[] w
+
+instance IfNotFound t (t ': r) w
+instance {-# OVERLAPPABLE #-} IfNotFound t r w => IfNotFound t (t' ': r) w
+
+-- | Pass if @r@ is uninstantiated. The incoherence here is safe, since picking
+-- this instance doesn’t cause any variation in behavior, except possibly the
+-- production of an inferior error message. For more information, see
+-- lexi-lambda/freer-simple#3, which describes the motivation in more detail.
+instance {-# INCOHERENT #-} IfNotFound t r w
 
 -- | A constraint that requires that a particular effect, @eff@, is a member of
 -- the type-level list @effs@. This is used to parameterize an
@@ -116,7 +128,7 @@ instance TypeError ('Text "‘" ':<>: 'ShowType t
 -- @
 -- 'Member' ('Control.Monad.Freer.State.State' 'Integer') effs => 'Control.Monad.Freer.Eff' effs ()
 -- @
-class FindElem eff effs effs => Member (eff :: * -> *) effs where
+class FindElem eff effs => Member (eff :: * -> *) effs where
   -- This type class is used for two following purposes:
   --
   -- * As a @Constraint@ it guarantees that @t :: * -> *@ is a member of a
@@ -144,11 +156,11 @@ class FindElem eff effs effs => Member (eff :: * -> *) effs where
   -- /O(1)/
   prj :: Union effs a -> Maybe (eff a)
 
-instance FindElem t r r => Member t r where
-  inj = unsafeInj $ unP (elemNo :: P t r r)
+instance (FindElem t r, IfNotFound t r r) => Member t r where
+  inj = unsafeInj $ unP (elemNo :: P t r)
   {-# INLINE inj #-}
 
-  prj = unsafePrj $ unP (elemNo :: P t r r)
+  prj = unsafePrj $ unP (elemNo :: P t r)
   {-# INLINE prj #-}
 
 -- | Orthogonal decomposition of a @'Union' (t ': r) :: * -> *@. 'Right' value
