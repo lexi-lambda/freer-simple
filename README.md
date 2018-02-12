@@ -32,9 +32,13 @@ Here's what using `freer-simple` looks like:
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 module Console where
 
 import Control.Monad.Freer
+import Control.Monad.Freer.Error
+import Control.Monad.Freer.State
+import Control.Monad.Freer.Writer
 import System.Exit hiding (ExitCode(ExitSuccess))
 
 --------------------------------------------------------------------------------
