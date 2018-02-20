@@ -333,7 +333,7 @@ translate f = reinterpret (send . f)
 -- 'interpretM' f = 'interpret' ('sendM' . f)
 -- @
 interpretM
-  :: forall eff effs m
+  :: forall eff m effs
    . (Monad m, LastMember m effs)
   => (eff ~> m) -> Eff (eff ': effs) ~> Eff effs
 interpretM f = interpret (sendM . f)
