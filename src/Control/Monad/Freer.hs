@@ -229,6 +229,9 @@ module Control.Monad.Freer
     -- *** Advanced effect handlers
   , interpretWith
   , interposeWith
+
+    -- * Re-exported bindings
+  , type (~>)
   ) where
 
 import Control.Natural (type (~>))
