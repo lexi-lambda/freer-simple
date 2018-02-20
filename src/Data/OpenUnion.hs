@@ -61,10 +61,6 @@ type family Members effs effs' :: Constraint where
   Members (eff ': effs) effs' = (Member eff effs', Members effs effs')
   Members '[] effs' = ()
 
-type family Last effs where
-  Last (eff ': '[]) = eff
-  Last (_ ': effs) = Last effs
-
 -- | Like 'Member', @'LastMember' eff effs@ is a constraint that requires that
 -- @eff@ is in the type-level list @effs@. However, /unlike/ 'Member',
 -- 'LastMember' requires @m@ be the __final__ effect in @effs@.
@@ -74,5 +70,6 @@ type family Last effs where
 -- in combination with 'Control.Monad.Freer.sendM' or
 -- 'Control.Monad.Base.liftBase' to embed ordinary monadic effects within an
 -- 'Control.Monad.Freer.Eff' computation.
-class (Member m effs, m ~ Last effs) => LastMember m effs | effs -> m
-instance (Member m effs, m ~ Last effs) => LastMember m effs
+class Member m effs => LastMember m effs | effs -> m
+instance {-# OVERLAPPABLE #-} LastMember m effs => LastMember m (eff ': effs)
+instance LastMember m (m ': '[])
