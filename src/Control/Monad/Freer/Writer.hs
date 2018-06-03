@@ -21,7 +21,7 @@ module Control.Monad.Freer.Writer
 import Control.Arrow (second)
 import Data.Monoid ((<>))
 
-import Control.Monad.Freer.Internal (Eff, Member, handleRelay, send)
+import Control.Monad.Freer.Internal (Eff, Member, HasLen, handleRelay, send)
 
 -- | Writer effects - send outputs to an effect environment.
 data Writer w r where
@@ -32,6 +32,6 @@ tell :: forall w effs. Member (Writer w) effs => w -> Eff effs ()
 tell w = send (Tell w)
 
 -- | Simple handler for 'Writer' effects.
-runWriter :: forall w effs a. Monoid w => Eff (Writer w ': effs) a -> Eff effs (a, w)
+runWriter :: forall w effs a. (HasLen effs, Monoid w) => Eff (Writer w ': effs) a -> Eff effs (a, w)
 runWriter = handleRelay (\a -> pure (a, mempty)) $ \(Tell w) k ->
   second (w <>) <$> k ()

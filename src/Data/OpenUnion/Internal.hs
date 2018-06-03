@@ -5,6 +5,7 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE MagicHash #-}
 
 -- |
 -- Module:       Data.OpenUnion.Internal
@@ -32,8 +33,9 @@
 -- substitution for @Typeable@.
 module Data.OpenUnion.Internal where
 
-import GHC.TypeLits (TypeError, ErrorMessage(..))
+import GHC.TypeLits
 import Unsafe.Coerce (unsafeCoerce)
+import GHC.Prim (proxy#, Proxy#)
 
 -- | Open union is a strong sum (existential with an evidence).
 data Union (r :: [* -> *]) a where
@@ -71,6 +73,22 @@ unsafePrj n (Union n' x)
 -- @r :: [* -> *]@.
 newtype P t r = P {unP :: Word}
 
+reP :: P t r -> P t' r'
+reP = P . unP
+
+
+class HasLen (r :: [k]) where
+  getLen' :: P () r
+
+instance HasLen '[] where
+  getLen' = P 0
+instance HasLen xs => HasLen (x ': xs) where
+  getLen' = P $ 1 + getLen @xs
+
+getLen :: forall r . HasLen r => Word
+getLen = unP (getLen' :: P () r)
+
+
 -- | Find an index of an element @t :: * -> *@ in a type list @r :: [* -> *]@.
 -- The element must exist. The @w :: [* -> *]@ type represents the entire list,
 -- prior to recursion, and it is used to produce better type errors.
@@ -86,13 +104,13 @@ class FindElem (t :: * -> *) (r :: [* -> *]) where
   elemNo :: P t r
 
 -- | Base case; element is at the current position in the list.
-instance FindElem t (t ': r) where
-  elemNo = P 0
+instance HasLen r => FindElem t (t ': r) where
+  elemNo = P $ getLen @r
 
 -- | Recursion; element is not at the current position, but is somewhere in the
 -- list.
 instance {-# OVERLAPPABLE #-} FindElem t r => FindElem t (t' ': r) where
-  elemNo = P $ 1 + unP (elemNo :: P t r)
+  elemNo = reP (elemNo :: P t r)
 
 -- | Instance resolution for this class fails with a custom type error
 -- if @t :: * -> *@ is not in the list @r :: [* -> *]@.
@@ -163,15 +181,18 @@ instance (FindElem t r, IfNotFound t r r) => Member t r where
   prj = unsafePrj $ unP (elemNo :: P t r)
   {-# INLINE prj #-}
 
+unsafeTailUnion :: Union (any ': effs) a -> Union effs a
+unsafeTailUnion = unsafeCoerce
+
 -- | Orthogonal decomposition of a @'Union' (t ': r) :: * -> *@. 'Right' value
 -- is returned if the @'Union' (t ': r) :: * -> *@ contains @t :: * -> *@, and
 -- 'Left' when it doesn't. Notice that 'Left' value contains
 -- @Union r :: * -> *@, i.e. it can not contain @t :: * -> *@.
 --
 -- /O(1)/
-decomp :: Union (t ': r) a -> Either (Union r a) (t a)
-decomp (Union 0 a) = Right $ unsafeCoerce a
-decomp (Union n a) = Left  $ Union (n - 1) a
+decomp :: forall t r a . HasLen r => Union (t ': r) a -> Either (Union r a) (t a)
+decomp u@(Union n a) | n == getLen @r = Right $ unsafeCoerce a
+                     | otherwise = Left $ unsafeTailUnion u
 {-# INLINE [2] decomp #-}
 
 -- | Specialized version of 'decomp' for efficiency.
@@ -198,7 +219,7 @@ extract (Union _ a) = unsafeCoerce a
 --
 -- /O(1)/
 weaken :: Union r a -> Union (any ': r) a
-weaken (Union n a) = Union (n + 1) a
+weaken u = unsafeCoerce u
 {-# INLINE weaken #-}
 
 infixr 5 :++:

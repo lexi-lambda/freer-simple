@@ -28,6 +28,7 @@ module Data.OpenUnion
   , Member(..)
   , Members
   , LastMember
+  , HasLen
   ) where
 
 import Data.Kind (Constraint)
@@ -40,6 +41,7 @@ import Data.OpenUnion.Internal
   , decomp
   , extract
   , weaken
+  , HasLen
   )
 
 -- | A shorthand constraint that represents a combination of multiple 'Member'

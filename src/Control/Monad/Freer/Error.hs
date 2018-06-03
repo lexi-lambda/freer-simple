@@ -19,7 +19,7 @@ module Control.Monad.Freer.Error
   , handleError
   ) where
 
-import Control.Monad.Freer (Eff, Member, interposeWith, interpretWith, send)
+import Control.Monad.Freer (Eff, Member, HasLen, interposeWith, interpretWith, send)
 import Control.Monad.Freer.Internal (handleRelay)
 
 -- | Exceptions of the type @e :: *@ with no resumption.
@@ -33,7 +33,7 @@ throwError e = send (Error e)
 -- | Handler for exception effects. If there are no exceptions thrown, returns
 -- 'Right'. If exceptions are thrown and not handled, returns 'Left', while
 -- interrupting the execution of any other effect handlers.
-runError :: forall e effs a. Eff (Error e ': effs) a -> Eff effs (Either e a)
+runError :: forall e effs a. HasLen effs => Eff (Error e ': effs) a -> Eff effs (Either e a)
 runError = handleRelay (pure . Right) (\(Error e) _ -> pure (Left e))
 
 -- | A catcher for Exceptions. Handlers are allowed to rethrow exceptions.
@@ -48,7 +48,8 @@ catchError m handle = interposeWith (\(Error e) _ -> handle e) m
 -- | A catcher for Exceptions. Handlers are /not/ allowed to rethrow exceptions.
 handleError
   :: forall e effs a
-   . Eff (Error e ': effs) a
+   . HasLen effs
+  => Eff (Error e ': effs) a
   -> (e -> Eff effs a)
   -> Eff effs a
 handleError m handle = interpretWith (\(Error e) _ -> handle e) m

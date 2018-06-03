@@ -12,7 +12,7 @@ module Console
 import Data.Function ((&))
 import System.Exit (exitSuccess)
 
-import Control.Monad.Freer (Eff, LastMember, Member, interpretM, reinterpret3, run, runM, send)
+import Control.Monad.Freer (Eff, LastMember, Member, HasLen, interpretM, reinterpret3, run, runM, send)
 import Control.Monad.Freer.Error (Error, runError, throwError)
 import Control.Monad.Freer.State (State, get, put, runState)
 import Control.Monad.Freer.Writer (Writer, runWriter, tell)
@@ -61,7 +61,7 @@ runConsolePure inputs req = snd . fst $
 -------------------------------------------------------------------------------
                      -- Effectful Interpreter for Deeper Stack --
 -------------------------------------------------------------------------------
-runConsoleM :: forall effs a. LastMember IO effs
+runConsoleM :: forall effs a. (LastMember IO effs, HasLen effs)
             => Eff (Console ': effs) a -> Eff effs a
 runConsoleM = interpretM $ \case
   PutStrLn msg -> putStrLn msg
@@ -73,7 +73,8 @@ runConsoleM = interpretM $ \case
 -------------------------------------------------------------------------------
 runConsolePureM
   :: forall effs w
-   . [String]
+   . HasLen effs
+  => [String]
   -> Eff (Console ': effs) w
   -> Eff effs (Maybe w, [String], [String])
 runConsolePureM inputs req = do

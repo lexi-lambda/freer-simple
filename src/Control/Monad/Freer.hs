@@ -215,6 +215,7 @@ module Control.Monad.Freer
 
     -- ** Building Effect Handlers
     -- *** Basic effect handlers
+  , HasLen
   , interpret
   , interpose
   , subsume
@@ -242,6 +243,7 @@ import Control.Monad.Freer.Internal
   ( Eff
   , LastMember
   , Member
+  , HasLen
   , Members
   , Weakens
   , (:++:)
@@ -259,7 +261,7 @@ import Control.Monad.Freer.Internal
 -- transformation from some effect @eff@ to some effectful computation with
 -- effects @effs@, produces a natural transformation from @'Eff' (eff ': effs)@
 -- to @'Eff' effs@.
-interpret :: forall eff effs. (eff ~> Eff effs) -> Eff (eff ': effs) ~> Eff effs
+interpret :: forall eff effs. HasLen effs => (eff ~> Eff effs) -> Eff (eff ': effs) ~> Eff effs
 interpret f = interpretWith (\e -> (f e >>=))
 {-# INLINE interpret #-}
 
@@ -271,13 +273,13 @@ interpose f = interposeWith (\e -> (f e >>=))
 
 -- | Interprets an effect in terms of another identical effect. This can be used
 -- to eliminate duplicate effects.
-subsume :: forall eff effs. Member eff effs => Eff (eff ': effs) ~> Eff effs
+subsume :: forall eff effs. (Member eff effs, HasLen effs) => Eff (eff ': effs) ~> Eff effs
 subsume = interpret send
 {-# INLINE subsume #-}
 
 -- | Like 'interpret', but instead of removing the interpreted effect @f@,
 -- reencodes it in some new effect @g@.
-reinterpret :: forall f g effs. (f ~> Eff (g ': effs)) -> Eff (f ': effs) ~> Eff (g ': effs)
+reinterpret :: forall f g effs. HasLen effs => (f ~> Eff (g ': effs)) -> Eff (f ': effs) ~> Eff (g ': effs)
 reinterpret f = replaceRelay pure (\e -> (f e >>=))
 {-# INLINE reinterpret #-}
 
@@ -285,7 +287,8 @@ reinterpret f = replaceRelay pure (\e -> (f e >>=))
 -- of just one.
 reinterpret2
   :: forall f g h effs
-   . (f ~> Eff (g ': h ': effs)) -> Eff (f ': effs) ~> Eff (g ': h ': effs)
+   . HasLen effs
+   => (f ~> Eff (g ': h ': effs)) -> Eff (f ': effs) ~> Eff (g ': h ': effs)
 reinterpret2 = reinterpretN @[g, h]
 {-# INLINE reinterpret2 #-}
 
@@ -293,7 +296,8 @@ reinterpret2 = reinterpretN @[g, h]
 -- instead of just one.
 reinterpret3
   :: forall f g h i effs
-   . (f ~> Eff (g ': h ': i ': effs))
+   . HasLen effs
+  => (f ~> Eff (g ': h ': i ': effs))
   -> Eff (f ': effs) ~> Eff (g ': h ': i ': effs)
 reinterpret3 = reinterpretN @[g, h, i]
 {-# INLINE reinterpret3 #-}
@@ -304,7 +308,7 @@ reinterpret3 = reinterpretN @[g, h, i]
 -- have to explicitly pick @gs@ using @TypeApplications@. Prefer 'interpret',
 -- 'reinterpret', 'reinterpret2', or 'reinterpret3' where possible.
 reinterpretN
-  :: forall gs f effs. Weakens gs
+  :: forall gs f effs. (Weakens gs, HasLen effs)
   => (f ~> Eff (gs :++: effs)) -> Eff (f ': effs) ~> Eff (gs :++: effs)
 reinterpretN f = replaceRelayN @gs pure (\e -> (f e >>=))
 {-# INLINE reinterpretN #-}
@@ -322,7 +326,7 @@ reinterpretN f = replaceRelayN @gs pure (\e -> (f e >>=))
 -- @
 -- 'translate' f = 'reinterpret' ('send' . f)
 -- @
-translate :: forall f g effs. (f ~> g) -> Eff (f ': effs) ~> Eff (g ': effs)
+translate :: forall f g effs. HasLen effs => (f ~> g) -> Eff (f ': effs) ~> Eff (g ': effs)
 translate f = reinterpret (send . f)
 {-# INLINE translate #-}
 
@@ -337,7 +341,7 @@ translate f = reinterpret (send . f)
 -- @
 interpretM
   :: forall eff m effs
-   . (Monad m, LastMember m effs)
+   . (Monad m, LastMember m effs, HasLen effs)
   => (eff ~> m) -> Eff (eff ': effs) ~> Eff effs
 interpretM f = interpret (sendM . f)
 {-# INLINE interpretM #-}
@@ -355,7 +359,8 @@ interpretM f = interpret (sendM . f)
 -- @
 interpretWith
   :: forall eff effs b
-   . (forall v. eff v -> (v -> Eff effs b) -> Eff effs b)
+   . HasLen effs
+  => (forall v. eff v -> (v -> Eff effs b) -> Eff effs b)
   -> Eff (eff ': effs) b
   -> Eff effs b
 interpretWith = handleRelay pure
