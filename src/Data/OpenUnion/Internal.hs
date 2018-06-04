@@ -33,7 +33,7 @@
 -- substitution for @Typeable@.
 module Data.OpenUnion.Internal where
 
-import GHC.TypeLits
+import GHC.TypeLits (TypeError, ErrorMessage(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Open union is a strong sum (existential with an evidence).
