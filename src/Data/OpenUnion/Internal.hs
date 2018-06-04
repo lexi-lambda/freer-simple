@@ -5,7 +5,7 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE BangPatterns #-}
 
 -- |
 -- Module:       Data.OpenUnion.Internal
@@ -35,7 +35,6 @@ module Data.OpenUnion.Internal where
 
 import GHC.TypeLits
 import Unsafe.Coerce (unsafeCoerce)
-import GHC.Prim (proxy#, Proxy#)
 
 -- | Open union is a strong sum (existential with an evidence).
 data Union (r :: [* -> *]) a where
@@ -82,12 +81,14 @@ class HasLen (r :: [k]) where
 
 instance HasLen '[] where
   getLen' = P 0
+  {-# INLINE getLen' #-}
 instance HasLen xs => HasLen (x ': xs) where
-  getLen' = P $ 1 + getLen @xs
+  getLen' = P $! 1 + getLen @xs
+  {-# INLINE getLen' #-}
 
 getLen :: forall r . HasLen r => Word
 getLen = unP (getLen' :: P () r)
-
+{-# INLINE getLen #-}
 
 -- | Find an index of an element @t :: * -> *@ in a type list @r :: [* -> *]@.
 -- The element must exist. The @w :: [* -> *]@ type represents the entire list,
@@ -105,7 +106,7 @@ class FindElem (t :: * -> *) (r :: [* -> *]) where
 
 -- | Base case; element is at the current position in the list.
 instance HasLen r => FindElem t (t ': r) where
-  elemNo = P $ getLen @r
+  elemNo = P $! getLen @r
 
 -- | Recursion; element is not at the current position, but is somewhere in the
 -- list.
@@ -183,6 +184,7 @@ instance (FindElem t r, IfNotFound t r r) => Member t r where
 
 unsafeTailUnion :: Union (any ': effs) a -> Union effs a
 unsafeTailUnion = unsafeCoerce
+{-# INLINE unsafeTailUnion #-}
 
 -- | Orthogonal decomposition of a @'Union' (t ': r) :: * -> *@. 'Right' value
 -- is returned if the @'Union' (t ': r) :: * -> *@ contains @t :: * -> *@, and
@@ -191,8 +193,12 @@ unsafeTailUnion = unsafeCoerce
 --
 -- /O(1)/
 decomp :: forall t r a . HasLen r => Union (t ': r) a -> Either (Union r a) (t a)
-decomp u@(Union n a) | n == getLen @r = Right $ unsafeCoerce a
+decomp = go
+  where
+    !lenR = getLen @r
+    go u@(Union n a) | n == lenR = Right $ unsafeCoerce a
                      | otherwise = Left $ unsafeTailUnion u
+
 {-# INLINE [2] decomp #-}
 
 -- | Specialized version of 'decomp' for efficiency.
