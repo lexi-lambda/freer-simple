@@ -33,6 +33,7 @@ Here's what using `freer-simple` looks like:
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
+
 module Console where
 
 import Control.Monad.Freer
@@ -70,16 +71,78 @@ runConsole = runM . interpretM (\case
 --------------------------------------------------------------------------------
                              -- Pure Interpreter --
 --------------------------------------------------------------------------------
-runConsolePure :: [String] -> Eff '[Console] w -> [String]
-runConsolePure inputs req = snd . fst $
-    run (runWriter (runState inputs (runError (reinterpret3 go req))))
+data PureResult a = PureResult {
+  result :: Either () a,
+  interactionLog :: [String],
+  remainingInputs :: [String]
+} deriving Show
+
+runConsolePure :: [String] -> Eff '[Console] w -> PureResult w
+runConsolePure inputs req =
+  PureResult {
+    result = fst rs,
+    remainingInputs = snd rs,
+    interactionLog = log
+  }
   where
+    (rs, log) = run (runWriter (runState inputs (runError (reinterpret3 go req))))
+
     go :: Console v -> Eff '[Error (), State [String], Writer [String]] v
-    go (PutStrLn msg) = tell [msg]
+    go (PutStrLn msg) = tell [">>> " <> msg]
     go GetLine = get >>= \case
-      [] -> error "not enough lines"
-      (x:xs) -> put xs >> pure x
+      [] -> error "insufficient input"
+      (x:xs) -> tell ["<<< " <> x ] >> put xs >> pure x
     go ExitSuccess = throwError ()
+
+--------------------------------------------------------------------------------
+                             -- The Application --
+--------------------------------------------------------------------------------
+app :: (Member Console r) => Eff r ()
+app = do
+        putStrLn' "What is your name?: "
+        name <- getLine'
+        putStrLn' $ "Nanu Nanu " <> name <> " have a nice day !!"
+        putStrLn' "Bye !!"
+
+--------------------------------------------------------------------------------
+                             -- Demos --
+--------------------------------------------------------------------------------
+demoEffectful :: IO ()
+demoEffectful = runConsole app
+
+demoPure :: PureResult ()
+demoPure = runConsolePure
+            ["Mork",
+             "I need to go write a monad tutorial, nice to meet you"]
+            app
+
+demoPureFail:: PureResult ()
+demoPureFail = runConsolePure [] app
+```
+#### Let's Run It
+Output formatted for readability:
+```Bash
+$ stack repl
+...
+*Console> demoEffectful
+What is your name?:
+Mindy
+Nanu Nanu Mindy have a nice day !!
+Bye !!
+
+*Console> demoPure
+PureResult {
+            result = Right (),
+            interactionLog = [">>> What is your name?: ",
+                              "<<< Mork",
+                              ">>> Nanu Nanu Mork have a nice day !!",
+                              ">>> Bye !!"
+                              ],
+            remainingInputs = ["I need to go write a monad tutorial, nice to meet you"]
+          }
+
+*Console> demoPureFail
+PureResult {result = *** Exception: insufficient input
 ```
 
 # Contributing
