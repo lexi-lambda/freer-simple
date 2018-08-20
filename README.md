@@ -101,7 +101,7 @@ app :: (Member Console r) => Eff r ()
 app = do
         putStrLn' "What is your name?: "
         name <- getLine'
-        putStrLn' $ "Nanu Nanu " <> name <> " have a nice day !!"
+        putStrLn' $ "Hi " <> name <> " good to meet you !!"
         putStrLn' "Bye !!"
 
 --------------------------------------------------------------------------------
@@ -112,33 +112,31 @@ demoEffectful = runConsole app
 
 demoPure :: PureResult ()
 demoPure = runConsolePure
-            ["Mork",
-             "I need to go write a monad tutorial, nice to meet you"]
+            ["Foo", "Bar", "Baz"]
             app
 
 demoPureFail:: PureResult ()
 demoPureFail = runConsolePure [] app
 ```
-#### Let's Run It
-Output formatted for readability:
+Executing demos ~ output formatted for readability
 ```Bash
 $ stack repl
 ...
 *Console> demoEffectful
 What is your name?:
-Mindy
-Nanu Nanu Mindy have a nice day !!
+Foo
+Hi Foo good to meet you !!
 Bye !!
 
 *Console> demoPure
 PureResult {
             result = Right (),
             interactionLog = [">>> What is your name?: ",
-                              "<<< Mork",
-                              ">>> Nanu Nanu Mork have a nice day !!",
+                              "<<< Foo",
+                              ">>> Hi Foo good to meet you !!",
                               ">>> Bye !!"
                               ],
-            remainingInputs = ["I need to go write a monad tutorial, nice to meet you"]
+            remainingInputs = ["Bar", "Baz"]
           }
 
 *Console> demoPureFail
