@@ -91,7 +91,7 @@ runInMemoryFileSystem initVfs = 'Control.Monad.Freer.State.evalState' initVfs '.
       'Just' contents -> 'pure' contents
       'Nothing' -> 'error' ("readFile: no such file " ++ path)
     WriteFile path contents -> 'Control.Monad.Freer.State.modify' $ \\vfs ->
-      (path, contents) : 'Data.List.delete' (path, contents) vfs
+      (path, contents) : 'Data.List.deleteBy' (('==') ``Data.Function.on`` 'fst') (path, contents) vfs
 @
 
 This handler is easy to write, doesn’t require any knowledge of how
