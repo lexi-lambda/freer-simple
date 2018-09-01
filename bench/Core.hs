@@ -55,8 +55,8 @@ countDownExcMTL = MTL.runStateT go
   where go = MTL.get >>= (\n -> if n <= (0 :: Int) then MTL.throwError "wat" else MTL.put (n-1) >> go)
 
 countDownExcEE :: Int -> Either String (Int,Int)
-countDownExcEE start = EE.run $ EE.runExc (EE.runState start go)
-  where go = EE.get >>= (\n -> if n <= (0 :: Int) then EE.throwExc "wat" else EE.put (n-1) >> go)
+countDownExcEE start = EE.run $ EE.runError (EE.runState start go)
+  where go = EE.get >>= (\n -> if n <= (0 :: Int) then EE.throwError "wat" else EE.put (n-1) >> go)
 
 --------------------------------------------------------------------------------
                           -- Freer: Interpreter --

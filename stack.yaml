@@ -1,10 +1,10 @@
-resolver: lts-10.5
+resolver: lts-12.8
 
 packages:
 - '.'
 
 extra-deps:
-- extensible-effects-1.11.1.0
+- extensible-effects-3.1.0.0
 
 flags: {}
 extra-package-dbs: []
