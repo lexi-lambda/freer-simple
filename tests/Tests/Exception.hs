@@ -4,7 +4,7 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@?=))
 import Test.Tasty.QuickCheck (testProperty)
 
-import Control.Monad.Freer (Eff, Member, Members, run)
+import Control.Monad.Freer (Eff, Member, Members, HasLen, run)
 import Control.Monad.Freer.Error (Error, catchError, runError, throwError)
 import Control.Monad.Freer.Reader (ask, runReader)
 import Control.Monad.Freer.State (State, get, put, runState)
@@ -75,7 +75,7 @@ ex2 m = do
     else pure v
 
 -- | Specialization to tell the type of the exception.
-runErrBig :: Eff (Error TooBig ': r) a -> Eff r (Either TooBig a)
+runErrBig :: HasLen r => Eff (Error TooBig ': r) a -> Eff r (Either TooBig a)
 runErrBig = runError
 
 ex2rr :: Either TooBig Int

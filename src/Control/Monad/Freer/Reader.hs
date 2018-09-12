@@ -30,7 +30,7 @@ module Control.Monad.Freer.Reader
     -- $localExample
   ) where
 
-import Control.Monad.Freer (Eff, Member, interpose, interpret, send)
+import Control.Monad.Freer (Eff, Member, HasLen, interpose, interpret, send)
 
 -- | Represents shared immutable environment of type @(e :: *)@ which is made
 -- available to effectful computation.
@@ -52,7 +52,7 @@ asks
 asks f = f <$> ask
 
 -- | Handler for 'Reader' effects.
-runReader :: forall r effs a. r -> Eff (Reader r ': effs) a -> Eff effs a
+runReader :: forall r effs a. HasLen effs => r -> Eff (Reader r ': effs) a -> Eff effs a
 runReader r = interpret (\Ask -> pure r)
 
 -- | Locally rebind the value in the dynamic environment.

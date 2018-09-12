@@ -41,7 +41,7 @@ module Control.Monad.Freer.State
 
 import Data.Proxy (Proxy)
 
-import Control.Monad.Freer (Eff, Member, send)
+import Control.Monad.Freer (Eff, Member, HasLen, send)
 import Control.Monad.Freer.Internal (Arr, handleRelayS, interposeS)
 
 -- | Strict 'State' effects: one can either 'Get' values or 'Put' them.
@@ -68,17 +68,17 @@ gets :: forall s a effs. Member (State s) effs => (s -> a) -> Eff effs a
 gets f = f <$> get
 
 -- | Handler for 'State' effects.
-runState :: forall s effs a. s -> Eff (State s ': effs) a -> Eff effs (a, s)
+runState :: forall s effs a. HasLen effs => s -> Eff (State s ': effs) a -> Eff effs (a, s)
 runState s0 = handleRelayS s0 (\s x -> pure (x, s)) $ \s x k -> case x of
   Get -> k s s
   Put s' -> k s' ()
 
 -- | Run a 'State' effect, returning only the final state.
-execState :: forall s effs a. s -> Eff (State s ': effs) a -> Eff effs s
+execState :: forall s effs a. HasLen effs => s -> Eff (State s ': effs) a -> Eff effs s
 execState s = fmap snd . runState s
 
 -- | Run a State effect, discarding the final state.
-evalState :: forall s effs a. s -> Eff (State s ': effs) a -> Eff effs a
+evalState :: forall s effs a. HasLen effs => s -> Eff (State s ': effs) a -> Eff effs a
 evalState s = fmap fst . runState s
 
 -- | An encapsulated State handler, for transactional semantics. The global

@@ -57,6 +57,7 @@ library:
   dependencies:
   - natural-transformation >= 0.2
   - transformers-base
+  - ghc-prim
 
 executables:
   freer-examples:

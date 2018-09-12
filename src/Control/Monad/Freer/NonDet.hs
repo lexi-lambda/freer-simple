@@ -20,6 +20,7 @@ import Control.Monad (msum)
 import Control.Monad.Freer.Internal
   ( Eff(..)
   , Member
+  , HasLen
   , NonDet(..)
   , handleRelay
   , prj
@@ -30,7 +31,7 @@ import Control.Monad.Freer.Internal
 
 -- | A handler for nondeterminstic effects.
 makeChoiceA
-  :: Alternative f
+  :: (Alternative f, HasLen effs)
   => Eff (NonDet ': effs) a
   -> Eff effs (f a)
 makeChoiceA = handleRelay (pure . pure) $ \m k ->

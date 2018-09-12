@@ -213,7 +213,8 @@ runM (E u q) = case extract u of
 -- | Like 'replaceRelay', but with support for an explicit state to help
 -- implement the interpreter.
 replaceRelayS
-  :: s
+  :: HasLen effs
+  => s
   -> (s -> a -> Eff (v ': effs) w)
   -> (forall x. s -> t x -> (s -> Arr (v ': effs) x w) -> Eff (v ': effs) w)
   -> Eff (t ': effs) a
@@ -233,7 +234,8 @@ replaceRelayS s' pure' bind = loop s'
 -- defined in terms of other ones without leaking intermediary implementation
 -- details through the type signature.
 replaceRelay
-  :: (a -> Eff (v ': effs) w)
+  :: HasLen effs
+  => (a -> Eff (v ': effs) w)
   -> (forall x. t x -> Arr (v ': effs) x w -> Eff (v ': effs) w)
   -> Eff (t ': effs) a
   -> Eff (v ': effs) w
@@ -249,7 +251,7 @@ replaceRelay pure' bind = loop
 
 replaceRelayN
   :: forall gs t a effs w
-   . Weakens gs
+   . (Weakens gs, HasLen effs)
   => (a -> Eff (gs :++: effs) w)
   -> (forall x. t x -> Arr (gs :++: effs) x w -> Eff (gs :++: effs) w)
   -> Eff (t ': effs) a
@@ -268,7 +270,8 @@ replaceRelayN pure' bind = loop
 
 -- | Given a request, either handle it or relay it.
 handleRelay
-  :: (a -> Eff effs b)
+  :: HasLen effs
+  => (a -> Eff effs b)
   -- ^ Handle a pure value.
   -> (forall v. eff v -> Arr effs v b -> Eff effs b)
   -- ^ Handle a request for effect of type @eff :: * -> *@.
@@ -289,7 +292,8 @@ handleRelay ret h = loop
 -- @s :: *@ to be handled for the target effect, or relayed to a handler that
 -- can- handle the target effect.
 handleRelayS
-  :: s
+  :: HasLen effs
+  => s
   -> (s -> a -> Eff effs b)
   -- ^ Handle a pure value.
   -> (forall v. s -> eff v -> (s -> Arr effs v b) -> Eff effs b)

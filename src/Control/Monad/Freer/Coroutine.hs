@@ -22,7 +22,7 @@ module Control.Monad.Freer.Coroutine
   , replyC
   ) where
 
-import Control.Monad.Freer.Internal (Eff, Member, handleRelay, interpose, send)
+import Control.Monad.Freer.Internal (Eff, Member, HasLen, handleRelay, interpose, send)
 
 -- | A type representing a yielding of control.
 --
@@ -59,7 +59,7 @@ replyC
 replyC (Yield a k) arr = pure $ Continue a (arr . k)
 
 -- | Launch a coroutine and report its status.
-runC :: Eff (Yield a b ': effs) r -> Eff effs (Status effs a b r)
+runC :: HasLen effs => Eff (Yield a b ': effs) r -> Eff effs (Status effs a b r)
 runC = handleRelay (pure . Done) replyC
 
 -- | Launch a coroutine and report its status, without handling (removing)
