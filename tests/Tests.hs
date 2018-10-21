@@ -12,6 +12,7 @@ import qualified Tests.NonDet (tests)
 import qualified Tests.Reader (tests)
 import qualified Tests.State (tests)
 import qualified Tests.Loop (tests)
+import qualified Tests.TH (tests)
 
 --------------------------------------------------------------------------------
                            -- Pure Tests --
@@ -38,4 +39,5 @@ main = defaultMain $ testGroup "Tests"
   , Tests.Reader.tests
   , Tests.State.tests
   , Tests.Loop.tests
+  , Tests.TH.tests
   ]
