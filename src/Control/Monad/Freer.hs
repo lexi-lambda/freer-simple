@@ -161,6 +161,10 @@ readFile :: 'FilePath' -> 'Eff' '[FileSystem] 'String'
 
 …then 'readFile' would /only/ be usable with an 'Eff' computation that /only/
 performed @FileSystem@ effects, which isn’t especially useful.
+
+Since writing these functions is entirely mechanical, they can be generated
+automatically using Template Haskell; see "Control.Monad.Freer.TH" for more
+details.
 -}
 module Control.Monad.Freer
   ( -- * Effect Monad

@@ -4,7 +4,29 @@
 -- Originally ported from code written by Sandy Maguire (@isovector), available
 -- at https://github.com/IxpertaSolutions/freer-effects/pull/28.
 
--- | Automatic generation of freer monadic actions.
+{-|
+This module provides Template Haskell functions for automatically generating
+effect operation functions (that is, functions that use 'send') from a given
+effect algebra. For example, using the @FileSystem@ effect from the example in
+the module documentation for "Control.Monad.Freer", we can write the following:
+
+@
+data FileSystem r where
+  ReadFile :: 'FilePath' -> FileSystem 'String'
+  WriteFile :: 'FilePath' -> 'String' -> FileSystem ()
+'makeEffect' ''FileSystem
+@
+
+This will automatically generate the following functions:
+
+@
+readFile :: 'Member' FileSystem effs => 'FilePath' -> 'Eff' effs 'String'
+readFile a = 'send' (ReadFile a)
+
+writeFile :: 'Member' FileSystem effs => 'FilePath' -> 'String' -> 'Eff' effs ()
+writeFile a b = 'send' (WriteFile a b)
+@
+-}
 module Control.Monad.Freer.TH
   ( makeEffect
   , makeEffect_
@@ -20,20 +42,22 @@ import Language.Haskell.TH
 import Prelude
 
 
--- | @$('makeEffect' ''T)@ provides freer monadic actions for the constructors of
--- the given GADT @T@.
+-- | If @T@ is a GADT representing an effect algebra, as described in the module
+-- documentation for "Control.Monad.Freer", @$('makeEffect' ''T)@ automatically
+-- generates a function that uses 'send' with each operation. For more
+-- information, see the module documentation for "Control.Monad.Freer.TH".
 makeEffect :: Name -> Q [Dec]
 makeEffect = genFreer True
 
--- | Like 'makeEffect', but does not provide type signatures.
--- This can be used to attach Haddock comments to individual arguments
--- for each generated function.
+-- | Like 'makeEffect', but does not provide type signatures. This can be used
+-- to attach Haddock comments to individual arguments for each generated
+-- function.
 --
 -- @
 -- data Lang x where
 --   Output :: String -> Lang ()
 --
--- makeEffect_ 'Lang
+-- makeEffect_ ''Lang
 --
 -- -- | Output a string.
 -- output :: Member Lang effs
@@ -41,7 +65,7 @@ makeEffect = genFreer True
 --        -> Eff effs ()  -- ^ No result.
 -- @
 --
--- 'makeEffect_' must be called *before* the explicit type signatures.
+-- Note that 'makeEffect_' must be used /before/ the explicit type signatures.
 makeEffect_ :: Name -> Q [Dec]
 makeEffect_ = genFreer False
 
