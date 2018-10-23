@@ -1,3 +1,7 @@
+# 1.2.0.0 (October 23rd, 2018)
+
+- Added `Control.Monad.Freer.TH`, which provides a `makeEffect` function that automatically generates boilerplate operations using `send` for an effect ([#15](https://github.com/lexi-lambda/freer-simple/pull/15)).
+
 # 1.1.0.0 (February 20th, 2018)
 
 - Changed the implementation of `LastMember` to avoid an issue similar to the one with `Member` fixed in 1.0.1.1 that could cause the constraint to unnecessarily fail to solve ([#6](https://github.com/lexi-lambda/freer-simple/issues/6)).
