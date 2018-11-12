@@ -36,8 +36,6 @@ where
 import Control.Monad (forM, unless)
 import Control.Monad.Freer (send, Member, Eff)
 import Data.Char (toLower)
-import Data.List (nub)
-import Data.Maybe (mapMaybe)
 import Language.Haskell.TH
 import Prelude
 
@@ -110,41 +108,54 @@ genDecl (GadtC   [cName] tArgs _  ) = do
     []
 genDecl _ = fail "genDecl expects a GADT constructor"
 
--- | Generates a type signature of the form
+-- | Generates a function type from the corresponding GADT type constructor
 -- @x :: Member (Effect e) effs => a -> b -> c -> Eff effs r@.
-genSig :: Con -> Q Dec
-genSig (ForallC _       _      con                    ) = genSig con
-genSig (GadtC   [cName] tArgs' ctrType@(AppT eff tRet)) = do
+genType :: Con -> Q Type
+genType (ForallC tyVarBindings conCtx con)
+  = ForallT tyVarBindings conCtx <$> genType con
+genType (GadtC   _ tArgs' (AppT eff tRet)) = do
   effs <- newName "effs"
   let
-    fnName    = getDeclName cName
-    tArgs     = fmap snd tArgs'
-    otherVars = unapply ctrType
-    quantifiedVars =
-      fmap PlainTV . nub $ effs : mapMaybe freeVarName (tArgs ++ otherVars)
+    tArgs            = fmap snd tArgs'
     memberConstraint = ConT ''Member `AppT` eff `AppT` VarT effs
     resultType       = ConT ''Eff `AppT` VarT effs `AppT` tRet
 
   return
-    .  SigD fnName
-    .  ForallT quantifiedVars [memberConstraint]
+    .  ForallT [PlainTV effs] [memberConstraint]
     .  foldArrows
     $  tArgs
     ++ [resultType]
 -- TODO: Although this should never happen, we obviously need a better error message below.
-genSig GadtC{} = fail "genSig can only look at applications (AppT)"
-genSig _       = fail "genSig expects a GADT constructor"
+genType _       = fail "genSig expects a GADT constructor"
 
--- | Gets the name of the free variable in the 'Type', if it exists.
-freeVarName :: Type -> Maybe Name
-freeVarName (VarT n) = Just n
-freeVarName _        = Nothing
+-- | Turn all (KindedTV tv StarT) into (PlainTV tv) in the given type
+-- This can prevent the need for KindSignatures
+simplifyBndrs :: Type -> Type
+simplifyBndrs (ForallT bndrs tcxt t) = ForallT (map simplifyBndr bndrs) tcxt (simplifyBndrs t)
+simplifyBndrs (AppT t1 t2) = AppT (simplifyBndrs t1) (simplifyBndrs t2)
+simplifyBndrs (SigT t k) = SigT (simplifyBndrs t) k
+simplifyBndrs (InfixT t1 n t2) = InfixT (simplifyBndrs t1) n (simplifyBndrs t2)
+simplifyBndrs (UInfixT t1 n t2) = InfixT (simplifyBndrs t1) n (simplifyBndrs t2)
+simplifyBndrs (ParensT t) = ParensT (simplifyBndrs t)
+simplifyBndrs t = t
+
+-- | Turn TvVarBndrs of the form (KindedTV tv StarT) into (PlainTV tv)
+-- This can prevent the need for KindSignatures
+simplifyBndr :: TyVarBndr -> TyVarBndr
+simplifyBndr (KindedTV tv StarT) = PlainTV tv
+simplifyBndr bndr = bndr
+
+-- | Generates a type signature of the form
+-- @x :: Member (Effect e) effs => a -> b -> c -> Eff effs r@.
+genSig :: Con -> Q Dec
+genSig con = do
+  let
+    getConName (ForallC _ _ c) = getConName c
+    getConName (GadtC [n] _ _) = pure n
+    getConName c = fail $ "failed to get GADT name from " ++ show c
+  conName <- getConName con
+  SigD (getDeclName conName) <$> simplifyBndrs <$> genType con
 
 -- | Folds a list of 'Type's into a right-associative arrow 'Type'.
 foldArrows :: [Type] -> Type
 foldArrows = foldr1 (AppT . AppT ArrowT)
-
--- | Unfolds a type into any types which were applied together.
-unapply :: Type -> [Type]
-unapply (AppT a b) = unapply a ++ unapply b
-unapply a          = [a]
