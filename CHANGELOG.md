@@ -1,3 +1,7 @@
+# 1.2.1.0 (November 15th, 2018)
+
+- Improved `makeEffect` from `Control.Monad.Freer.TH` to support more datatypes ([#17](https://github.com/lexi-lambda/freer-simple/pull/17)).
+
 # 1.2.0.0 (October 23rd, 2018)
 
 - Added `Control.Monad.Freer.TH`, which provides a `makeEffect` function that automatically generates boilerplate operations using `send` for an effect ([#15](https://github.com/lexi-lambda/freer-simple/pull/15)).
