@@ -27,7 +27,7 @@ matrix:
     addons: { apt: { packages: [libgmp-dev] } }
 
   - env: ARGS="--resolver lts-12"
-    compiler: ": #stack 8.4.3"
+    compiler: ": #stack 8.4.4"
     addons: { apt: { packages: [libgmp-dev] } }
 
   - env: ARGS="--resolver nightly"
