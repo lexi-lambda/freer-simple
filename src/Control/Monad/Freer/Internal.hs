@@ -84,7 +84,7 @@ import Data.OpenUnion
 type Arr effs a b = a -> Eff effs b
 
 -- | An effectful function from @a :: *@ to @b :: *@ that is a composition of
--- several effectful functions. The paremeter @eff :: [* -> *]@ describes the
+-- several effectful functions. The paremeter @effs :: [* -> *]@ describes the
 -- overall effect. The composition members are accumulated in a type-aligned
 -- queue.
 type Arrs effs a b = FTCQueue (Eff effs) a b
