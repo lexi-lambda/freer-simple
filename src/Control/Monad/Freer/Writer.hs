@@ -30,8 +30,10 @@ data Writer w r where
 -- | Send a change to the attached environment.
 tell :: forall w effs. Member (Writer w) effs => w -> Eff effs ()
 tell w = send (Tell w)
+{-# INLINE tell #-}
 
 -- | Simple handler for 'Writer' effects.
 runWriter :: forall w effs a. Monoid w => Eff (Writer w ': effs) a -> Eff effs (a, w)
 runWriter = handleRelay (\a -> pure (a, mempty)) $ \(Tell w) k ->
   second (w <>) <$> k ()
+{-# INLINE runWriter #-}

@@ -29,12 +29,14 @@ newtype Error e r where
 -- | Throws an error carrying information of type @e :: *@.
 throwError :: forall e effs a. Member (Error e) effs => e -> Eff effs a
 throwError e = send (Error e)
+{-# INLINE throwError #-}
 
 -- | Handler for exception effects. If there are no exceptions thrown, returns
 -- 'Right'. If exceptions are thrown and not handled, returns 'Left', while
 -- interrupting the execution of any other effect handlers.
 runError :: forall e effs a. Eff (Error e ': effs) a -> Eff effs (Either e a)
 runError = handleRelay (pure . Right) (\(Error e) _ -> pure (Left e))
+{-# INLINE runError #-}
 
 -- | A catcher for Exceptions. Handlers are allowed to rethrow exceptions.
 catchError
@@ -44,6 +46,7 @@ catchError
   -> (e -> Eff effs a)
   -> Eff effs a
 catchError m handle = interposeWith (\(Error e) _ -> handle e) m
+{-# INLINE catchError #-}
 
 -- | A catcher for Exceptions. Handlers are /not/ allowed to rethrow exceptions.
 handleError
@@ -52,3 +55,4 @@ handleError
   -> (e -> Eff effs a)
   -> Eff effs a
 handleError m handle = interpretWith (\(Error e) _ -> handle e) m
+{-# INLINE handleError #-}

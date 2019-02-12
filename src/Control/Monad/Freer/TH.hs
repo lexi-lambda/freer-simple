@@ -79,7 +79,8 @@ genFreer makeSigs tcName = do
     TyConI (DataD _ _ _ _ cons _) -> do
       sigs <- filter (const makeSigs) <$> mapM genSig cons
       decs <- mapM genDecl cons
-      return $ sigs ++ decs
+      let pragmas = fmap genInlinePragma cons
+      return $ sigs ++ decs ++ pragmas
 
     _ -> fail "makeEffect expects a type constructor"
 
@@ -149,12 +150,20 @@ simplifyBndr bndr = bndr
 -- @x :: Member (Effect e) effs => a -> b -> c -> Eff effs r@.
 genSig :: Con -> Q Dec
 genSig con = do
-  let
-    getConName (ForallC _ _ c) = getConName c
-    getConName (GadtC [n] _ _) = pure n
-    getConName c = fail $ "failed to get GADT name from " ++ show c
-  conName <- getConName con
+  let conName = getConName con
   SigD (getDeclName conName) <$> simplifyBndrs <$> genType con
+
+
+getConName :: Con -> Name
+getConName (ForallC _ _ c) = getConName c
+getConName (GadtC [n] _ _) = n
+getConName c = error $ "failed to get GADT name from " ++ show c
+
+-- | Generates a pragma annotation of the form
+-- @{-# INLINE x #-}@.
+genInlinePragma :: Con -> Dec
+genInlinePragma con =
+  PragmaD $ InlineP (getDeclName $ getConName con) Inline FunLike AllPhases
 
 -- | Folds a list of 'Type's into a right-associative arrow 'Type'.
 foldArrows :: [Type] -> Type

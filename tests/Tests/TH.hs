@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# OPTIONS_GHC -ddump-splices #-}
 module Tests.TH where
 
 import Test.Tasty (TestTree, testGroup)

@@ -128,11 +128,13 @@ qApp q' x = case tviewl q' of
   k :| t -> case k x of
     Val y -> qApp t y
     E u q -> E u (q >< t)
+{-# INLINE qApp #-}
 
 -- | Composition of effectful arrows ('Arrs'). Allows for the caller to change
 -- the effect environment, as well.
 qComp :: Arrs effs a b -> (Eff effs b -> Eff effs' c) -> Arr effs' a c
 qComp g h a = h $ qApp g a
+{-# INLINE qComp #-}
 
 instance Functor (Eff effs) where
   fmap f (Val x) = Val (f x)
@@ -197,6 +199,7 @@ sendM = send
 run :: Eff '[] a -> a
 run (Val x) = x
 run _       = error "Internal:run - This (E) should never happen"
+{-# INLINE run #-}
 
 -- | Like 'run', 'runM' runs an 'Eff' computation and extracts the result.
 -- /Unlike/ 'run', 'runM' allows a single effect to remain within the type-level
@@ -209,6 +212,7 @@ runM (E u q) = case extract u of
   mb -> mb >>= runM . qApp q
   -- The other case is unreachable since Union [] a cannot be constructed.
   -- Therefore, run is a total function if its argument terminates.
+{-# INLINE runM #-}
 
 -- | Like 'replaceRelay', but with support for an explicit state to help
 -- implement the interpreter.
