@@ -201,6 +201,12 @@ weaken :: Union r a -> Union (any ': r) a
 weaken (Union n a) = Union (n + 1) a
 {-# INLINE weaken #-}
 
+-- | Introduce a type directly under the head of the 'Union'.
+intro :: Union (u ': r) a -> Union (u ': v ': r) a
+intro (Union 0 a) = Union 0 a
+intro (Union n a) = Union (n + 1) a
+{-# INLINE intro #-}
+
 infixr 5 :++:
 type family xs :++: ys where
   '[] :++: ys = ys

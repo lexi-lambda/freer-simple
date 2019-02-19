@@ -58,6 +58,8 @@ library:
   - natural-transformation >= 0.2
   - transformers-base
   - template-haskell >= 2.11 && < 2.15
+  - transformers
+  - mmorph
 
 executables:
   freer-examples:
