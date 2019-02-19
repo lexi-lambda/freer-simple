@@ -19,8 +19,9 @@ module Control.Monad.Freer.Error
   , handleError
   ) where
 
-import Control.Monad.Freer (Eff, Member, interposeWith, interpretWith, send)
-import Control.Monad.Freer.Internal (handleRelay)
+import Control.Monad.Freer (Eff, Member, send)
+import Control.Monad.Freer.Interpretation
+import qualified Control.Monad.Trans.Except as E
 
 -- | Exceptions of the type @e :: *@ with no resumption.
 newtype Error e r where
@@ -34,7 +35,7 @@ throwError e = send (Error e)
 -- 'Right'. If exceptions are thrown and not handled, returns 'Left', while
 -- interrupting the execution of any other effect handlers.
 runError :: forall e effs a. Eff (Error e ': effs) a -> Eff effs (Either e a)
-runError = handleRelay (pure . Right) (\(Error e) _ -> pure (Left e))
+runError = shortCircuit $ \(Error e) -> E.throwE e
 
 -- | A catcher for Exceptions. Handlers are allowed to rethrow exceptions.
 catchError
@@ -43,7 +44,7 @@ catchError
   => Eff effs a
   -> (e -> Eff effs a)
   -> Eff effs a
-catchError m handle = interposeWith (\(Error e) _ -> handle e) m
+catchError m handle = interceptRelay pure (\(Error e) _ -> handle e) m
 
 -- | A catcher for Exceptions. Handlers are /not/ allowed to rethrow exceptions.
 handleError
@@ -51,4 +52,4 @@ handleError
    . Eff (Error e ': effs) a
   -> (e -> Eff effs a)
   -> Eff effs a
-handleError m handle = interpretWith (\(Error e) _ -> handle e) m
+handleError m handle = relay pure (\(Error e) _ -> handle e) m

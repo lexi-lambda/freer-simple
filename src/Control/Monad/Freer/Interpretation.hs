@@ -39,9 +39,19 @@ interpret f (Freer m) = Freer $ \k -> m $ \u ->
 stateful
     :: (eff ~> S.StateT s (Eff r))
     -> s
-    -> Eff (eff ': r) ~> Eff r
-stateful f s = transform (flip S.evalStateT s) f
+    -> Eff (eff ': r) a -> Eff r (a, s)
+stateful f s = transform (flip S.runStateT s) f
 {-# INLINE stateful #-}
+
+
+------------------------------------------------------------------------------
+-- | Like 'interpret', but with access to intermediate state.
+withStateful
+    :: s
+    -> (eff ~> S.StateT s (Eff r))
+    -> Eff (eff ': r) a -> Eff r (a, s)
+withStateful s f = stateful f s
+{-# INLINE withStateful #-}
 
 
 ------------------------------------------------------------------------------
@@ -96,6 +106,20 @@ intercept f (Freer m) = Freer $ \k -> m $ \u ->
     Just e  -> usingFreer k $ f e
 {-# INLINE intercept #-}
 
+------------------------------------------------------------------------------
+-- | Like 'interpret', but with access to intermediate state.
+interceptS
+    :: Member eff r
+    => (eff ~> S.StateT s (Eff r))
+    -> s
+    -> Eff r a -> Eff r (a, s)
+interceptS f s (Freer m) = Freer $ \k ->
+  usingFreer k $ flip S.runStateT s $ m $ \u ->
+    case prj u of
+      Nothing -> lift $ liftEff u
+      Just e  -> f e
+{-# INLINE interceptS #-}
+
 
 ------------------------------------------------------------------------------
 -- | Run an effect with an explicit continuation to the final result. If you're
@@ -115,6 +139,22 @@ relay pure' bind' (Freer m) = Freer $ \k ->
       Left  x -> lift $ liftEff x
       Right y -> ContT $ bind' y
 {-# INLINE relay #-}
+
+
+------------------------------------------------------------------------------
+-- | Like 'interpret' and 'relay'.
+interceptRelay
+    :: Member eff r
+    => (a -> Eff r b)
+    -> (forall x. eff x -> (x -> Eff r b) -> Eff r b)
+    -> Eff r a
+    -> Eff r b
+interceptRelay pure' bind' (Freer m) = Freer $ \k ->
+  usingFreer k $ flip runContT pure' $ m $ \u ->
+    case prj u of
+      Nothing -> lift $ liftEff u
+      Just y  -> ContT $ bind' y
+{-# INLINE interceptRelay #-}
 
 
 ------------------------------------------------------------------------------

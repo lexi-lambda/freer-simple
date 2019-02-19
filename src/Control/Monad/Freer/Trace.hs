@@ -17,7 +17,8 @@ module Control.Monad.Freer.Trace
   , runTrace
   ) where
 
-import Control.Monad.Freer.Internal (Eff(..), Member, extract, qApp, send)
+import Control.Monad.Freer.Internal (Eff, Member, send, type (~>))
+import Control.Monad.Freer.Interpretation
 
 -- | A Trace effect; takes a 'String' and performs output.
 data Trace a where
@@ -28,7 +29,6 @@ trace :: Member Trace effs => String -> Eff effs ()
 trace = send . Trace
 
 -- | An 'IO' handler for 'Trace' effects.
-runTrace :: Eff '[Trace] a -> IO a
-runTrace (Val x) = return x
-runTrace (E u q) = case extract u of
-  Trace s -> putStrLn s >> runTrace (qApp q ())
+runTrace :: Member IO r => Eff (Trace ': r) ~> Eff r
+runTrace = natural @IO $ \(Trace s) -> putStrLn s
+

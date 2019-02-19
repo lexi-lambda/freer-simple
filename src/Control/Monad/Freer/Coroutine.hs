@@ -22,7 +22,8 @@ module Control.Monad.Freer.Coroutine
   , replyC
   ) where
 
-import Control.Monad.Freer.Internal (Eff, Member, handleRelay, interpose, send)
+import Control.Monad.Freer.Internal (Eff, Member, send)
+import Control.Monad.Freer.Interpretation
 
 -- | A type representing a yielding of control.
 --
@@ -60,7 +61,7 @@ replyC (Yield a k) arr = pure $ Continue a (arr . k)
 
 -- | Launch a coroutine and report its status.
 runC :: Eff (Yield a b ': effs) r -> Eff effs (Status effs a b r)
-runC = handleRelay (pure . Done) replyC
+runC = relay (pure . Done) replyC
 
 -- | Launch a coroutine and report its status, without handling (removing)
 -- 'Yield' from the typelist. This is useful for reducing nested coroutines.
@@ -68,4 +69,4 @@ interposeC
   :: Member (Yield a b) effs
   => Eff effs r
   -> Eff effs (Status effs a b r)
-interposeC = interpose (pure . Done) replyC
+interposeC = interceptRelay (pure . Done) replyC

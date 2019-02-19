@@ -30,7 +30,8 @@ module Control.Monad.Freer.Reader
     -- $localExample
   ) where
 
-import Control.Monad.Freer (Eff, Member, interpose, interpret, send)
+import Control.Monad.Freer (Eff, Member, send)
+import Control.Monad.Freer.Interpretation
 
 -- | Represents shared immutable environment of type @(e :: *)@ which is made
 -- available to effectful computation.
@@ -66,7 +67,7 @@ local
   -> Eff effs a
 local f m = do
   r <- asks f
-  interpose @(Reader r) (\Ask -> pure r) m
+  intercept @(Reader r) (\Ask -> pure r) m
 
 -- $simpleReaderExample
 --

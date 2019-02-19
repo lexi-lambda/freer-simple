@@ -41,8 +41,9 @@ module Control.Monad.Freer.State
 
 import Data.Proxy (Proxy)
 
-import Control.Monad.Freer (Eff, Member, send)
-import Control.Monad.Freer.Internal (Arr, handleRelayS, interposeS)
+import Control.Monad.Freer (Eff, Member, send, type (~>))
+import Control.Monad.Freer.Interpretation
+import qualified Control.Monad.Trans.State.Strict as S
 
 -- | Strict 'State' effects: one can either 'Get' values or 'Put' them.
 data State s r where
@@ -69,9 +70,12 @@ gets f = f <$> get
 
 -- | Handler for 'State' effects.
 runState :: forall s effs a. s -> Eff (State s ': effs) a -> Eff effs (a, s)
-runState s0 = handleRelayS s0 (\s x -> pure (x, s)) $ \s x k -> case x of
-  Get -> k s s
-  Put s' -> k s' ()
+runState = stateful stateNat
+
+stateNat :: State s ~> S.StateT s (Eff r)
+stateNat = \case
+  Get   -> S.get
+  Put s -> S.put s
 
 -- | Run a 'State' effect, returning only the final state.
 execState :: forall s effs a. s -> Eff (State s ': effs) a -> Eff effs s
@@ -94,14 +98,9 @@ transactionState
   -> Eff effs a
 transactionState m = do
     s0 <- get @s
-    (x, s) <- interposeS s0 (\s x -> pure (x, s)) handle m
+    (x, s) <- interceptS stateNat s0 m
     put s
     pure x
-  where
-    handle :: s -> State s v -> (s -> Arr effs v b) -> Eff effs b
-    handle s x k = case x of
-      Get -> k s s
-      Put s' -> k s' ()
 
 -- | Like 'transactionState', but @s@ is specified by providing a 'Proxy'
 -- instead of requiring @TypeApplications@.

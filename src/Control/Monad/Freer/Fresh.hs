@@ -19,7 +19,9 @@ module Control.Monad.Freer.Fresh
   , evalFresh
   ) where
 
-import Control.Monad.Freer.Internal (Eff, Member, handleRelayS, send)
+import Control.Monad.Freer.Internal (Eff, Member, send)
+import Control.Monad.Freer.Interpretation
+import qualified Control.Monad.Trans.State.Strict as S
 
 -- | Fresh effect model.
 data Fresh r where
@@ -32,8 +34,7 @@ fresh = send Fresh
 -- | Handler for 'Fresh' effects, with an 'Int' for a starting value. The
 -- return value includes the next fresh value.
 runFresh :: Int -> Eff (Fresh ': effs) a -> Eff effs (a, Int)
-runFresh s =
-  handleRelayS s (\s' a -> pure (a, s')) (\s' Fresh k -> (k $! s' + 1) s')
+runFresh = stateful $ \Fresh -> S.get <* S.modify (+1)
 
 -- | Handler for 'Fresh' effects, with an 'Int' for a starting value. Discards
 -- the next fresh value.
