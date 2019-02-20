@@ -9,7 +9,7 @@ import Data.Monoid ((<>))
 import System.IO (IO)
 import Text.Show (Show(show))
 
-import Control.Monad.Freer (Eff, Member)
+import Control.Monad.Freer (Eff, Member, runM)
 import Control.Monad.Freer.Reader (ask, runReader)
 import Control.Monad.Freer.Trace (Trace, runTrace, trace)
 
@@ -27,7 +27,7 @@ mapMdebug f (h:t) = do
   pure (h':t')
 
 tMd :: IO [Int]
-tMd = runTrace $ runReader (10::Int) (mapMdebug f [1..5])
+tMd = runM . runTrace $ runReader (10::Int) (mapMdebug f [1..5])
  where f x = (+) <$> ask <*> pure x
 {-
 mapMdebug: 1
@@ -40,7 +40,7 @@ mapMdebug: 5
 
 -- duplicate layers
 tdup :: IO ()
-tdup = runTrace $ runReader (10::Int) m
+tdup = runM . runTrace $ runReader (10::Int) m
  where
  m = do
      runReader (20::Int) tr

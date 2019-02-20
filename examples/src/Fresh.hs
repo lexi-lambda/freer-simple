@@ -2,6 +2,7 @@ module Fresh (module Fresh) where
 
 import Control.Monad.Freer.Fresh (evalFresh, fresh)
 import Control.Monad.Freer.Trace (runTrace, trace)
+import Control.Monad.Freer
 
 -- | Generate two fresh values.
 --
@@ -9,7 +10,7 @@ import Control.Monad.Freer.Trace (runTrace, trace)
 -- Fresh 0
 -- Fresh 1
 traceFresh :: IO ()
-traceFresh = runTrace $ evalFresh 0 $ do
+traceFresh = runM . runTrace $ evalFresh 0 $ do
   n <- fresh
   trace $ "Fresh " ++ show n
   n' <- fresh

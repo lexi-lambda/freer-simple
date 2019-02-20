@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                   #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE MonoLocalBinds        #-}
 {-# LANGUAGE QuantifiedConstraints #-}
@@ -12,6 +13,7 @@ import           Control.Monad.Trans.Class (MonadTrans (..))
 import           Control.Monad.Trans.Cont
 import qualified Control.Monad.Trans.Except as E
 import qualified Control.Monad.Trans.State.Strict as S
+import           Data.OpenUnion.Internal
 
 
 ------------------------------------------------------------------------------
@@ -40,8 +42,13 @@ stateful
     :: (eff ~> S.StateT s (Eff r))
     -> s
     -> Eff (eff ': r) a -> Eff r (a, s)
-stateful f s = transform (flip S.runStateT s) f
+stateful f s (Freer m) = Freer $ \k -> flip S.runStateT s $ m $ \u ->
+  case decomp u of
+    Left  x -> lift $ k x
+    Right y -> hoist (usingFreer k) $ f y
 {-# INLINE stateful #-}
+-- NB: @stateful f s = transform (flip S.runStateT s) f@, but is not
+-- implemented as such, since 'transform' is available only >= 8.6.0
 
 
 ------------------------------------------------------------------------------
@@ -65,6 +72,7 @@ replace = naturally weaken
 {-# INLINE replace #-}
 
 
+#if __GLASGOW_HASKELL__ >= 806
 ------------------------------------------------------------------------------
 -- | Run an effect via the side-effects of a monad transformer.
 transform
@@ -82,6 +90,7 @@ transform lower f (Freer m) = Freer $ \k -> lower $ m $ \u ->
     Left  x -> lift $ k x
     Right y -> hoist (usingFreer k) $ f y
 {-# INLINE[3] transform #-}
+#endif
 
 
 ------------------------------------------------------------------------------
@@ -90,8 +99,13 @@ shortCircuit
     :: (eff ~> E.ExceptT e (Eff r))
     -> Eff (eff ': r) a
     -> Eff r (Either e a)
-shortCircuit f = transform E.runExceptT f
+shortCircuit f (Freer m) = Freer $ \k -> E.runExceptT $ m $ \u ->
+  case decomp u of
+    Left  x -> lift $ k x
+    Right y -> hoist (usingFreer k) $ f y
 {-# INLINE shortCircuit #-}
+-- NB: @shortCircuit = transform E.runExceptT@, but is not implemented as such,
+-- since 'transform' is available only >= 8.6.0
 
 
 ------------------------------------------------------------------------------
@@ -178,8 +192,20 @@ naturally z f (Freer m) = Freer $ \k -> m $ \u ->
 --
 -- Also see 'replace'.
 introduce :: Eff (eff ': r) a -> Eff (eff ': u ': r) a
-introduce = hoistEff intro
+introduce = hoistEff intro1
 {-# INLINE introduce #-}
+
+introduce2 :: Eff (eff ': r) a -> Eff (eff ': u ': v ': r) a
+introduce2 = hoistEff intro2
+{-# INLINE introduce2 #-}
+
+introduce3 :: Eff (eff ': r) a -> Eff (eff ': u ': v ': x ': r) a
+introduce3 = hoistEff intro3
+{-# INLINE introduce3 #-}
+
+introduce4 :: Eff (eff ': r) a -> Eff (eff ': u ': v ':x ': y ': r) a
+introduce4 = hoistEff intro4
+{-# INLINE introduce4 #-}
 
 
 ------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ import Data.Maybe (fromMaybe)
 import Data.List (intercalate)
 import System.Environment (getArgs)
 
-import Control.Monad.Freer (Eff, Member, run, runM)
+import Control.Monad.Freer (Eff, Member, runM)
 
 import Capitalize (Capitalize, capitalize, runCapitalize)
 import Console
@@ -13,7 +13,7 @@ import Console
   , exitSuccess'
   , getLine'
   , putStrLn'
-  , runConsolePureM
+  , runConsolePure
   , runConsoleM
   )
 import Coroutine ()
@@ -32,8 +32,8 @@ capitalizingService = forever $ do
 -------------------------------------------------------------------------------
 
 mainPure :: IO ()
-mainPure = print . run
-    . runConsolePureM ["cat", "fish", "dog", "bird", ""]
+mainPure = print
+    . runConsolePure ["cat", "fish", "dog", "bird", ""]
     $ runCapitalize capitalizingService
 
 mainConsoleA :: IO ()
