@@ -10,7 +10,7 @@ import Criterion (bench, bgroup, whnf)
 import Criterion.Main (defaultMain)
 
 import Control.Monad.Freer (Member, Eff, run, send)
-import Control.Monad.Freer.Internal (Eff(..), decomp, qApp, tsingleton)
+import Control.Monad.Freer.Interpretation
 import Control.Monad.Freer.Error (runError, throwError)
 import Control.Monad.Freer.State (get, put, runState)
 
@@ -80,13 +80,11 @@ get' :: Member Http r => Eff r String
 get' = send Get
 
 runHttp :: Eff (Http ': r) w -> Eff r w
-runHttp (Val x) = pure x
-runHttp (E u q) = case decomp u of
-  Right (Open _) -> runHttp (qApp q ())
-  Right Close    -> runHttp (qApp q ())
-  Right (Post d) -> runHttp (qApp q d)
-  Right Get      -> runHttp (qApp q "")
-  Left u'        -> E u' (tsingleton (runHttp . qApp q ))
+runHttp = interpret $ \case
+  (Open _) -> pure ()
+  Close    -> pure ()
+  (Post d) -> pure d
+  Get      -> pure ""
 
 --------------------------------------------------------------------------------
                           -- Free: Interpreter --
