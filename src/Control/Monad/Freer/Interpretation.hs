@@ -209,33 +209,3 @@ introduce4 :: Eff (eff ': r) a -> Eff (eff ': u ': v ':x ': y ': r) a
 introduce4 = hoistEff intro4
 {-# INLINE introduce4 #-}
 
-
-------------------------------------------------------------------------------
-
-{-# RULES
-
-"interpret/send"
-  forall (f :: f ~> g).
-    interpret (\e -> send (f e)) = natural f
-    ;
-
-"interpret/send/id pointfree"
-    interpret send = natural id
-    ;
-
-"interpret/send/id"
-    interpret (\e -> send e) = natural id
-    ;
-
--- "transform/transform"
---   forall (m :: Eff (eff1 ': eff2 ': r) a)
---          (lower1 :: forall m. Monad m => t1 m a -> m b)
---          (f1 :: eff1 ~> t1 (Eff (eff2 ': r)))
---          (lower2 :: forall m. Monad m => t2 m b -> m c)
---          (f2 :: eff2 ~> t2 (Eff r)).
---     transform lower2 f2 (transform lower1 f1 m) = transform (lower2 . lower1) (f2 . f1) m
---     ;
-
-#-}
-
-
