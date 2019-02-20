@@ -8,3 +8,4 @@ extra-deps:
 
 flags: {}
 extra-package-dbs: []
+allow-newer: true
