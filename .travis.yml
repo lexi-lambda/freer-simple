@@ -3,6 +3,9 @@ language: c
 cache:
   directories:
   - $HOME/.stack
+  - $HOME/.ghc
+  - $HOME/.cabal
+  - .stack-work
 
 # The different configurations we want to test.
 #
