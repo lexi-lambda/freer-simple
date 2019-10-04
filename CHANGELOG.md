@@ -1,3 +1,8 @@
+# 1.2.1.1 (October 4th, 2019)
+
+- Loosened bounds on `template-haskell` ([#29](https://github.com/lexi-lambda/freer-simple/issues/29)).
+- Made some minor internal changes to better support GHC 8.8.
+
 # 1.2.1.0 (November 15th, 2018)
 
 - Improved `makeEffect` from `Control.Monad.Freer.TH` to support more datatypes ([#17](https://github.com/lexi-lambda/freer-simple/pull/17)).
