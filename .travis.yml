@@ -10,33 +10,37 @@ cache:
 # cache file per set of arguments.
 matrix:
   include:
-  - env: ARGS="--resolver lts-7"
+  - env: ARGS="--stack-yaml=stack.ghc-8.4.yaml --resolver lts-7"
     compiler: ": #stack 8.0.1"
     addons: { apt: { packages: [libgmp-dev] } }
 
-  - env: ARGS="--resolver lts-8"
+  - env: ARGS="--stack-yaml=stack.ghc-8.4.yaml --resolver lts-8"
     compiler: ": #stack 8.0.2"
     addons: { apt: { packages: [libgmp-dev] } }
 
-  - env: ARGS="--resolver lts-10"
+  - env: ARGS="--stack-yaml=stack.ghc-8.4.yaml --resolver lts-10"
     compiler: ": #stack 8.2.1"
     addons: { apt: { packages: [libgmp-dev] } }
 
-  - env: ARGS="--resolver lts-11"
+  - env: ARGS="--stack-yaml=stack.ghc-8.4.yaml --resolver lts-11"
     compiler: ": #stack 8.2.2"
     addons: { apt: { packages: [libgmp-dev] } }
 
-  - env: ARGS="--resolver lts-12"
+  - env: ARGS="--stack-yaml=stack.ghc-8.4.yaml --resolver lts-12"
     compiler: ": #stack 8.4.4"
     addons: { apt: { packages: [libgmp-dev] } }
 
-  - env: ARGS="--resolver nightly"
+  - env: ARGS="--resolver lts-14"
+    compiler: ": #stack 8.6.5"
+    addons: { apt: { packages: [libgmp-dev] } }
+
+  - env: ARGS="--stack-yaml=stack.ghc-8.8.yaml --resolver nightly"
     compiler: ": #stack nightly"
     addons: { apt: { packages: [libgmp-dev] } }
 
   allow_failures:
   # Nightly builds are allowed to fail
-  - env: ARGS="--resolver nightly"
+  - env: ARGS="--stack-yaml=stack.ghc-8.8.yaml --resolver nightly"
 
 before_install:
 # Using compiler above sets CC to an invalid value, so unset it

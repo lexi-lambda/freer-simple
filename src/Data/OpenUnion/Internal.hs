@@ -32,11 +32,12 @@
 -- substitution for @Typeable@.
 module Data.OpenUnion.Internal where
 
+import Data.Kind (Type)
 import GHC.TypeLits (TypeError, ErrorMessage(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 -- | Open union is a strong sum (existential with an evidence).
-data Union (r :: [* -> *]) a where
+data Union (r :: [Type -> Type]) a where
   Union :: {-# UNPACK #-} !Word -> t a -> Union r a
 
 -- | Takes a request of type @t :: * -> *@, and injects it into the 'Union'.
@@ -76,7 +77,7 @@ newtype P t r = P {unP :: Word}
 -- prior to recursion, and it is used to produce better type errors.
 --
 -- This is essentially a compile-time computation without run-time overhead.
-class FindElem (t :: * -> *) (r :: [* -> *]) where
+class FindElem (t :: Type -> Type) (r :: [Type -> Type]) where
   -- | Position of the element @t :: * -> *@ in a type list @r :: [* -> *]@.
   --
   -- Position is computed during compilation, i.e. there is no run-time
@@ -96,7 +97,7 @@ instance {-# OVERLAPPABLE #-} FindElem t r => FindElem t (t' ': r) where
 
 -- | Instance resolution for this class fails with a custom type error
 -- if @t :: * -> *@ is not in the list @r :: [* -> *]@.
-class IfNotFound (t :: * -> *) (r :: [* -> *]) (w :: [* -> *])
+class IfNotFound (t :: Type -> Type) (r :: [Type -> Type]) (w :: [Type -> Type])
 
 -- | If we reach an empty list, that’s a failure, since it means the type isn’t
 -- in the list. For GHC >=8, we can render a custom type error that explicitly
@@ -128,7 +129,7 @@ instance {-# INCOHERENT #-} IfNotFound t r w
 -- @
 -- 'Member' ('Control.Monad.Freer.State.State' 'Integer') effs => 'Control.Monad.Freer.Eff' effs ()
 -- @
-class FindElem eff effs => Member (eff :: * -> *) effs where
+class FindElem eff effs => Member (eff :: Type -> Type) effs where
   -- This type class is used for two following purposes:
   --
   -- * As a @Constraint@ it guarantees that @t :: * -> *@ is a member of a

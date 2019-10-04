@@ -1,13 +1,11 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Trace (module Trace) where
 
-import Control.Applicative ((<$>), (<*>), pure)
-import Data.Function (($))
-import Data.Int (Int)
+#if !MIN_VERSION_base(4,11,0)
 import Data.Monoid ((<>))
-import System.IO (IO)
-import Text.Show (Show(show))
+#endif
 
 import Control.Monad.Freer (Eff, Member)
 import Control.Monad.Freer.Reader (ask, runReader)

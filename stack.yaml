@@ -1,10 +1,4 @@
-resolver: lts-12.18
-
-packages:
-- '.'
-
+resolver: lts-14.7
+packages: [.]
 extra-deps:
-- extensible-effects-3.1.0.0
-
-flags: {}
-extra-package-dbs: []
+- extensible-effects-5.0.0.1@sha256:2ed0bee04c8bf334358147da6d92ff31e9fbbefceb75ef3e408a0d858aec0cc6,9013

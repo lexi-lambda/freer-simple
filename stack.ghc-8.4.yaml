@@ -1,0 +1,4 @@
+resolver: lts-12.26
+packages: [.]
+extra-deps:
+- extensible-effects-3.1.0.0

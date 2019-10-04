@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- |
 -- Module:       Control.Monad.Freer.Writer
 -- Description:  Composable Writer effects.
@@ -19,7 +21,10 @@ module Control.Monad.Freer.Writer
   ) where
 
 import Control.Arrow (second)
+
+#if !MIN_VERSION_base(4,11,0)
 import Data.Monoid ((<>))
+#endif
 
 import Control.Monad.Freer.Internal (Eff, Member, handleRelay, send)
 
