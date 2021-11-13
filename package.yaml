@@ -57,7 +57,7 @@ library:
   dependencies:
   - natural-transformation >= 0.2
   - transformers-base
-  - template-haskell >= 2.11 && < 2.18
+  - template-haskell >= 2.11 && < 2.19
 
 executables:
   freer-examples:
