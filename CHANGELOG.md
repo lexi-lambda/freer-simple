@@ -1,3 +1,7 @@
+# 1.2.1.2 (January 7th, 2022)
+
+- Compatibility with `template-haskell` versions through 2.18 (which is distributed with GHC 9.2) ([#34](https://github.com/lexi-lambda/freer-simple/issues/34)).
+
 # 1.2.1.1 (October 4th, 2019)
 
 - Loosened bounds on `template-haskell` ([#29](https://github.com/lexi-lambda/freer-simple/issues/29)).
