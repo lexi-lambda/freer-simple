@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -121,7 +122,11 @@ genType (GadtC   _ tArgs' (AppT eff tRet)) = do
     resultType       = ConT ''Eff `AppT` VarT effs `AppT` tRet
 
   return
+#if MIN_VERSION_template_haskell(2,17,0)
+    .  ForallT [PlainTV effs SpecifiedSpec] [memberConstraint]
+#else
     .  ForallT [PlainTV effs] [memberConstraint]
+#endif
     .  foldArrows
     $  tArgs
     ++ [resultType]
@@ -141,8 +146,13 @@ simplifyBndrs t = t
 
 -- | Turn TvVarBndrs of the form (KindedTV tv StarT) into (PlainTV tv)
 -- This can prevent the need for KindSignatures
+#if MIN_VERSION_template_haskell(2,17,0)
+simplifyBndr :: TyVarBndrSpec -> TyVarBndrSpec
+simplifyBndr (KindedTV tv f StarT) = PlainTV tv f
+#else
 simplifyBndr :: TyVarBndr -> TyVarBndr
 simplifyBndr (KindedTV tv StarT) = PlainTV tv
+#endif
 simplifyBndr bndr = bndr
 
 -- | Generates a type signature of the form
