@@ -28,13 +28,13 @@ license-file: LICENSE
 homepage: https://github.com/lexi-lambda/freer-simple
 bug-reports: https://github.com/lexi-lambda/freer-simple/issues
 
-source-repository head
-  type: git
-  location: https://github.com/lexi-lambda/freer-simple
-
 extra-source-files:
   CHANGELOG.md
   README.md
+
+source-repository head
+  type: git
+  location: https://github.com/lexi-lambda/freer-simple
 
 common common
   ghc-options:

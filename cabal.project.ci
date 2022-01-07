@@ -1,0 +1,5 @@
+package freer-simple
+  ghc-options: -Werror
+  documentation: true
+  benchmarks: true
+  tests: true
