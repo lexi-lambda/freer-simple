@@ -1,4 +1,5 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 -- |
 -- Module:       Control.Monad.Freer.State
@@ -37,12 +38,19 @@ module Control.Monad.Freer.State
     -- * State Utilities
   , transactionState
   , transactionState'
+  , readonly
+  , focus
+  , appendonly
+  , example
   ) where
 
 import Data.Proxy (Proxy)
 
-import Control.Monad.Freer (Eff, Member, send)
+import Control.Monad.Freer (Eff, Member, send, type (~>), reinterpret, subsume)
 import Control.Monad.Freer.Internal (Arr, handleRelayS, interposeS)
+import Control.Monad.Freer.Reader (Reader(..), ask)
+import Control.Monad.Freer.Writer (Writer(..), tell)
+import Control.Lens
 
 -- | Strict 'State' effects: one can either 'Get' values or 'Put' them.
 data State s r where
@@ -113,3 +121,84 @@ transactionState'
   -> Eff effs a
 transactionState' _ = transactionState @s
 {-# INLINE transactionState' #-}
+
+readonly
+  :: forall s r effs
+   . Lens' s r
+  -> Eff (Reader r ': effs) ~> Eff (State s ': effs)
+readonly l =
+  reinterpret (\f -> do
+    s <- get
+    pure (readerAlg (view l s) f))
+ where
+  readerAlg :: r -> Reader r a -> a
+  readerAlg x f = case f of Ask -> x
+
+focus
+  :: forall s s' effs
+   . Lens' s s'
+  -> Eff (State s' ': effs) ~> Eff (State s ': effs)
+focus l =
+  reinterpret (\f -> do
+    s' <- get
+    let (a, t) = stateAlg f (view l s')
+    put (set l t s')
+    pure a)
+ where
+  stateAlg :: State s' a -> s' -> (a, s')
+  stateAlg f st =
+    case f of
+      Get   -> (st, st)
+      Put s -> ((), s)
+
+appendonly
+  :: forall s w effs
+   . Monoid w
+  => Lens' s w
+  -> Eff (Writer w ': effs) ~> Eff (State s ': effs)
+appendonly l =
+  reinterpret (\f -> do
+    let (a, w) = writerAlg f
+    modify (over l (mappend w))
+    pure a)
+ where
+  writerAlg :: Writer w a -> (a, w)
+  writerAlg f = case f of Tell x -> ((), x)
+
+{- EXAMPLE OF USING THE ABOVE -}
+
+data Foo = Foo
+data Bar = Bar
+data Baz = Baz
+
+data SomeState = SomeState {
+  _foo :: Foo,
+  _bar :: Bar,
+  _baz :: Baz
+}
+
+makeLenses ''SomeState
+
+instance Semigroup Baz where
+  Baz <> Baz = Baz
+
+instance Monoid Baz where
+  mappend = (<>)
+  mempty = Baz
+
+sample :: forall effs. Eff (Reader Foo ': State Bar ': Writer Baz ': effs) ()
+sample = do
+  Foo <- ask
+  put Bar
+  tell Baz
+
+example :: forall effs. Eff (State SomeState ': effs) ()
+example =
+  subsume
+    (focus baz
+        (appendonly id
+           (subsume
+              (focus bar
+                 (subsume
+                    (focus foo
+                       (readonly id sample)))))))
