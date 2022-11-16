@@ -5,6 +5,7 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE RoleAnnotations #-}
 
 -- |
 -- Module:       Data.OpenUnion.Internal
@@ -39,6 +40,8 @@ import Unsafe.Coerce (unsafeCoerce)
 -- | Open union is a strong sum (existential with an evidence).
 data Union (r :: [Type -> Type]) a where
   Union :: {-# UNPACK #-} !Word -> t a -> Union r a
+
+type role Union nominal nominal
 
 -- | Takes a request of type @t :: * -> *@, and injects it into the 'Union'.
 --
