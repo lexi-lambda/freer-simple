@@ -12,7 +12,7 @@
 -- Composable handler for 'State' effects. Handy for passing an updatable state
 -- through a computation.
 --
--- Some computations may not require the full power of 'State' effect:
+-- Some computations may not require the full power of the 'State' effect:
 --
 -- * For a read-only state, see "Control.Monad.Freer.Reader".
 -- * To accumulate a value without using it on the way, see
@@ -57,7 +57,7 @@ get = send Get
 put :: forall s effs. Member (State s) effs => s -> Eff effs ()
 put s = send (Put s)
 
--- | Modify the current state of type @s :: *@ using provided function
+-- | Modify the current state of type @s :: *@ using the provided function
 -- @(s -> s)@.
 modify :: forall s effs. Member (State s) effs => (s -> s) -> Eff effs ()
 modify f = fmap f get >>= put

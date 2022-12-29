@@ -10,8 +10,8 @@
 -- Portability:  GHC specific language extensions.
 --
 -- 'Writer' effects, for writing\/appending values (line count, list of
--- messages, etc.) to an output. Current value of 'Writer' effect output is not
--- accessible to the computation.
+-- messages, etc.) to an output. The current value of the 'Writer' effect output
+-- is not accessible to the computation.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Writer
