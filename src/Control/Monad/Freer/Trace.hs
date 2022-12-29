@@ -8,7 +8,7 @@
 -- Portability:  GHC specific language extensions.
 --
 -- Composable handler for 'Trace' effects. Trace allows one to debug the
--- operation of sequences of effects by outputing to the console.
+-- operation of sequences of effects by outputting to the console.
 --
 -- Using <http://okmij.org/ftp/Haskell/extensible/Eff1.hs> as a starting point.
 module Control.Monad.Freer.Trace

@@ -28,7 +28,7 @@ import Control.Monad.Freer.Internal
   , tsingleton
   )
 
--- | A handler for nondeterminstic effects.
+-- | A handler for nondeterministic effects.
 makeChoiceA
   :: Alternative f
   => Eff (NonDet ': effs) a
@@ -38,6 +38,8 @@ makeChoiceA = handleRelay (pure . pure) $ \m k ->
     MZero -> pure empty
     MPlus -> (<|>) <$> k True <*> k False
 
+-- | Attempt to split the nondeterministic computation into its
+-- first result and the remainder of the computation.
 msplit
   :: Member NonDet effs
   => Eff effs a

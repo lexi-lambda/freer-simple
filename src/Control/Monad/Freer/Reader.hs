@@ -41,7 +41,7 @@ data Reader r a where
 ask :: forall r effs. Member (Reader r) effs => Eff effs r
 ask = send Ask
 
--- | Request a value of the environment, and apply as selector\/projection
+-- | Request a value of the environment, and apply a selector\/projection
 -- function to it.
 asks
   :: forall r effs a
@@ -72,66 +72,65 @@ local f m = do
 --
 -- In this example the 'Reader' effect provides access to variable bindings.
 -- Bindings are a @Map@ of integer variables. The variable @count@ contains
--- number of variables in the bindings. You can see how to run a Reader effect
--- and retrieve data from it with 'runReader', how to access the Reader data
--- with 'ask' and 'asks'.
+-- the number of variables in the bindings. You can see how to run a @Reader@
+-- effect and retrieve data from it with 'runReader', and how to access the
+-- @Reader@ data with 'ask' and 'asks'.
 --
--- > import Control.Monad.Freer
--- > import Control.Monad.Freer.Reader
--- > import Data.Map as Map
--- > import Data.Maybe
--- >
--- > type Bindings = Map String Int
--- >
--- > -- Returns True if the "count" variable contains correct bindings size.
--- > isCountCorrect :: Bindings -> Bool
--- > isCountCorrect bindings = run $ runReader bindings calc_isCountCorrect
--- >
--- > -- The Reader effect, which implements this complicated check.
--- > calc_isCountCorrect :: Eff '[Reader Bindings] Bool
--- > calc_isCountCorrect = do
--- >   count <- asks (lookupVar "count")
--- >   bindings <- (ask :: Eff '[Reader Bindings] Bindings)
--- >   return (count == (Map.size bindings))
--- >
--- > -- The selector function to  use with 'asks'.
--- > -- Returns value of the variable with specified name.
--- > lookupVar :: String -> Bindings -> Int
--- > lookupVar name bindings = fromJust (Map.lookup name bindings)
--- >
--- > sampleBindings :: Map.Map String Int
--- > sampleBindings = Map.fromList [("count",3), ("1",1), ("b",2)]
--- >
--- > main :: IO ()
--- > main = putStrLn
--- >   $ "Count is correct for bindings " ++ show sampleBindings ++ ": "
--- >   ++ show (isCountCorrect sampleBindings)
+-- @
+-- import Control.Monad.Freer
+-- import Control.Monad.Freer.Reader 
+-- import Data.Map (Map, (!))
+-- import qualified Data.Map as Map
+--
+-- type Bindings = Map String Int
+-- 
+-- -- Returns whether the "count" variable contains the correct bindings size.
+-- isCountCorrect :: Bindings -> Bool
+-- isCountCorrect bindings = run $ 'runReader' bindings checkCount
+--
+-- -- The Reader effect, which implements this complicated check.
+-- checkCount :: 'Eff' \'['Reader' Bindings] Bool
+-- checkCount = do
+--   count <- 'asks' (lookupVar "count")
+--   bindings <- ('ask' :: Eff \'[Reader Bindings] Bindings)
+--   return (count == Map.size bindings)
+-- 
+-- -- The selector function to use with 'asks'.
+-- -- Returns the value of the variable with specified name.
+-- lookupVar :: String -> Bindings -> Int
+-- lookupVar name bindings = bindings ! name
+--
+-- sampleBindings :: Bindings
+-- sampleBindings = Map.fromList [("count", 3), ("1", 1), ("b", 2)]
+-- 
+-- main :: IO ()
+-- main = putStrLn
+--   $ "Count is correct for bindings " ++ show sampleBindings ++ ": "
+--   ++ show (isCountCorrect sampleBindings)
+-- @
 
 -- $localExample
 --
 -- Shows how to modify 'Reader' content with 'local'.
 --
--- > import Control.Monad.Freer
--- > import Control.Monad.Freer.Reader
--- >
--- > import Data.Map as Map
--- > import Data.Maybe
--- >
--- > type Bindings = Map String Int
--- >
--- > calculateContentLen :: Eff '[Reader String] Int
--- > calculateContentLen = do
--- >   content <- (ask :: Eff '[Reader String] String)
--- >   return (length content)
--- >
--- > -- Calls calculateContentLen after adding a prefix to the Reader content.
--- > calculateModifiedContentLen :: Eff '[Reader String] Int
--- > calculateModifiedContentLen = local ("Prefix " ++) calculateContentLen
--- >
--- > main :: IO ()
--- > main = do
--- >   let s = "12345"
--- >   let modifiedLen = run $ runReader s calculateModifiedContentLen
--- >   let len = run $ runReader s calculateContentLen
--- >   putStrLn $ "Modified 's' length: " ++ (show modifiedLen)
--- >   putStrLn $ "Original 's' length: " ++ (show len)
+-- @
+-- import Control.Monad.Freer
+-- import Control.Monad.Freer.Reader
+--
+-- calculateContentLen :: 'Eff' \'['Reader' String] Int
+-- calculateContentLen = do
+--   content <- ('ask' :: Eff \'[Reader String] String)
+--   return (length content)
+--
+-- -- Calls calculateContentLen after adding a prefix to the Reader content.
+-- calculateModifiedContentLen :: Eff \'[Reader String] Int
+-- calculateModifiedContentLen = 'local' ("Prefix " ++) calculateContentLen
+--
+-- main :: IO ()
+-- main = do
+--   let s = "12345"
+--   let modifiedLen = run $ 'runReader' s calculateModifiedContentLen
+--   let len = run $ runReader s calculateContentLen
+--   putStrLn $ "Modified \'s\' length: " ++ (show modifiedLen)
+--   putStrLn $ "Original \'s\' length: " ++ (show len)
+-- @

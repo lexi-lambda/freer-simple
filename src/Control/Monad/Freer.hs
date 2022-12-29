@@ -86,7 +86,7 @@ implemented in-memory in terms of 'Control.Monad.Freer.State.State'. With
 runInMemoryFileSystem :: [('FilePath', 'String')] -> 'Eff' (FileSystem ': effs) '~>' 'Eff' effs
 runInMemoryFileSystem initVfs = 'Control.Monad.Freer.State.evalState' initVfs '.' fsToState where
   fsToState :: 'Eff' (FileSystem ': effs) '~>' 'Eff' ('Control.Monad.Freer.State.State' [('FilePath', 'String')] ': effs)
-  fsToState = 'reinterpret' '$' \case
+  fsToState = 'reinterpret' '$' \\case
     ReadFile path -> 'Control.Monad.Freer.State.get' '>>=' \\vfs -> case 'lookup' path vfs of
       'Just' contents -> 'pure' contents
       'Nothing' -> 'error' ("readFile: no such file " ++ path)
