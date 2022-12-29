@@ -41,7 +41,7 @@ data Reader r a where
 ask :: forall r effs. Member (Reader r) effs => Eff effs r
 ask = send Ask
 
--- | Request a value of the environment, and apply as selector\/projection
+-- | Request a value of the environment, and apply a selector\/projection
 -- function to it.
 asks
   :: forall r effs a
