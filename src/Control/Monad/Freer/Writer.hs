@@ -28,7 +28,7 @@ import Data.Monoid ((<>))
 
 import Control.Monad.Freer.Internal (Eff, Member, handleRelay, send)
 
--- | Writer effects - send outputs to an effect environment.
+-- | Writer effects: send outputs to an effect environment.
 data Writer w r where
   Tell :: w -> Writer w ()
 
