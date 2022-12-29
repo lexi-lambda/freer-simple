@@ -358,7 +358,10 @@ raise = loop
 
 -- | A data type for representing nondeterministic choice.
 data NonDet a where
+  -- | Terminates the current branch of the computation.
   MZero :: NonDet a
+  -- | Splits the computation into two branches,
+  -- producing 'True' in one branch and 'False' in the other.
   MPlus :: NonDet Bool
 
 instance Member NonDet effs => Alternative (Eff effs) where
