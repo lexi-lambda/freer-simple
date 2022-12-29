@@ -28,7 +28,7 @@ import Control.Monad.Freer.Internal
   , tsingleton
   )
 
--- | A handler for nondeterminstic effects.
+-- | A handler for nondeterministic effects.
 makeChoiceA
   :: Alternative f
   => Eff (NonDet ': effs) a

@@ -356,7 +356,7 @@ raise = loop
                     -- Nondeterministic Choice --
 --------------------------------------------------------------------------------
 
--- | A data type for representing nondeterminstic choice.
+-- | A data type for representing nondeterministic choice.
 data NonDet a where
   MZero :: NonDet a
   MPlus :: NonDet Bool
