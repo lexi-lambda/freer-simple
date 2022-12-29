@@ -60,7 +60,7 @@ makeEffect = genFreer True
 --
 -- -- | Output a string.
 -- output :: Member Lang effs
---        => String    -- ^ String to output.
+--        => String       -- ^ String to output.
 --        -> Eff effs ()  -- ^ No result.
 -- @
 --
