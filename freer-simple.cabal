@@ -84,7 +84,7 @@ library
   build-depends:
     , natural-transformation >= 0.2
     , transformers-base
-    , template-haskell >= 2.11 && < 2.19
+    , template-haskell >= 2.11 && < 2.20
 
 executable freer-simple-examples
   import: common
